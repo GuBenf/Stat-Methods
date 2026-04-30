@@ -25,19 +25,27 @@ void lifetimeANA::Loop()
 //      root> t.Loop();       // Loop on all entries
 //
 
-  std::vector<double> v_M0_time_true;
 
-  std::array<std::vector<double>,50> time_bins;
-  std::array<std::vector<double>,50> eta_bins;
 
   // Create histograms
   TH1D *histo_data_MKpi    = new TH1D("histo_data_MKpi","",100,1.8,1.95);
   TH1D *histo_mc_MKpi      = new TH1D("histo_mc_MKpi","",100,1.8,1.95);
+  TH1D *histo_mc_time      = new TH1D("histo_mc_time","",100,0,10);
+  TH1D *histo_mc_time_true = new TH1D("histo_mc_time_true","",100,0,10);
 
-  TH1D *histo_mc_true_M0_time_true = new TH1D("histo_mc_true_M0_time_true","",50,0,4e-12);
+  TH1D *histo_mc_time_diff_meas_true = new TH1D("histo_mc_time_diff_meas_true","",200,-1,1);
+
+  std::array<TH1D*,10> histo_diff_mc_time_bins;
+
+  for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
+  {
+      histo_diff_mc_time_bins[h] = new TH1D(Form("histo_diff_mc_time_bin_%d",h),"",200,-1,1);
+  }
 
   histo_data_MKpi        ->Sumw2();
   histo_mc_MKpi          ->Sumw2();
+  histo_mc_time          ->Sumw2();
+  
   
   
 
@@ -55,45 +63,35 @@ void lifetimeANA::Loop()
       // #### My code #########
       if ( id==1){ //DATA
 	
-	//histo_data_MKpi ->Fill(M0_MKpi);
+	histo_data_MKpi ->Fill(M0_MKpi);
 	// Print out the Mpipi values
 	//std::cout <<M0_MKpi << std::endl;
 	
       }; //end DATA
       
       if (id==13){ //MC
-	//histo_mc_MKpi ->Fill(M0_MKpi);
+	histo_mc_MKpi ->Fill(M0_MKpi);
+	histo_mc_time->Fill(M0_time/(410.3e-15));
+      histo_mc_time_true->Fill(M0_time_true/(410.3e-15));
 
-      histo_mc_true_M0_time_true -> Fill(M0_time_true);
+      //to check time resolution
+      histo_mc_time_diff_meas_true->Fill( (M0_time-M0_time_true)/410.3e-15 );
 
-      v_M0_time_true.push_back(M0_time_true);
+      double time_diff = (M0_time-M0_time_true)/410.3e-15;
 
-      int i = 0;
-      double bin_width = 4e-12/50;
-
-      double theta1 = TMath::ACos(h1_pz/(std::sqrt(h1_px*h1_px + h1_py*h1_py + h1_pz*h1_pz)));
-      double theta2 = TMath::ACos(h2_pz/(std::sqrt(h2_px*h2_px + h2_py*h2_py + h2_pz*h2_pz)));
-
-      while(i < 50)
+      for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
       {
-
-            double min_bin = bin_width * i;
-            double max_bin = bin_width * (i+1);
-
-            if(M0_time_true < max_bin && M0_time_true >= min_bin)
+            //we scan from proper decay time 0 to 10 (in unit of 410.3 fs)
+            int bin_min = 10./histo_diff_mc_time_bins.size()*h; 
+            int bin_max = 10./histo_diff_mc_time_bins.size()*(h+1);
+            if(M0_time/410.3e-15 < bin_max && M0_time/410.3e-15 >= bin_min)
             {
-                  time_bins[i].push_back(theta1);
-                  time_bins[i].push_back(theta2);
-                  eta_bins[i].push_back(h1_eta);
-                  eta_bins[i].push_back(h2_eta);
-                  // std::cout << h1_eta<< " " << -TMath::Log(TMath::Tan(theta1/2)) <<endl;
-                  break;
+                  histo_diff_mc_time_bins[h]->Fill(time_diff);
             }
-
-            i++;
       }
 
-      //cout << M0_time_true << endl;
+      //to check if the time resolution varies as a function of the proper deacy time
+      //--> check difference between measured decay time and sim in bins of the proper decay time
 
 	//std::cout <<M0_MKpi << std::endl;
 	
@@ -102,72 +100,40 @@ void lifetimeANA::Loop()
    };// #### end loop over jentry
 
 
+   //here we should fit the histogram with the time difference to get the resolution -->
+   //Micheal said that we should not use ROOFit because it is easy to write the function in root and to use the Fitter examples :)
 
-      TH1D *theta_time_bin_low = new TH1D("theta_time_low_bin","",100,0,0.35);
-      TH1D *eta_time_bin_low = new TH1D("eta_time_low_bin","",100,1.5,4.5);
-      TH1D *theta_time_bin_high = new TH1D("theta_time_high_bin","",100,0,0.35);
-      TH1D *eta_time_bin_high = new TH1D("eta_time_high_bin","",100,1.5,4.5);
+   //here we should fit each of the 10 histograms to check the resolution as a function of the proper time -->
+
+   //check the acceptance as a function of the proper decay time 
+   // --> the empirical function will be 100 points with bins of proper time as x and the ratio between the proper time mc sim and meas
+   // --> almeno io ho capito così oggi in classe :)
+
+   TGraphErrors *acceptance = new TGraphErrors();
+
+   for(int bin = 0; bin < histo_mc_time->GetNbinsX(); bin ++)
+   {
+      double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
+
+      //is is ok to use the standard error propagation ? --> how about the errors on x ? 
+
+      // ratio = A/B
+
+      double A = histo_mc_time_true->GetBinContent(bin);
+      double sigmaA = histo_mc_time_true->GetBinError(bin);
+      double B = histo_mc_time->GetBinContent(bin);
+      double sigmaB = histo_mc_time->GetBinError(bin);
+
+      double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
+
+      //cout << ratio << " " << ratio_error << endl;
+
+      acceptance->SetPoint(bin,histo_mc_time_true->GetBinCenter(bin),ratio);
+      acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin),ratio_error);
+
+   } //non mi plotta bene il TGraph ma i valori ci sono, non mi ricordo come si faceva con SetPoint :)
 
 
-      for(int i = 0; i<time_bins[3].size(); i++)
-      {
-            theta_time_bin_low->Fill(time_bins[3][i]);
-            eta_time_bin_low->Fill(eta_bins[3][i]);
-
-      }
-
-      for(int i = 0; i<time_bins[30].size(); i++)
-      {
-            theta_time_bin_high->Fill(time_bins[30][i]);
-            eta_time_bin_high->Fill(eta_bins[30][i]);
-
-      }
-
-
-      ////////////////////////
-      ///    FIT      ////////
-      ////////////////////////
-      RooRealVar time("time", "M0 time true", 0., 5e-12);
-
-      RooDataSet data("data", "data", RooArgSet(time));
-
-      for(int i =0; i<int(v_M0_time_true.size()); i++)
-        {
-
-            time.setVal(v_M0_time_true[i]);
-            if(v_M0_time_true[i]<0){cout << v_M0_time_true[i] << endl;}
-            data.add(RooArgSet(time));
-        }
-
-      RooRealVar meanG("meanG", "Mean of Gaussian", 4e-13, 1e-13, 1e-12);
-      RooRealVar sigmaG("sigmaG", "Gaussian sigma", 5e-13, 1e-14, 1e-12);
-      RooGaussian gauss("gauss", "Gaussian PDF", time, meanG, sigmaG);
-
-      RooRealVar lambda("lambda", "lambda of the Exponential", -1./4.1e-13, -1./1e-13, -1./1e-11);
-      RooExponential exp("exp", "Exponential PDF", time, lambda);
-
-      RooFFTConvPdf gauss_exp("gauss_exp", "Exponential convoluted with Gaussian", time, exp, gauss);
-
-      RooFitResult* fitRes = gauss_exp.fitTo(data);
-
-      RooPlot* frame = time.frame();
-
-      data.plotOn(frame, RooFit::Name("data"));
- 
-      gauss_exp.plotOn(frame,RooFit::Name("fit"));
-      //gauss_exp.paramOn(frame);
-
-      TCanvas *c_fit = new TCanvas("c_fit","c_fit");
-      c_fit->cd();
-      frame->Draw();
-
-      TCanvas *c_res = new TCanvas("c_res","c_res");
-      c_res->cd();
-
-      RooHist *hresid = frame->residHist("data", "fit");
-      hresid->GetYaxis()->SetTitle("Data - Fit");
-      hresid->GetXaxis()->SetTitle("M0 time true");
-      hresid->Draw("AP"); 
 
    /*
     //Create Canvas
@@ -185,22 +151,33 @@ void lifetimeANA::Loop()
     c_histo_mc_MKpi->Print("./_fig/c_histo_mc_MKpi.pdf");
     c_histo_mc_MKpi->Print("./_fig/c_histo_mc_MKpi.eps");
 
+    //Create Canvas
+    TCanvas *c_histo_mc_time = new TCanvas("c_histo_mc_time","canvas histo",500,500);
+    c_histo_mc_time->cd();
+    histo_mc_time->Draw();
+    c_histo_mc_time->Print("./_fig/c_histo_mc_time.pdf");
+    c_histo_mc_time->Print("./_fig/c_histo_mc_time.eps");
 */
+
+
     
   //Create a new file to store histograms
    TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
+   histo_file->cd();
 
-   histo_mc_true_M0_time_true->Write();
-   theta_time_bin_low->Write();
-   eta_time_bin_low->Write();
-   theta_time_bin_high->Write();
-   eta_time_bin_high->Write();
+   histo_data_MKpi->Write();
+   histo_mc_MKpi->Write();
+   histo_mc_time->Write();
 
+   histo_mc_time_diff_meas_true->Write();
 
-   //histo_file->cd();
-   //histo_data_MKpi->Write();
-   //histo_mc_MKpi->Write();
-   //histo_file->Close();
-   
+   for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
+   {   
+      histo_diff_mc_time_bins[h] -> Write();
+   }
+
+   acceptance -> Write();
+
+   histo_file->Close();
 
 }
