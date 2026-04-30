@@ -28,6 +28,7 @@ void lifetimeANA::Loop()
   std::vector<double> v_M0_time_true;
 
   std::array<std::vector<double>,50> time_bins;
+  std::array<std::vector<double>,50> eta_bins;
 
   // Create histograms
   TH1D *histo_data_MKpi    = new TH1D("histo_data_MKpi","",100,1.8,1.95);
@@ -83,6 +84,9 @@ void lifetimeANA::Loop()
             {
                   time_bins[i].push_back(theta1);
                   time_bins[i].push_back(theta2);
+                  eta_bins[i].push_back(h1_eta);
+                  eta_bins[i].push_back(h2_eta);
+                  // std::cout << h1_eta<< " " << -TMath::Log(TMath::Tan(theta1/2)) <<endl;
                   break;
             }
 
@@ -99,11 +103,26 @@ void lifetimeANA::Loop()
 
 
 
-      TH1D *theta_time_bin = new TH1D("theta_time_bin","",100,0,0.35);
+      TH1D *theta_time_bin_low = new TH1D("theta_time_low_bin","",100,0,0.35);
+      TH1D *eta_time_bin_low = new TH1D("eta_time_low_bin","",100,1.5,4.5);
+      TH1D *theta_time_bin_high = new TH1D("theta_time_high_bin","",100,0,0.35);
+      TH1D *eta_time_bin_high = new TH1D("eta_time_high_bin","",100,1.5,4.5);
+
+
+      for(int i = 0; i<time_bins[3].size(); i++)
+      {
+            theta_time_bin_low->Fill(time_bins[3][i]);
+            eta_time_bin_low->Fill(eta_bins[3][i]);
+
+      }
+
       for(int i = 0; i<time_bins[30].size(); i++)
       {
-            theta_time_bin->Fill(time_bins[30][i]);
+            theta_time_bin_high->Fill(time_bins[30][i]);
+            eta_time_bin_high->Fill(eta_bins[30][i]);
+
       }
+
 
       ////////////////////////
       ///    FIT      ////////
@@ -172,7 +191,11 @@ void lifetimeANA::Loop()
    TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
 
    histo_mc_true_M0_time_true->Write();
-   theta_time_bin->Write();
+   theta_time_bin_low->Write();
+   eta_time_bin_low->Write();
+   theta_time_bin_high->Write();
+   eta_time_bin_high->Write();
+
 
    //histo_file->cd();
    //histo_data_MKpi->Write();
