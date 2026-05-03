@@ -111,9 +111,10 @@ void lifetimeANA::Loop()
 
    TGraphErrors *acceptance = new TGraphErrors();
 
-   for(int bin = 0; bin < histo_mc_time->GetNbinsX(); bin ++)
+   for(int bin = 1; bin < histo_mc_time->GetNbinsX()+1; bin ++)
    {
-      double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
+      // double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
+      double ratio = histo_mc_time->GetBinContent(bin)/histo_mc_time_true->GetBinContent(bin);
 
       //is is ok to use the standard error propagation ? --> how about the errors on x ? 
 
@@ -128,8 +129,10 @@ void lifetimeANA::Loop()
 
       //cout << ratio << " " << ratio_error << endl;
 
+      //Error on x: bin width/2, otherwise you get a doubled error
+
       acceptance->SetPoint(bin,histo_mc_time_true->GetBinCenter(bin),ratio);
-      acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin),ratio_error);
+      acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin)/2.0,ratio_error);
 
    } //non mi plotta bene il TGraph ma i valori ci sono, non mi ricordo come si faceva con SetPoint :)
 
@@ -159,7 +162,14 @@ void lifetimeANA::Loop()
     c_histo_mc_time->Print("./_fig/c_histo_mc_time.eps");
 */
 
+   TCanvas *c1 = new TCanvas("c1", "Acceptance", 800, 600);
 
+   acceptance->SetTitle("Acceptance;Time;Ratio");
+   acceptance->SetMarkerStyle(20);
+
+   acceptance->Draw("AP E1");  // axes + points + error bars
+
+   c1->Update();
     
   //Create a new file to store histograms
    TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
@@ -176,7 +186,7 @@ void lifetimeANA::Loop()
       histo_diff_mc_time_bins[h] -> Write();
    }
 
-   acceptance -> Write();
+   acceptance-> Write("acceptance_graph");
 
    histo_file->Close();
 
