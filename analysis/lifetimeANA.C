@@ -247,16 +247,18 @@ void lifetimeANA::Loop()
 
       for(int xi=0; xi<10000; xi++)
       {
-        double x = histo_diff_mc_time_bins[h]->GetMinimum() + xi * (histo_diff_mc_time_bins[h]->GetMaximum()-histo_diff_mc_time_bins[h]->GetMinimum())/10000;
+        double xmin = histo_diff_mc_time_bins[h]->GetXaxis()->GetXmin();
+        double xmax = histo_diff_mc_time_bins[h]->GetXaxis()->GetXmax();
+        
+        double x = xmin + xi * (xmax-xmin)/10000;
 
-        cout << x << endl;
-
+        // cout << x << endl;
         x_points.push_back(x);
         y_points.push_back(pdf_proj(&x,pars,histo_diff_mc_time_bins[h]->GetEntries(),histo_diff_mc_time_bins[h]->GetBinWidth(1)));
       }
 
       TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
-      //plot_f->GetXaxis()->SetLimits(-1,1);
+      plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
 
       TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
       c_plot->cd();
