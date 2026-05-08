@@ -23,9 +23,9 @@ std::array<std::vector<double>,10> timeDiffData;
 
 TRandom3 randGen(0);
 Double_t mA= -1.;
-// Double_t mB= 1.;
+Double_t mB= 1.;
 Double_t sA= 0.5;
-// Double_t sB= 0.5;
+Double_t sB= 0.5;
 
 
 
@@ -34,17 +34,17 @@ Double_t pdf(Double_t x, Double_t *par)
 
  Double_t _fA;
  Double_t _mA;
-//  Double_t _mB;
+ Double_t _mB;
  Double_t _sA;
-//  Double_t _sB;
+ Double_t _sB;
  
  _fA  = par[0];				
  _mA  = par[1];
-//  _mB  = par[2];
- _sA  = par[2];
-//  _sB  = par[4];
+ _mB  = par[2];
+ _sA  = par[3];
+ _sB  = par[4];
 
- Double_t value = _fA*(TMath::Gaus(x,_mA,_sA,1)); // + (1-_fA)*(TMath::Gaus(x,_mB,_sB,1));
+ Double_t value = _fA*(TMath::Gaus(x,_mA,_sA,1)) + (1-_fA)*(TMath::Gaus(x,_mB,_sB,1));
  return value;
 }
 
@@ -196,7 +196,7 @@ void lifetimeANA::Loop()
 
         // current active dataset
         xvar = timeDiffData[h];
-        TMinuit *my_gMinuit = new TMinuit(3);  //initialize TMinuit with a maximum of 5 params
+        TMinuit *my_gMinuit = new TMinuit(5);  //initialize TMinuit with a maximum of 5 params
         my_gMinuit->SetFCN(fcn);      // set the FCN
         
         Double_t arglist[2];
@@ -206,15 +206,15 @@ void lifetimeANA::Loop()
         // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
         
         // Set starting values and step sizes for parameters
-        Double_t vstart[3] = {1,  0.015  , 0.1 };
+        Double_t vstart[5] = {0.5,  0.015  , 0.1,  0.015  , 0.13};
         //Double_t vstart[5] = {0.53,  -0.34  , -0.2  , 0.014 , 0.017 };
-        Double_t step[3]   = {0.001, 0.001, 0.001};   //step 0 li rende costanti
+        Double_t step[5]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
      
         my_gMinuit->mnparm(0, "fA", vstart[0], step[0], 0., 1., ierflg);
         my_gMinuit->mnparm(1, "mA", vstart[1], step[1], 0., 0., ierflg);
-      //   my_gMinuit->mnparm(2, "mB", vstart[2], step[2], 0., 0., ierflg);
-        my_gMinuit->mnparm(2, "sA", vstart[2], step[2], 0., 0., ierflg);
-      //   my_gMinuit->mnparm(4, "sB", vstart[4], step[4], 0., 0., ierflg);
+        my_gMinuit->mnparm(2, "mB", vstart[2], step[2], 0., 0., ierflg);
+        my_gMinuit->mnparm(3, "sA", vstart[3], step[3], 0., 0., ierflg);
+        my_gMinuit->mnparm(4, "sB", vstart[4], step[4], 0., 0., ierflg);
         arglist[0] = 500.;//500;
         arglist[1] = 0.1;
 
@@ -227,23 +227,23 @@ void lifetimeANA::Loop()
         my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
         my_gMinuit->mnprin(3,amin);
    
-        Double_t val0, val1, val2, error0,error1,error2, bnd1, bnd2;
+        Double_t val0, val1, val2, val3, val4, error0,error1,error2, error3, error4, bnd1, bnd2;
         Int_t ivar=0;
         TString chnam;
         
         my_gMinuit->mnpout(0, chnam, val0, error0, bnd1, bnd2, ivar);
         my_gMinuit->mnpout(1, chnam, val1, error1, bnd1, bnd2, ivar);
         my_gMinuit->mnpout(2, chnam, val2, error2, bnd1, bnd2, ivar);
-      //   my_gMinuit->mnpout(3, chnam, val3, error3, bnd1, bnd2, ivar);
-      //   my_gMinuit->mnpout(4, chnam, val4, error4, bnd1, bnd2, ivar);
+        my_gMinuit->mnpout(3, chnam, val3, error3, bnd1, bnd2, ivar);
+        my_gMinuit->mnpout(4, chnam, val4, error4, bnd1, bnd2, ivar);
 
-      g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], val2);
-      g_resolution->SetPointError(h, 0.0, error2);
+      g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], val3);
+      g_resolution->SetPointError(h, 0.0, error3);
 
       std::vector<double> x_points;
       std::vector<double> y_points;
 
-      Double_t pars[3] = {val0,val1,val2};
+      Double_t pars[5] = {val0,val1,val2,val3,val4};
 
       for(int xi=0; xi<10000; xi++)
       {
@@ -259,6 +259,7 @@ void lifetimeANA::Loop()
 
       TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
       plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
+      plot_f->SetLineColor(kRed);
 
       TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
       c_plot->cd();
