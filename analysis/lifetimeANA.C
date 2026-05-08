@@ -27,6 +27,8 @@ Double_t mA= -1.;
 Double_t sA= 0.5;
 // Double_t sB= 0.5;
 
+
+
 Double_t pdf(Double_t x, Double_t *par)
 {
 
@@ -46,12 +48,9 @@ Double_t pdf(Double_t x, Double_t *par)
  return value;
 }
 
-Double_t pdf_proj(Double_t *x, Double_t *par, Int_t max)
+Double_t pdf_proj(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
 {
-  Double_t bin_width;
-  bin_width =0.01;
   return (max*bin_width)*pdf(x[0],par);
-
 }
 
 
@@ -67,6 +66,9 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
   };
    f= - 2. * Like;
 }
+
+//Create a new file to store histograms
+   TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
 
 void lifetimeANA::Loop()
 {
@@ -237,6 +239,32 @@ void lifetimeANA::Loop()
 
       g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], val2);
       g_resolution->SetPointError(h, 0.0, error2);
+
+      std::vector<double> x_points;
+      std::vector<double> y_points;
+
+      Double_t pars[3] = {val0,val1,val2};
+
+      for(int xi=0; xi<10000; xi++)
+      {
+        double x = histo_diff_mc_time_bins[h]->GetMinimum() + xi * (histo_diff_mc_time_bins[h]->GetMaximum()-histo_diff_mc_time_bins[h]->GetMinimum())/10000;
+
+        cout << x << endl;
+
+        x_points.push_back(x);
+        y_points.push_back(pdf_proj(&x,pars,histo_diff_mc_time_bins[h]->GetEntries(),histo_diff_mc_time_bins[h]->GetBinWidth(1)));
+      }
+
+      TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
+      //plot_f->GetXaxis()->SetLimits(-1,1);
+
+      TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
+      c_plot->cd();
+      plot_f->Draw();
+      histo_diff_mc_time_bins[h]->Draw("same");
+      histo_file->cd();
+      c_plot->Write();
+
     };
    
 //    Double_t matrix[5][5];
@@ -334,8 +362,7 @@ void lifetimeANA::Loop()
 
    c1->Update();
     
-  //Create a new file to store histograms
-   TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
+  
    histo_file->cd();
 
    histo_data_MKpi->Write();
