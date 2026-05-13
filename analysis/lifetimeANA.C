@@ -21,11 +21,53 @@ std::vector<double> xvar;
 // one vector for each proper-time bin
 std::array<std::vector<double>,10> timeDiffData;
 
-TRandom3 randGen(0);
-Double_t mA= -1.;
-Double_t mB= 1.;
-Double_t sA= 0.5;
-Double_t sB= 0.5;
+TRandom3 rnd(0);
+
+Double_t pdf_exp_x_gauss(Double_t x, Double_t *par)
+{
+   Double_t tau;
+   Double_t fA;
+   Double_t muA;
+   Double_t sigmaA;
+   Double_t fB;
+   Double_t muB;
+   Double_t sigmaB;
+
+   tau = par[0];
+   fA = par[1];
+   muA = par[2];
+   sigmaA = par[3];
+   fB = par[4];
+   muB = par[5];
+   sigmaB = par[6];
+
+   Double_t value = 1./(2*tau)*TMath::Exp((sigmaA*sigmaA - 2*tau*x)/(2*tau*tau))*( TMath::Erf((tau*x - sigmaA*sigmaA)/(TMath::Sqrt(2)*tau*sigmaA)) +1 );
+   return value;
+}
+
+
+int estrazione = 0;
+Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+
+TH2D *xy = new TH2D("xy","",100,0,10,100,0,1);
+TH1D *extracted_time = new TH1D("extracted_time","",100,0,1); 
+
+while(estrazione < 1e1)
+{
+   double sim_time = rnd.Uniform(0,10);
+   double y = rnd.Uniform();
+
+   cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
+
+   if(y < pdf_exp_x_gauss(sim_time,fixed_par))
+   {
+      xy->Fill(sim_time,y);
+      extracted_time->Fill(sim_time);
+   }
+
+   estrazione++;
+}
+
 
 
 
@@ -297,7 +339,8 @@ void lifetimeANA::Loop()
 //    fclose (file_cov);
    
 
-   //here we should fit each of the 10 histograms to check the resolution as a function of the proper time -->
+   
+
 
    //check the acceptance as a function of the proper decay time 
    // --> the empirical function will be 100 points with bins of proper time as x and the ratio between the proper time mc sim and meas
@@ -392,6 +435,11 @@ void lifetimeANA::Loop()
 
    g_resolution->Write("resolution_graph");
 
+   xy->Write();
+   extracted_time->Write();
+
    histo_file->Close();
+
+
 
 }
