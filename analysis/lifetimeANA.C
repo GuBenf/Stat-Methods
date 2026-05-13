@@ -46,31 +46,6 @@ Double_t pdf_exp_x_gauss(Double_t x, Double_t *par)
 }
 
 
-int estrazione = 0;
-Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
-
-TH2D *xy = new TH2D("xy","",100,0,10,100,0,1);
-TH1D *extracted_time = new TH1D("extracted_time","",100,0,1); 
-
-while(estrazione < 1e1)
-{
-   double sim_time = rnd.Uniform(0,10);
-   double y = rnd.Uniform();
-
-   cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
-
-   if(y < pdf_exp_x_gauss(sim_time,fixed_par))
-   {
-      xy->Fill(sim_time,y);
-      extracted_time->Fill(sim_time);
-   }
-
-   estrazione++;
-}
-
-
-
-
 Double_t pdf(Double_t x, Double_t *par)
 {
 
@@ -130,6 +105,9 @@ void lifetimeANA::Loop()
   TH1D *histo_mc_MKpi      = new TH1D("histo_mc_MKpi","",100,1.8,1.95);
   TH1D *histo_mc_time      = new TH1D("histo_mc_time","",100,0,10);
   TH1D *histo_mc_time_true = new TH1D("histo_mc_time_true","",100,0,10);
+  
+  TH2D *xy = new TH2D("xy","",100,0,10,100,0,1);
+  TH1D *extracted_time = new TH1D("extracted_time","",100,0,10); 
 
   TH1D *histo_mc_time_diff_meas_true = new TH1D("histo_mc_time_diff_meas_true","",200,-1,1);
 
@@ -169,8 +147,8 @@ void lifetimeANA::Loop()
       }; //end DATA
       
       if (id==13){ //MC
-	histo_mc_MKpi ->Fill(M0_MKpi);
-	histo_mc_time->Fill(M0_time/(410.3e-15));
+	   histo_mc_MKpi ->Fill(M0_MKpi);
+	   histo_mc_time->Fill(M0_time/(410.3e-15));
       histo_mc_time_true->Fill(M0_time_true/(410.3e-15));
 
       //to check time resolution
@@ -340,6 +318,25 @@ void lifetimeANA::Loop()
    
 
    
+    int estrazione = 0;
+    int eventi_buoni = 0;
+   Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+   while(eventi_buoni < 1e7)
+   {
+      double sim_time = rnd.Uniform(0,10);
+      double y = rnd.Uniform();
+
+      //cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
+
+      if(y < pdf_exp_x_gauss(sim_time,fixed_par))
+      {
+         xy->Fill(sim_time,y);
+         extracted_time->Fill(sim_time);
+         eventi_buoni++;
+      }
+
+      estrazione++;
+   }
 
 
    //check the acceptance as a function of the proper decay time 
@@ -414,6 +411,12 @@ void lifetimeANA::Loop()
    histo_data_MKpi->Write();
    histo_mc_MKpi->Write();
    histo_mc_time->Write();
+   histo_mc_time_true->Write();
+
+   histo_mc_time->Scale(1./histo_mc_time->Integral());
+   histo_mc_time->Write("histo_mc_time_norm");
+   histo_mc_time_true->Scale(1./histo_mc_time_true->Integral());
+   histo_mc_time_true->Write("histo_mc_time_true_norm");
 
    histo_mc_time_diff_meas_true->Write();
 
@@ -437,6 +440,8 @@ void lifetimeANA::Loop()
 
    xy->Write();
    extracted_time->Write();
+   extracted_time->Scale(1./extracted_time->Integral());
+   extracted_time->Write("extracted_time_norm");
 
    histo_file->Close();
 
