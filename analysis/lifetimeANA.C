@@ -283,8 +283,19 @@ void lifetimeANA::Loop()
 
       TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
       c_plot->cd();
+      plot_f->SetMarkerColor(kRed);
+      plot_f->SetLineColor(kRed);
+      plot_f->SetLineWidth(2);
+      plot_f -> GetXaxis() -> SetTitle("reco MC time - true MC time [fs/ 410.3 fs]");
+      plot_f -> GetYaxis() -> SetTitle("counts / 0.01");
       plot_f->Draw();
+      histo_diff_mc_time_bins[h]->SetLineColor(kBlue);
+      histo_diff_mc_time_bins[h]->SetLineWidth(2);
       histo_diff_mc_time_bins[h]->Draw("same");
+      TLegend * l = new TLegend();
+      l->AddEntry(histo_diff_mc_time_bins[h],"reco MC time - true MC time");
+      l->AddEntry(plot_f,"fit");
+      l->Draw();
       histo_file->cd();
       c_plot->Write();
 
@@ -347,17 +358,16 @@ void lifetimeANA::Loop()
 
    for(int bin = 1; bin < histo_mc_time->GetNbinsX()+1; bin ++)
    {
-      // double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
-      double ratio = histo_mc_time->GetBinContent(bin)/histo_mc_time_true->GetBinContent(bin);
+      double ratio = histo_mc_time->GetBinContent(bin)/extracted_time->GetBinContent(bin);
 
       //is is ok to use the standard error propagation ? --> how about the errors on x ? 
 
       // ratio = A/B
 
-      double A = histo_mc_time_true->GetBinContent(bin);
-      double sigmaA = histo_mc_time_true->GetBinError(bin);
-      double B = histo_mc_time->GetBinContent(bin);
-      double sigmaB = histo_mc_time->GetBinError(bin);
+      double A = histo_mc_time->GetBinContent(bin);
+      double sigmaA = histo_mc_time->GetBinError(bin);
+      double B = extracted_time->GetBinContent(bin);
+      double sigmaB = extracted_time->GetBinError(bin);
 
       double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
 
@@ -365,11 +375,10 @@ void lifetimeANA::Loop()
 
       //Error on x: bin width/2, otherwise you get a doubled error
 
-      acceptance->SetPoint(bin,histo_mc_time_true->GetBinCenter(bin),ratio);
-      acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin)/2.0,ratio_error);
+      acceptance->SetPoint(bin,histo_mc_time->GetBinCenter(bin),ratio);
+      acceptance->SetPointError(bin,histo_mc_time->GetBinWidth(bin)/2.0,ratio_error);
 
-   } //non mi plotta bene il TGraph ma i valori ci sono, non mi ricordo come si faceva con SetPoint :)
-
+   } 
 
 
    /*
@@ -398,7 +407,7 @@ void lifetimeANA::Loop()
 
    TCanvas *c1 = new TCanvas("c1", "Acceptance", 800, 600);
 
-   acceptance->SetTitle("Acceptance;Time;Ratio");
+   acceptance->SetTitle("Acceptance;Time [fs / 410.3 fs];Ratio");
    acceptance->SetMarkerStyle(20);
 
    acceptance->Draw("AP E1");  // axes + points + error bars
@@ -412,11 +421,6 @@ void lifetimeANA::Loop()
    histo_mc_MKpi->Write();
    histo_mc_time->Write();
    histo_mc_time_true->Write();
-
-   histo_mc_time->Scale(1./histo_mc_time->Integral());
-   histo_mc_time->Write("histo_mc_time_norm");
-   histo_mc_time_true->Scale(1./histo_mc_time_true->Integral());
-   histo_mc_time_true->Write("histo_mc_time_true_norm");
 
    histo_mc_time_diff_meas_true->Write();
 
@@ -440,8 +444,22 @@ void lifetimeANA::Loop()
 
    xy->Write();
    extracted_time->Write();
-   extracted_time->Scale(1./extracted_time->Integral());
-   extracted_time->Write("extracted_time_norm");
+   
+   TCanvas *D0_time_trigger_ON_OFF = new TCanvas("D0_time_trigger_ON_OFF");
+   D0_time_trigger_ON_OFF -> cd();
+   extracted_time -> SetLineColor(kBlue);
+   extracted_time -> SetLineWidth(2);
+   histo_mc_time -> SetLineColor(kRed);
+   histo_mc_time -> SetLineWidth(2);
+   extracted_time -> GetXaxis() -> SetTitle("time [fs / 410.3 fs]");
+   extracted_time -> GetYaxis() -> SetTitle("counts / 0.1");
+   extracted_time -> Draw();
+   histo_mc_time -> Draw("same");
+   TLegend *l = new TLegend();
+   l -> AddEntry(extracted_time,"simulated events");
+   l -> AddEntry(histo_mc_time, "D0 reco MC time");
+   l -> Draw("same");
+   D0_time_trigger_ON_OFF -> Write();
 
    histo_file->Close();
 
