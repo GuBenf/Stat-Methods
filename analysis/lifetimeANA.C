@@ -351,10 +351,10 @@ void lifetimeANA::Loop()
    Int_t mc_integral = histo_mc_time->Integral(17,70);
    Double_t norm_ratio = (Double_t)mc_integral/control_integral;
 
-    int estrazione2 = 0;
-    int eventi_buoni2 = 0;
-   // Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
-   while(eventi_buoni2 < 1e7*norm_ratio)
+   int estrazione2 = 0;
+   int eventi_buoni2 = 0;
+   // while(eventi_buoni2 < 1e7*norm_ratio)
+   while(eventi_buoni2 < 1e7)
    {
       double sim_time = rnd.Uniform(0,10);
       double y = rnd.Uniform();
