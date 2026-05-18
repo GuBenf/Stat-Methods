@@ -19,7 +19,7 @@ using namespace std;
 std::vector<double> xvar;
 
 // one vector for each proper-time bin
-std::array<std::vector<double>,10> timeDiffData;
+std::array<std::vector<double>,100> timeDiffData;
 
 TRandom3 rnd(0);
 
@@ -55,7 +55,8 @@ Double_t pdf(Double_t x, Double_t *par)
  Double_t _sA;
  Double_t _sB;
  
- _fA  = par[0];				
+//  _fA  = par[0];	
+ _fA  = 1;			
  _mA  = par[1];
  _mB  = par[2];
  _sA  = par[3];
@@ -107,12 +108,13 @@ void lifetimeANA::Loop()
   TH1D *histo_mc_time_true = new TH1D("histo_mc_time_true","",100,0,10);
   
   TH2D *xy = new TH2D("xy","",100,0,10,100,0,1);
+  TH1D *extracted_time_tmp = new TH1D("extracted_time_tmp","",100,0,10); 
   TH1D *extracted_time = new TH1D("extracted_time","",100,0,10); 
 
   TH1D *histo_mc_time_diff_meas_true = new TH1D("histo_mc_time_diff_meas_true","",200,-1,1);
 
-  std::array<TH1D*,10> histo_diff_mc_time_bins;
-  std::array<double,10> histo_diff_mc_time_bincenters;
+  std::array<TH1D*,100> histo_diff_mc_time_bins;
+  std::array<double,100> histo_diff_mc_time_bincenters;
 
   for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
   {
@@ -204,8 +206,14 @@ void lifetimeANA::Loop()
 //    arglist[1] = 0.1;
 
    TGraphErrors *g_resolution = new TGraphErrors();
+   g_resolution->SetMaximum(0.15);
+   g_resolution->SetMinimum(0.);
+
    for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
     {
+      // if(h>= 4 && h<60){
+      if(h>= 0 && h<100){
+
         cout << endl;
         cout << "=================================" << endl;
         cout << "FITTING TIME BIN " << h << endl;
@@ -226,7 +234,7 @@ void lifetimeANA::Loop()
         // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
         
         // Set starting values and step sizes for parameters
-        Double_t vstart[5] = {0.5,  0.015  , 0.1,  0.015  , 0.13};
+        Double_t vstart[5] = {1,  0.015  , 0.015,  0.1  , 0.13};
         //Double_t vstart[5] = {0.53,  -0.34  , -0.2  , 0.014 , 0.017 };
         Double_t step[5]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
      
@@ -288,7 +296,8 @@ void lifetimeANA::Loop()
       histo_file->cd();
       c_plot->Write();
 
-    };
+    }
+   };
    
 //    Double_t matrix[5][5];
 //    Int_t n=5;
@@ -317,7 +326,6 @@ void lifetimeANA::Loop()
 //    fclose (file_cov);
    
 
-   
     int estrazione = 0;
     int eventi_buoni = 0;
    Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
@@ -331,31 +339,84 @@ void lifetimeANA::Loop()
       if(y < pdf_exp_x_gauss(sim_time,fixed_par))
       {
          xy->Fill(sim_time,y);
-         extracted_time->Fill(sim_time);
+         extracted_time_tmp->Fill(sim_time);
          eventi_buoni++;
       }
 
       estrazione++;
    }
 
+   Int_t control_integral = extracted_time_tmp->Integral(17,70);
+   Double_t control_ratio = (Double_t)control_integral/1e7;
+   Int_t mc_integral = histo_mc_time->Integral(17,70);
+   Double_t norm_ratio = (Double_t)mc_integral/control_integral;
+
+    int estrazione2 = 0;
+    int eventi_buoni2 = 0;
+   // Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+   while(eventi_buoni2 < 1e7*norm_ratio)
+   {
+      double sim_time = rnd.Uniform(0,10);
+      double y = rnd.Uniform();
+
+      //cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
+
+      if(y < pdf_exp_x_gauss(sim_time,fixed_par))
+      {
+         xy->Fill(sim_time,y);
+         extracted_time->Fill(sim_time);
+         eventi_buoni2++;
+      }
+
+      estrazione2++;
+   }
+
+
 
    //check the acceptance as a function of the proper decay time 
    // --> the empirical function will be 100 points with bins of proper time as x and the ratio between the proper time mc sim and meas
    // --> almeno io ho capito così oggi in classe :)
+
+   // TGraphErrors *acceptance = new TGraphErrors();
+
+   // for(int bin = 1; bin < histo_mc_time->GetNbinsX()+1; bin ++)
+   // {
+   //    // double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
+   //    double ratio = histo_mc_time->GetBinContent(bin)/histo_mc_time_true->GetBinContent(bin);
+
+   //    //is is ok to use the standard error propagation ? --> how about the errors on x ? 
+
+   //    // ratio = A/B
+
+   //    double A = histo_mc_time_true->GetBinContent(bin);
+   //    double sigmaA = histo_mc_time_true->GetBinError(bin);
+   //    double B = histo_mc_time->GetBinContent(bin);
+   //    double sigmaB = histo_mc_time->GetBinError(bin);
+
+   //    double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
+
+   //    //cout << ratio << " " << ratio_error << endl;
+
+   //    //Error on x: bin width/2, otherwise you get a doubled error
+
+   //    acceptance->SetPoint(bin,histo_mc_time_true->GetBinCenter(bin),ratio);
+   //    acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin)/2.0,ratio_error);
+
+   // } //non mi plotta bene il TGraph ma i valori ci sono, non mi ricordo come si faceva con SetPoint :)
 
    TGraphErrors *acceptance = new TGraphErrors();
 
    for(int bin = 1; bin < histo_mc_time->GetNbinsX()+1; bin ++)
    {
       // double ratio = histo_mc_time_true->GetBinContent(bin)/histo_mc_time->GetBinContent(bin);
-      double ratio = histo_mc_time->GetBinContent(bin)/histo_mc_time_true->GetBinContent(bin);
+      double ratio = histo_mc_time->GetBinContent(bin)/extracted_time->GetBinContent(bin);
 
       //is is ok to use the standard error propagation ? --> how about the errors on x ? 
 
-      // ratio = A/B
+      // ratio = B/A
 
-      double A = histo_mc_time_true->GetBinContent(bin);
-      double sigmaA = histo_mc_time_true->GetBinError(bin);
+      double A = extracted_time->GetBinContent(bin);
+      double sigmaA = extracted_time->GetBinError(bin);
       double B = histo_mc_time->GetBinContent(bin);
       double sigmaB = histo_mc_time->GetBinError(bin);
 
@@ -365,8 +426,8 @@ void lifetimeANA::Loop()
 
       //Error on x: bin width/2, otherwise you get a doubled error
 
-      acceptance->SetPoint(bin,histo_mc_time_true->GetBinCenter(bin),ratio);
-      acceptance->SetPointError(bin,histo_mc_time_true->GetBinWidth(bin)/2.0,ratio_error);
+      acceptance->SetPoint(bin,extracted_time->GetBinCenter(bin),ratio);
+      acceptance->SetPointError(bin,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
 
    } //non mi plotta bene il TGraph ma i valori ci sono, non mi ricordo come si faceva con SetPoint :)
 
