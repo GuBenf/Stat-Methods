@@ -55,8 +55,8 @@ Double_t pdf(Double_t x, Double_t *par)
  Double_t _sA;
  Double_t _sB;
  
-//  _fA  = par[0];	
- _fA  = 1;			
+ _fA  = par[0];	
+//  _fA  = 1;			
  _mA  = par[1];
  _mB  = par[2];
  _sA  = par[3];
@@ -209,6 +209,11 @@ void lifetimeANA::Loop()
    g_resolution->SetMaximum(0.15);
    g_resolution->SetMinimum(0.);
 
+   TGraphErrors *g_resolution2 = new TGraphErrors();
+   g_resolution2->SetMaximum(0.3);
+   g_resolution2->SetMinimum(0.);
+
+
    for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
     {
       // if(h>= 4 && h<60){
@@ -234,7 +239,7 @@ void lifetimeANA::Loop()
         // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
         
         // Set starting values and step sizes for parameters
-        Double_t vstart[5] = {1,  0.015  , 0.015,  0.1  , 0.13};
+        Double_t vstart[5] = {1,  0.015  , 0.015,  0.09 , 0.13};
         //Double_t vstart[5] = {0.53,  -0.34  , -0.2  , 0.014 , 0.017 };
         Double_t step[5]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
      
@@ -267,6 +272,10 @@ void lifetimeANA::Loop()
 
       g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], val3);
       g_resolution->SetPointError(h, 0.0, error3);
+
+      g_resolution2->SetPoint(h, histo_diff_mc_time_bincenters[h], val4);
+      g_resolution2->SetPointError(h, 0.0, error4);
+
 
       std::vector<double> x_points;
       std::vector<double> y_points;
@@ -498,6 +507,19 @@ void lifetimeANA::Loop()
    g_resolution->Draw("AP E1");
 
    g_resolution->Write("resolution_graph");
+
+   g_resolution2->SetTitle(
+        "Resolution2 vs Proper Time;"
+        "Proper Time;"
+        "Resolution2"
+    );
+
+   g_resolution2->SetMarkerStyle(20);
+
+   g_resolution2->Draw("AP E1");
+
+   g_resolution2->Write("resolution2_graph");
+
 
    xy->Write();
    extracted_time->Write();
