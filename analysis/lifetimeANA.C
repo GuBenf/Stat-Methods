@@ -197,13 +197,21 @@ void lifetimeANA::Loop()
          //acceptance variation
          for(int lf = 0; lf < histo_mc_scaled.size(); lf++) 
          {
-            histo_mc_scaled[lf] -> Fill(mean_lives[lf]/norm_ml_D0*M0_time/410.3e-15);
+            double tau = 410.3e-15;
+            double new_tau = 410.3e-15 * mean_lives[lf];
+            double weight = (1./(new_tau)*TMath::Exp(-M0_time/new_tau)) / ((1./(tau)*TMath::Exp(-M0_time/tau)));
+            histo_mc_scaled[lf] -> Fill(M0_time/tau, weight);
          }
          
 
       }; //end MC
       
    };// #### end loop over jentry
+
+   for(int h = 0; h < histo_mc_scaled.size(); h++)
+   {
+      histo_mc_scaled[h]->Write();
+   }
    
    // TMinuit *my_gMinuit = new TMinuit(3);  //initialize TMinuit with a maximum of 5 params
    // my_gMinuit->SetFCN(fcn);      // set the FCN
@@ -417,6 +425,8 @@ void lifetimeANA::Loop()
 
          //Error on x: bin width/2, otherwise you get a doubled error
 
+         cout << bin << " " << histo_mean_lives[h]->GetBinCenter(bin) << " " << histo_mc_scaled[h]->GetBinContent(bin) << " " << histo_mean_lives[h]->GetBinContent(bin) << " " << ratio << endl;
+ 
          g_acceptance->SetPoint(bin-1,histo_mean_lives[h]->GetBinCenter(bin),ratio);
       }
       g_acceptances[h] = g_acceptance;
@@ -431,13 +441,13 @@ void lifetimeANA::Loop()
    c_acceptances_lives -> cd();
    TLegend *ll = new TLegend();
 
-   g_acceptances[0] -> GetYaxis()->SetLimits(0.,1);
-   g_acceptances[0]-> SetLineColor(colors[0]);
-   g_acceptances[0]-> Draw("ALP");
-   g_acceptances[0]-> SetMarkerSize(2);
-   ll->AddEntry(g_acceptances[0], labels[0].c_str());
+   g_acceptances[2] -> GetYaxis()->SetLimits(0.,1);
+   g_acceptances[2]-> SetLineColor(colors[2]);
+   g_acceptances[2]-> Draw("ALP");
+   g_acceptances[2]-> SetMarkerSize(2);
+   ll->AddEntry(g_acceptances[2], labels[2].c_str());
 
-   for(int h=1; h< g_acceptances.size(); h++)
+   for(int h=3; h< g_acceptances.size(); h++)
    {
       g_acceptances[h]-> SetLineColor(colors[h]);
       g_acceptances[h]-> SetMarkerSize(2);
