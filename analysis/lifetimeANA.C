@@ -113,6 +113,7 @@ void lifetimeANA::Loop()
 //
 
 
+  Double_t mean_lives[10] = {0.1, 0.5, 0.8, 1., 1.2, 1.5, 1.8, 2., 2.5, 3.};
 
   // Create histograms
   TH1D *histo_data_MKpi    = new TH1D("histo_data_MKpi","",100,1.8,1.95);
@@ -129,6 +130,14 @@ void lifetimeANA::Loop()
   std::array<TH1D*,100> histo_diff_mc_time_bins;
   std::array<double,100> histo_diff_mc_time_bincenters;
 
+  std::array<TH1D*,10> histo_mc_scaled;
+  std::array<TH1D*,10> histo_mean_lives;
+
+  for(int h = 0; h < histo_mc_scaled.size(); h++ )
+  {
+      histo_mc_scaled[h] = new TH1D(Form("histo_mc_scaled_ml_%.1f",mean_lives[h]),"",100,0,10);
+      histo_mean_lives[h] = new TH1D(Form("histo_ml_%.1f",mean_lives[h]),"",100,0,10);
+  }
 
 
   for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
@@ -140,7 +149,7 @@ void lifetimeANA::Loop()
   histo_mc_MKpi          ->Sumw2();
   histo_mc_time          ->Sumw2();
   
-  
+  double norm_ml_D0 = 1.;
   
 
    if (fChain == 0) return;
@@ -184,6 +193,13 @@ void lifetimeANA::Loop()
                   timeDiffData[h].push_back(time_diff);
             }
          }
+
+         //acceptance variation
+         for(int lf = 0; lf < histo_mc_scaled.size(); lf++) 
+         {
+            histo_mc_scaled[lf] -> Fill(mean_lives[lf]/norm_ml_D0*M0_time/410.3e-15);
+         }
+         
 
       }; //end MC
       
@@ -229,17 +245,18 @@ void lifetimeANA::Loop()
       // if(h>= 4 && h<60){
       if(h>= 0 && h<100)
       {
-         cout << endl;
-         cout << "=================================" << endl;
-         cout << "FITTING TIME BIN " << h << endl;
-         cout << "ENTRIES = "
-              << timeDiffData[h].size()
-              << endl;
-         cout << "=================================" << endl;
+         //cout << endl;
+         //cout << "=================================" << endl;
+         //cout << "FITTING TIME BIN " << h << endl;
+         //cout << "ENTRIES = "
+         //     << timeDiffData[h].size()
+         //     << endl;
+         //cout << "=================================" << endl;
 
          // current active dataset
          xvar = timeDiffData[h];
          TMinuit *my_gMinuit = new TMinuit(5);  //initialize TMinuit with a maximum of 5 params
+         gMinuit->SetPrintLevel(-1);
          my_gMinuit->SetFCN(fcn);      // set the FCN
         
          Double_t arglist[2];
@@ -304,16 +321,16 @@ void lifetimeANA::Loop()
             y_points.push_back(pdf_proj(&x,pars,histo_diff_mc_time_bins[h]->GetEntries(),histo_diff_mc_time_bins[h]->GetBinWidth(1)));
          }
 
-         TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
-         plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
-         plot_f->SetLineColor(kRed);
+         //TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
+         //plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
+         //plot_f->SetLineColor(kRed);
 
-         TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
-         c_plot->cd();
-         plot_f->Draw();
-         histo_diff_mc_time_bins[h]->Draw("same");
-         histo_file->cd();
-         c_plot->Write();
+         //TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
+         //c_plot->cd();
+         //plot_f->Draw();
+         //histo_diff_mc_time_bins[h]->Draw("same");
+         //histo_file->cd();
+         //c_plot->Write();
       }
    };
    
@@ -348,7 +365,89 @@ void lifetimeANA::Loop()
    // ACCEPTANCE
    /////////////////////////////
 
+   int estrazione = 0;
+   int eventi_buoni = 0;
+   Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+   Double_t fixed_par_h[7];
+   for (int k = 1; k < 7; k++) 
+   {
+      fixed_par_h[k] = fixed_par[k];
+   }
+   for(int hist=0; hist < histo_mean_lives.size(); hist++)
+   {
+      eventi_buoni = 0;
+      while(eventi_buoni < 1e7)
+      {
+         fixed_par_h[0] = mean_lives[hist];
 
+         double sim_time = rnd.Uniform(0,10);
+         double y = rnd.Uniform(0,1.0/fixed_par_h[0]);
+
+         //cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
+
+         if(y < pdf_exp_x_gauss(sim_time,fixed_par_h))
+         {
+            // xy->Fill(sim_time,y);
+            // extracted_time_tmp->Fill(sim_time);
+            histo_mean_lives[hist]->Fill(sim_time);
+            eventi_buoni++;
+         }
+         estrazione++;
+      }
+   }
+
+   std::array<TGraph*, 10> g_acceptances;
+   for(int h=0; h< g_acceptances.size(); h++)
+   {
+      TGraph *g_acceptance = new TGraph();
+      g_acceptance->SetName(Form("g_acceptance_%g", mean_lives[h]));
+
+      for(int bin = 1; bin < histo_mean_lives[h]->GetNbinsX()+1; bin ++)
+      {
+         double ratio = histo_mc_scaled[h]->GetBinContent(bin)/histo_mean_lives[h]->GetBinContent(bin);
+
+         // ratio = A/B
+
+         double A = histo_mc_scaled[h]->GetBinContent(bin);
+         double sigmaA = histo_mc_scaled[h]->GetBinError(bin);
+         double B = histo_mean_lives[h]->GetBinContent(bin);
+         double sigmaB = histo_mean_lives[h]->GetBinError(bin);
+
+         double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
+
+         //Error on x: bin width/2, otherwise you get a doubled error
+
+         g_acceptance->SetPoint(bin-1,histo_mean_lives[h]->GetBinCenter(bin),ratio);
+      }
+      g_acceptances[h] = g_acceptance;
+
+   }
+   std::array<Color_t,10> colors = {kOrange, kRed, kPink+1, kBlack, kMagenta, kViolet+1, kBlue,kCyan, kGreen, kAzure+7};
+   std::array<std::string, 10> labels;
+
+   for(int h = 0; h < labels.size(); h++){ labels[h] = Form("Mean life: %.1f", mean_lives[h]); }
+   
+   TCanvas *c_acceptances_lives = new TCanvas("acceptance_lives","");
+   c_acceptances_lives -> cd();
+   TLegend *ll = new TLegend();
+
+   g_acceptances[0] -> GetYaxis()->SetLimits(0.,1);
+   g_acceptances[0]-> SetLineColor(colors[0]);
+   g_acceptances[0]-> Draw("ALP");
+   g_acceptances[0]-> SetMarkerSize(2);
+   ll->AddEntry(g_acceptances[0], labels[0].c_str());
+
+   for(int h=1; h< g_acceptances.size(); h++)
+   {
+      g_acceptances[h]-> SetLineColor(colors[h]);
+      g_acceptances[h]-> SetMarkerSize(2);
+      g_acceptances[h]-> Draw("SAME");
+      ll -> AddEntry(g_acceptances[h], (labels[h]).c_str());
+   }
+   ll->Draw("same");
+   c_acceptances_lives->Update();
+
+   /*
    std::array<TH1D*,10> histo_mean_lives;
    std::array<TH1D*,10> histo_mc_scaled;
 
@@ -357,38 +456,40 @@ void lifetimeANA::Loop()
    Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
    Double_t mean_lives[10] = {0.1, 0.5, 0.8, 1., 1.2, 1.5, 1.8, 2., 2.5, 3.};
    Double_t fixed_par_h[7];
-   for (int k = 1; k < 7; k++) {
+   for (int k = 1; k < 7; k++) 
+   {
       fixed_par_h[k] = fixed_par[k];
    }
 
    for(int h = 0; h < histo_mean_lives.size(); h++)
    {
-         histo_mean_lives[h] = new TH1D(Form("histo_mean_lives_%g",mean_lives[h]),"",200,0,10);
+         histo_mean_lives[h] = new TH1D(Form("histo_mean_lives_%g",mean_lives[h]),"",100,0,10);
          histo_mc_scaled[h] = (TH1D*)histo_mc_time->Clone(Form("histo_mc_scaled%g",mean_lives[h]));
    }
 
-   for(int hist=0; hist < histo_mean_lives.size(); hist++){
-      eventi_buoni = 0;
-   while(eventi_buoni < 1e7)
+   for(int hist=0; hist < histo_mean_lives.size(); hist++)
    {
-      fixed_par_h[0] = mean_lives[hist];
-
-      double sim_time = rnd.Uniform(0,10);
-      double y = rnd.Uniform(0,1.0/fixed_par_h[0]);
-
-      //cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
-
-      if(y < pdf_exp_x_gauss(sim_time,fixed_par_h))
+      eventi_buoni = 0;
+      while(eventi_buoni < 1e7)
       {
-         // xy->Fill(sim_time,y);
-         // extracted_time_tmp->Fill(sim_time);
-         histo_mean_lives[hist]->Fill(sim_time);
-         eventi_buoni++;
-      }
+         fixed_par_h[0] = mean_lives[hist];
 
-      estrazione++;
+         double sim_time = rnd.Uniform(0,10);
+         double y = rnd.Uniform(0,1.0/fixed_par_h[0]);
+
+         //cout << sim_time << " " << y << " " << pdf_exp_x_gauss(sim_time,fixed_par) << endl;
+
+         if(y < pdf_exp_x_gauss(sim_time,fixed_par_h))
+         {
+            // xy->Fill(sim_time,y);
+            // extracted_time_tmp->Fill(sim_time);
+            histo_mean_lives[hist]->Fill(sim_time);
+            eventi_buoni++;
+         }
+         estrazione++;
+      }
    }
-   }
+   */
 
    // Int_t control_integral = extracted_time_tmp->Integral(17,70);
    // Double_t control_ratio = (Double_t)control_integral/1e7;
@@ -397,7 +498,9 @@ void lifetimeANA::Loop()
 
    int estrazione2 = 0;
    int eventi_buoni2 = 0;
+
    // while(eventi_buoni2 < 1e7*norm_ratio)
+
    while(eventi_buoni2 < 1e7)
    {
       double sim_time = rnd.Uniform(0,10);
@@ -415,87 +518,90 @@ void lifetimeANA::Loop()
       estrazione2++;
    }
    
+   /*
+   cout << endl << "////////////////  ACCEPTANCE DEPENDENCE  ////////////////" << endl;
+
    std::array<TGraphErrors*, 10> g_ratios;
    std::array<TGraph*, 10> g_acceptances;
 
-
-   for(int h=0; h< g_ratios.size(); h++){
+   for(int h=0; h< g_ratios.size(); h++)
+   {
       TGraphErrors *g_ratio = new TGraphErrors();
-      TGraph *g_acceptance = new TGraphErrors();
+      TGraph *g_acceptance = new TGraph();
 
       g_ratio->SetName(Form("g_ratio_lives_%g", mean_lives[h]));
       g_acceptance->SetName(Form("g_acceptance_%g", mean_lives[h]));
 
       for(int bin = 1; bin < histo_mean_lives[h]->GetNbinsX()+1; bin ++)
-   {
-      double ratio = histo_mean_lives[h]->GetBinContent(bin)/extracted_time->GetBinContent(bin);
-      histo_mc_scaled[h]->SetBinContent(bin, histo_mc_scaled[h]->GetBinContent(bin)*ratio);
-      double ratio_mc = histo_mean_lives[h]->GetBinContent(bin)/histo_mc_scaled->GetBinContent(bin);
+      {
+         double ratio = histo_mean_lives[h]->GetBinContent(bin)/extracted_time->GetBinContent(bin);
+         double scaled_bin = histo_mc_scaled[h]->GetBinContent(bin)*ratio;
+         histo_mc_scaled[h]->SetBinContent(bin, scaled_bin);
+         double ratio_mc = histo_mc_scaled[h]->GetBinContent(bin)/histo_mean_lives[h]->GetBinContent(bin);
 
+         //is is ok to use the standard error propagation ? --> how about the errors on x ? 
 
-      //is is ok to use the standard error propagation ? --> how about the errors on x ? 
+         // ratio = B/A
 
-      // ratio = B/A
+         double A = extracted_time->GetBinContent(bin);
+         double sigmaA = extracted_time->GetBinError(bin);
+         double B = histo_mean_lives[h]->GetBinContent(bin);
+         double sigmaB = histo_mean_lives[h]->GetBinError(bin);
 
-      double A = extracted_time->GetBinContent(bin);
-      double sigmaA = extracted_time->GetBinError(bin);
-      double B = histo_mean_lives[h]->GetBinContent(bin);
-      double sigmaB = histo_mean_lives[h]->GetBinError(bin);
+         double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
 
-      double ratio_error = ratio * TMath::Sqrt(std::pow(sigmaA/A,2) + std::pow(sigmaB/B,2)); //--> covariance ? 
+         //Error on x: bin width/2, otherwise you get a doubled error
 
-      //Error on x: bin width/2, otherwise you get a doubled error
+         g_ratio->SetPoint(bin-1,extracted_time->GetBinCenter(bin),ratio);
+         g_ratio->SetPointError(bin-1,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
 
-      g_ratio->SetPoint(bin,extracted_time->GetBinCenter(bin),ratio);
-      g_ratio->SetPointError(bin,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
+         g_acceptance->SetPoint(bin-1,extracted_time->GetBinCenter(bin),ratio_mc);
+      } 
 
-      g_acceptance->SetPoint(bin,extracted_time->GetBinCenter(bin),ratio_mc);
-
-   } 
+      g_ratios[h] = g_ratio;
+      g_acceptances[h] = g_acceptance;
    }
 
    std::array<Color_t,10> colors = {kOrange, kRed, kPink+1, kBlack, kMagenta, kViolet+1, kBlue,kCyan, kGreen, kAzure+7};
    std::array<std::string, 10> labels;
 
-   for(int h = 0; h < labels.size(); h++)
-   {   
-      std::string s = std::format("{:.1f}", mean_lives[h]);
-
-      labels[h] = ("Mean life: " + s);
-   }
-
+   for(int h = 0; h < labels.size(); h++){ labels[h] = Form("Mean life: %.1f", mean_lives[h]); }
 
    TCanvas *c_ratio_lives = new TCanvas("ratio_lives","");
    c_ratio_lives -> cd();
    TLegend *l = new TLegend();
-   g_ratios[0]-> Draw("A");
-   g_ratios[0]-> SetLineColor(colors[0]);
 
+   g_ratios[0]-> SetLineColor(colors[0]);
+   g_ratios[0]-> Draw("ALP");
    l->AddEntry(g_ratios[0], labels[0].c_str());
 
-   for(int h=1; h< g_ratios.size(); h++){
-      g_ratios[h]-> Draw("same");
+   for(int h=1; h< g_ratios.size(); h++)
+   {
       g_ratios[h]-> SetLineColor(colors[h]);
-
+      g_ratios[h]-> Draw("SAME");
       l -> AddEntry(g_ratios[h], (labels[h]).c_str());
-
    }
+   l->Draw("same");
+   c_ratio_lives->Update();
 
+   
    TCanvas *c_acceptances_lives = new TCanvas("acceptance_lives","");
    c_acceptances_lives -> cd();
-   TLegend *l = new TLegend();
-   g_acceptances[0]-> Draw("A");
+   TLegend *ll = new TLegend();
+
    g_acceptances[0]-> SetLineColor(colors[0]);
+   g_acceptances[0]-> Draw("ALP");
+   ll->AddEntry(g_acceptances[0], labels[0].c_str());
 
-   l->AddEntry(g_acceptances[0], labels[0].c_str());
-
-   for(int h=1; h< g_acceptances.size(); h++){
-      g_acceptances[h]-> Draw("same");
+   for(int h=1; h< g_acceptances.size(); h++)
+   {
       g_acceptances[h]-> SetLineColor(colors[h]);
-
-      l -> AddEntry(g_acceptances[h], (labels[h]).c_str());
-
+      g_acceptances[h]-> Draw("SAME");
+      ll -> AddEntry(g_acceptances[h], (labels[h]).c_str());
    }
+   ll->Draw("same");
+   c_acceptances_lives->Update();
+   */
 
 
    TGraphErrors *acceptance = new TGraphErrors();
@@ -517,10 +623,10 @@ void lifetimeANA::Loop()
 
       //Error on x: bin width/2, otherwise you get a doubled error
 
-      cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
+      //cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
 
-      acceptance->SetPoint(bin,extracted_time->GetBinCenter(bin),ratio);
-      acceptance->SetPointError(bin,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
+      acceptance->SetPoint(bin-1,extracted_time->GetBinCenter(bin),ratio);
+      acceptance->SetPointError(bin-1,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
 
    } 
 
@@ -607,7 +713,7 @@ void lifetimeANA::Loop()
 
    for(int h = 0; h < histo_mean_lives.size(); h++)
    {   
-      std::string s = std::format("{:.1f}", mean_lives[h]);
+      std::string s = Form("%.1f", mean_lives[h]);
 
       histo_mean_lives[h] -> Write(("Mean life: " + s).c_str());
    }
@@ -645,7 +751,7 @@ void lifetimeANA::Loop()
 
    c_acceptance_fit -> Write();
 
-   c_ratio_lives->Write();
+   //c_ratio_lives->Write();
    c_acceptances_lives->Write();
 
    histo_file->Close();
