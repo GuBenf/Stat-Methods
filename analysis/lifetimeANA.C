@@ -19,7 +19,7 @@ using namespace std;
 std::vector<double> xvar;
 
 // one vector for each proper-time bin
-std::array<std::vector<double>,100> timeDiffData;
+std::array<std::vector<double>,25> timeDiffData;
 
 TRandom3 rnd(0);
 
@@ -87,11 +87,21 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
 
 Double_t acceptance_func(Double_t *x, Double_t *par)
 {
-   Double_t f;
-   if(x[0] > 0.5) f = par[0]*(1 + TMath::Erf((TMath::Power(x[0],par[3]) - par[1])/par[2]));
-   else f = 0;
-   return f;
+    Double_t xx = x[0];
+
+    Double_t term1 = par[0] * TMath::Erf((xx - par[1]) / par[2]);
+    Double_t term2 = par[3] * TMath::Erf((xx - par[4]) / par[5]);
+
+    return term1 + term2 + par[6];
 }
+
+
+// Double_t acceptance_func(Double_t *x, Double_t *par)
+// {
+//    Double_t f;
+//    f = par[0]*(1 + TMath::Erf((x[0] - par[1])/par[2]) + par[5]*TMath::Erf(x[0]- par[3])/par[4]);
+//    return f;
+// }
 
 // p0   =    0.0579004   +/-   0.000312769 
 // p1   =      1.15429   +/-   0.13716     
@@ -127,8 +137,8 @@ void lifetimeANA::Loop()
 
   TH1D *histo_mc_time_diff_meas_true = new TH1D("histo_mc_time_diff_meas_true","",200,-1,1);
 
-  std::array<TH1D*,100> histo_diff_mc_time_bins;
-  std::array<double,100> histo_diff_mc_time_bincenters;
+  std::array<TH1D*,25> histo_diff_mc_time_bins;
+  std::array<double,25> histo_diff_mc_time_bincenters;
 
   std::array<TH1D*,10> histo_mc_scaled;
   std::array<TH1D*,10> histo_mean_lives;
@@ -251,7 +261,7 @@ void lifetimeANA::Loop()
    for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
    {
       // if(h>= 4 && h<60){
-      if(h>= 0 && h<100)
+      if(h>= 0 && h<25)
       {
          //cout << endl;
          //cout << "=================================" << endl;
@@ -274,7 +284,7 @@ void lifetimeANA::Loop()
          // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
         
          // Set starting values and step sizes for parameters
-         Double_t vstart[5] = {1,  0.015  , 0.015,  0.09 , 0.13};
+         Double_t vstart[5] = {0.5,  0.015  , 0.015,  0.09 , 0.13};
          //Double_t vstart[5] = {0.53,  -0.34  , -0.2  , 0.014 , 0.017 };
          Double_t step[5]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
      
@@ -305,10 +315,29 @@ void lifetimeANA::Loop()
          my_gMinuit->mnpout(3, chnam, val3, error3, bnd1, bnd2, ivar);
          my_gMinuit->mnpout(4, chnam, val4, error4, bnd1, bnd2, ivar);
 
-         g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], val3);
-         g_resolution->SetPointError(h, 0.0, error3);
+         double mu = val0*val1 + (1.0-val0)*val2;
+         double sigmaEff2_gen = val0*(val3*val3 + (val1-mu)*(val1-mu)) + (1.0-val0)*(val4*val4 + (val2-mu)*(val2-mu));
+         double f  = val0;
+         double sA = val3;
+         double sB = val4;
 
-         g_resolution2->SetPoint(h, histo_diff_mc_time_bincenters[h], val4);
+         double df  = error0;
+         double dsA = error3;
+         double dsB = error4;
+
+         double sigmaEff2 = f*sA*sA + (1.0-f)*sB*sB;
+
+         double errSigmaEff2 = sqrt((sA*sA - sB*sB)*(sA*sA - sB*sB)*df*df +(2.0*f*sA)*(2.0*f*sA)*dsA*dsA +(2.0*(1.0-f)*sB)*(2.0*(1.0-f)*sB)*dsB*dsB);
+         double sigmaEff = sqrt(sigmaEff2);
+         double sigmaEff_gen = sqrt(sigmaEff2_gen);
+
+
+         double errSigmaEff = errSigmaEff2/(2.0*sigmaEff);         
+
+         g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff);
+         g_resolution->SetPointError(h, 0.0, errSigmaEff);
+
+         g_resolution2->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff_gen);
          g_resolution2->SetPointError(h, 0.0, error4);
 
 
@@ -425,7 +454,7 @@ void lifetimeANA::Loop()
 
          //Error on x: bin width/2, otherwise you get a doubled error
 
-         cout << bin << " " << histo_mean_lives[h]->GetBinCenter(bin) << " " << histo_mc_scaled[h]->GetBinContent(bin) << " " << histo_mean_lives[h]->GetBinContent(bin) << " " << ratio << endl;
+         // cout << bin << " " << histo_mean_lives[h]->GetBinCenter(bin) << " " << histo_mc_scaled[h]->GetBinContent(bin) << " " << histo_mean_lives[h]->GetBinContent(bin) << " " << ratio << endl;
  
          g_acceptance->SetPoint(bin-1,histo_mean_lives[h]->GetBinCenter(bin),ratio);
       }
@@ -633,7 +662,7 @@ void lifetimeANA::Loop()
 
       //Error on x: bin width/2, otherwise you get a doubled error
 
-      //cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
+      cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
 
       acceptance->SetPoint(bin-1,extracted_time->GetBinCenter(bin),ratio);
       acceptance->SetPointError(bin-1,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
@@ -645,14 +674,36 @@ void lifetimeANA::Loop()
    cout << "/////////////////////////////" << endl;
    cout << "START ACCEPTANCE FIT" << endl;
 
-   TF1 *acceptance_tf1 = new TF1("acceptance_tf1",acceptance_func,0,10,4);
-   acceptance_tf1 -> SetParameter(0,0.05); //--> accettanza è definita a meno di una costante moltiplicativa
-   acceptance_tf1 -> SetParameter(1,0.9);
-   acceptance_tf1 -> SetParameter(2,0.25);
-   acceptance_tf1 -> SetParameter(3,0.6);
+   TF1 *acceptance_tf1 = new TF1(
+      "acceptance_tf1",
+      acceptance_func,
+      0,
+      10,
+      7
+   );
 
-   acceptance -> Fit(acceptance_tf1,"","",0.,10);
+   // Initial parameters
+   acceptance_tf1->SetParameter(0, 0.022862); // a1
+   acceptance_tf1->SetParameter(1, 1.044671); // x1
+   acceptance_tf1->SetParameter(2, 0.500082); // w1
 
+   acceptance_tf1->SetParameter(3, 0.035346); // a2
+   acceptance_tf1->SetParameter(4, 0.659146); // x2
+   acceptance_tf1->SetParameter(5, 0.187566); // w2
+
+   acceptance_tf1->SetParameter(6, 0.057166); // c
+
+   // Optional: parameter names
+   acceptance_tf1->SetParNames(
+      "a1", "x1", "w1",
+      "a2", "x2", "w2",
+      "c"
+   );
+
+   // Perform fit
+   acceptance->Fit(acceptance_tf1, "", "", 0., 10.);
+
+   // Fit quality
    Double_t fit_chi2 = acceptance_tf1->GetChisquare();
    Int_t    fit_ndof = acceptance_tf1->GetNDF();
    Double_t fit_prob = acceptance_tf1->GetProb();
@@ -661,12 +712,18 @@ void lifetimeANA::Loop()
    cout << "ndof = " << fit_ndof << endl;
    cout << "prob = " << fit_prob << endl;
 
-   TCanvas *c_acceptance_fit = new TCanvas("acceptance_fit","");
-   c_acceptance_fit -> cd();
-   acceptance -> Draw("AP");
-   acceptance_tf1 -> Draw("same");
-   acceptance_tf1 -> SetLineColor(kRed);
-   
+   // Draw
+   TCanvas *c_acceptance_fit =
+      new TCanvas("acceptance_fit", "", 800, 600);
+
+   c_acceptance_fit->cd();
+
+   acceptance->SetMarkerStyle(20);
+   acceptance->Draw("AP");
+
+   acceptance_tf1->SetLineColor(kRed);
+   acceptance_tf1->SetLineWidth(2);
+   acceptance_tf1->Draw("same");   
 
    /*
       //Create Canvas
