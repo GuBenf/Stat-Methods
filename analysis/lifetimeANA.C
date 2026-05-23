@@ -18,9 +18,6 @@ using namespace std;
 
 std::vector<double> xvar;
 
-// one vector for each proper-time bin
-std::array<std::vector<double>,25> timeDiffData;
-
 TRandom3 rnd(0);
 
 Double_t pdf_exp_x_gauss(Double_t x, Double_t *par)
@@ -95,6 +92,19 @@ Double_t acceptance_func(Double_t *x, Double_t *par)
     return term1 + term2 + par[6];
 }
 
+Double_t acceptance_func_mod(Double_t *x, Double_t *par)
+{
+    Double_t xx = x[0];
+
+    Double_t term1 = par[0] * TMath::Erf((xx - par[1]) / par[2]);
+    Double_t term2 = par[3] * TMath::Erf((xx - par[4]) / par[5]);
+
+    Double_t returned_func;
+    if (x[0]<0.5) returned_func = 0;
+    else returned_func = term1 + term2 + par[6];
+
+    return returned_func;
+}
 
 // Double_t acceptance_func(Double_t *x, Double_t *par)
 // {
@@ -137,8 +147,12 @@ void lifetimeANA::Loop()
 
   TH1D *histo_mc_time_diff_meas_true = new TH1D("histo_mc_time_diff_meas_true","",200,-1,1);
 
-  std::array<TH1D*,25> histo_diff_mc_time_bins;
-  std::array<double,25> histo_diff_mc_time_bincenters;
+  // one vector for each proper-time bin
+  const int times_bin_resolution = 60;
+  double interval = 6; //--> check the resolution from 0 to 10 lifetimes
+  std::array<std::vector<double>,times_bin_resolution> timeDiffData;
+  std::array<TH1D*,times_bin_resolution> histo_diff_mc_time_bins;
+  std::array<double,times_bin_resolution> histo_diff_mc_time_bincenters;
 
   std::array<TH1D*,10> histo_mc_scaled;
   std::array<TH1D*,10> histo_mean_lives;
@@ -152,7 +166,7 @@ void lifetimeANA::Loop()
 
   for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
   {
-      histo_diff_mc_time_bins[h] = new TH1D(Form("histo_diff_mc_time_bin_%d",h),"",200,-1,1);
+      histo_diff_mc_time_bins[h] = new TH1D(Form("histo_diff_mc_time_bin_%d",h),"",100,-1,1);
   }
 
   histo_data_MKpi        ->Sumw2();
@@ -194,10 +208,10 @@ void lifetimeANA::Loop()
          for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
          {
             //we scan from proper decay time 0 to 10 (in unit of 410.3 fs)
-            double bin_min = 10./histo_diff_mc_time_bins.size()*h; 
-            double bin_max = 10./histo_diff_mc_time_bins.size()*(h+1);
+            double bin_min = interval/histo_diff_mc_time_bins.size()*h; 
+            double bin_max = interval/histo_diff_mc_time_bins.size()*(h+1);
             histo_diff_mc_time_bincenters[h] = (bin_min+bin_max)/2;
-            if(M0_time/410.3e-15 < bin_max && M0_time/410.3e-15 >= bin_min)
+            if(M0_time_true/410.3e-15 < bin_max && M0_time_true/410.3e-15 >= bin_min)
             {
                   histo_diff_mc_time_bins[h]->Fill(time_diff);
                   timeDiffData[h].push_back(time_diff);
@@ -257,94 +271,221 @@ void lifetimeANA::Loop()
    g_resolution2->SetMaximum(0.3);
    g_resolution2->SetMinimum(0.);
 
+   TGraphErrors *g_RESOLUTION_TOT = new TGraphErrors();
+
+   TGraph *g_RESOLUTION_2_GAUSS_CORRECT = new TGraph();
+   TGraph *g_MU_2_GAUSS_CORRECT = new TGraph();
+
+   std::vector<double> meanA_vec;
+   std::vector<double> sigmaA_vec;
+   std::vector<double> meanB_vec;
+   std::vector<double> sigmaB_vec;
+   std::vector<double> fraction_vec;
+   std::vector<double> resolution_vec;
+
 
    for(int h = 0; h < histo_diff_mc_time_bins.size(); h++)
    {
       // if(h>= 4 && h<60){
-      if(h>= 0 && h<25)
-      {
-         //cout << endl;
-         //cout << "=================================" << endl;
-         //cout << "FITTING TIME BIN " << h << endl;
-         //cout << "ENTRIES = "
-         //     << timeDiffData[h].size()
-         //     << endl;
-         //cout << "=================================" << endl;
+      //if(h>= 0 && h<25)
+      //{
+         cout << endl;
+         cout << "=================================" << endl;
+         cout << "FITTING TIME BIN " << h << endl;
+         cout << "ENTRIES = "
+              << timeDiffData[h].size()
+              << endl;
+         cout << "=================================" << endl;
 
-         // current active dataset
-         xvar = timeDiffData[h];
-         TMinuit *my_gMinuit = new TMinuit(5);  //initialize TMinuit with a maximum of 5 params
-         gMinuit->SetPrintLevel(-1);
-         my_gMinuit->SetFCN(fcn);      // set the FCN
+         // ***** CASO 2 MEDIE DIVERSE *****
+
+            
+            const int nparam = 5;
+
+            // current active dataset
+            xvar = timeDiffData[h];
+            TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
+            gMinuit->SetPrintLevel(-1);
+            my_gMinuit->SetFCN(fcn);      // set the FCN
         
-         Double_t arglist[2];
-         Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
+            Double_t arglist[2];
+            Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
         
-         // arglist[0] = 1;                           
-         // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
+            // arglist[0] = 1;                           
+            // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
         
-         // Set starting values and step sizes for parameters
-         Double_t vstart[5] = {0.5,  0.015  , 0.015,  0.09 , 0.13};
-         //Double_t vstart[5] = {0.53,  -0.34  , -0.2  , 0.014 , 0.017 };
-         Double_t step[5]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
+            // Set starting values and step sizes for parameters
+            Double_t vstart[nparam] = {0.5,  0.015  , 0.015,  0.09 , 0.13};
+            Double_t step[nparam]   = {0.01, 0.001, 0.001, 0.001, 0.001};   //step 0 li rende costanti
      
-         my_gMinuit->mnparm(0, "fA", vstart[0], step[0], 0., 1., ierflg);
-         my_gMinuit->mnparm(1, "mA", vstart[1], step[1], 0., 0., ierflg);
-         my_gMinuit->mnparm(2, "mB", vstart[2], step[2], 0., 0., ierflg);
-         my_gMinuit->mnparm(3, "sA", vstart[3], step[3], 0., 0., ierflg);
-         my_gMinuit->mnparm(4, "sB", vstart[4], step[4], 0., 0., ierflg);
-         arglist[0] = 500.;//500;
-         arglist[1] = 0.1;
+            my_gMinuit->mnparm(0, "fA", vstart[0], step[0], 0., 1., ierflg);
+            my_gMinuit->mnparm(1, "mA", vstart[1], step[1], 0., 0., ierflg);
+            my_gMinuit->mnparm(2, "mB", vstart[2], step[2], 0., 0., ierflg);
+            my_gMinuit->mnparm(3, "sA", vstart[3], step[3], 0., 0., ierflg);
+            my_gMinuit->mnparm(4, "sB", vstart[4], step[4], 0., 0., ierflg);
+            arglist[0] = 500.;//500;
+            arglist[1] = 0.1;
 
 
-         my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+            my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
       
-         // Print results
-         Double_t amin,edm,errdef;
-         Int_t nvpar,nparx,icstat;
-         my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
-         my_gMinuit->mnprin(3,amin);
+            // Print results
+            Double_t amin,edm,errdef;
+            Int_t nvpar,nparx,icstat;
+            my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
+            my_gMinuit->mnprin(3,amin);
+
+            Double_t cov[nparam][nparam];
+            my_gMinuit->mnemat (&cov[0][0],nparam); // Accessing Covariance Matrix
    
-         Double_t val0, val1, val2, val3, val4, error0,error1,error2, error3, error4, bnd1, bnd2;
-         Int_t ivar=0;
-         TString chnam;
+            Double_t val0, val1, val2, val3, val4, error0,error1,error2, error3, error4, bnd1, bnd2;
+            Int_t ivar=0;
+            TString chnam;
         
-         my_gMinuit->mnpout(0, chnam, val0, error0, bnd1, bnd2, ivar);
-         my_gMinuit->mnpout(1, chnam, val1, error1, bnd1, bnd2, ivar);
-         my_gMinuit->mnpout(2, chnam, val2, error2, bnd1, bnd2, ivar);
-         my_gMinuit->mnpout(3, chnam, val3, error3, bnd1, bnd2, ivar);
-         my_gMinuit->mnpout(4, chnam, val4, error4, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(0, chnam, val0, error0, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(1, chnam, val1, error1, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(2, chnam, val2, error2, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(3, chnam, val3, error3, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(4, chnam, val4, error4, bnd1, bnd2, ivar);
 
-         double mu = val0*val1 + (1.0-val0)*val2;
-         double sigmaEff2_gen = val0*(val3*val3 + (val1-mu)*(val1-mu)) + (1.0-val0)*(val4*val4 + (val2-mu)*(val2-mu));
-         double f  = val0;
-         double sA = val3;
-         double sB = val4;
+            double mu = val0*val1 + (1.0-val0)*val2;
+            double sigmaEff2_gen = val0*(val3*val3 + (val1-mu)*(val1-mu)) + (1.0-val0)*(val4*val4 + (val2-mu)*(val2-mu));
+            double f  = val0;
+            double sA = val3;
+            double sB = val4;
 
-         double df  = error0;
-         double dsA = error3;
-         double dsB = error4;
+            double df  = error0;
+            double dsA = error3;
+            double dsB = error4;
 
-         double sigmaEff2 = f*sA*sA + (1.0-f)*sB*sB;
+            double sigmaEff2 = f*sA*sA + (1.0-f)*sB*sB;
 
-         double errSigmaEff2 = sqrt((sA*sA - sB*sB)*(sA*sA - sB*sB)*df*df +(2.0*f*sA)*(2.0*f*sA)*dsA*dsA +(2.0*(1.0-f)*sB)*(2.0*(1.0-f)*sB)*dsB*dsB);
-         double sigmaEff = sqrt(sigmaEff2);
-         double sigmaEff_gen = sqrt(sigmaEff2_gen);
+            double errSigmaEff2 = sqrt((sA*sA - sB*sB)*(sA*sA - sB*sB)*df*df +(2.0*f*sA)*(2.0*f*sA)*dsA*dsA +(2.0*(1.0-f)*sB)*(2.0*(1.0-f)*sB)*dsB*dsB);
+            double sigmaEff = sqrt(sigmaEff2);
+            double sigmaEff_gen = sqrt(sigmaEff2_gen);
+
+            double errSigmaEff = errSigmaEff2/(2.0*sigmaEff); 
+
+            g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff);
+            g_resolution->SetPointError(h, 0.0, errSigmaEff);
+
+            g_resolution2->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff_gen);
+            g_resolution2->SetPointError(h, 0.0, error4);
+
+            double mu_corr =  val0*val1 + (1.0-val0)*val2;
+            
+            //f = val0
+            //mA = val1
+            //mB = val2
+            //sA = val3
+            //sB = val4
+
+            //var = f*sA*sA + (1-f)*sB*sB + f*(1-f)*(mA - mb)*(mA - mB)
+
+            double sigma_corr = TMath::Sqrt(val0*val3*val3 + (1-val0)*val4*val4 + val0*(1-val0)*(val1-val2)*(val1-val2));
+
+            g_RESOLUTION_2_GAUSS_CORRECT -> SetPoint(h, histo_diff_mc_time_bincenters[h], sigma_corr);
+            g_MU_2_GAUSS_CORRECT -> SetPoint(h, histo_diff_mc_time_bincenters[h], mu_corr);
+
+            if(histo_diff_mc_time_bincenters[h] > 1 && histo_diff_mc_time_bincenters[h] < 5.)
+            {
+               meanA_vec.push_back(val1);
+               meanB_vec.push_back(val2);
+               sigmaA_vec.push_back(val3);
+               sigmaB_vec.push_back(val4);
+               fraction_vec.push_back(val0);
+               resolution_vec.push_back(sigma_corr);
+            }
+         
+         // ***** CASO SINGOLA MEDIA *****
+
+            /*
+            const int nparam = 4;
+
+            // current active dataset
+            xvar = timeDiffData[h];
+            TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
+            gMinuit->SetPrintLevel(-1);
+            my_gMinuit->SetFCN(fcn);      // set the FCN
+        
+            Double_t arglist[2];
+            Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
+        
+            // arglist[0] = 1;                           
+            // my_gMinuit->mnexcm("SET ERR", arglist ,1,ierflg);
+        
+            // Set starting values and step sizes for parameters
+            Double_t vstart[nparam] = {0.5,  0.1,  0.1 , 0.1};
+            Double_t step[nparam]   = {0.01, 0.001, 0.001, 0.001};
+     
+            my_gMinuit->mnparm(0, "fA", vstart[0], step[0], 0., 1., ierflg);
+            my_gMinuit->mnparm(1, "mA", vstart[1], step[1], 0., 0., ierflg);
+            my_gMinuit->mnparm(2, "sA", vstart[2], step[2], 0., 0., ierflg);
+            my_gMinuit->mnparm(3, "sB", vstart[3], step[3], 0., 0., ierflg);
+            arglist[0] = 500.;//500;
+            arglist[1] = 0.1;
 
 
-         double errSigmaEff = errSigmaEff2/(2.0*sigmaEff);         
+            my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+      
+            // Print results
+            Double_t amin,edm,errdef;
+            Int_t nvpar,nparx,icstat;
+            my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
+            my_gMinuit->mnprin(3,amin);
 
-         g_resolution->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff);
-         g_resolution->SetPointError(h, 0.0, errSigmaEff);
+            Double_t cov[4][4];
+            my_gMinuit->mnemat (&cov[0][0],4); // Accessing Covariance Matrix
+   
+            Double_t FR, muG, SA, SB, eFR, emuG, eSA, eSB, bnd1, bnd2;
+            Int_t ivar=0;
+            TString chnam;
+        
+            my_gMinuit->mnpout(0, chnam, FR, eFR, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(1, chnam, muG, emuG, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(2, chnam, SA, eSA, bnd1, bnd2, ivar);
+            my_gMinuit->mnpout(3, chnam, SB, eSB, bnd1, bnd2, ivar);
 
-         g_resolution2->SetPoint(h, histo_diff_mc_time_bincenters[h], sigmaEff_gen);
-         g_resolution2->SetPointError(h, 0.0, error4);
+            // Copia la matrice C-style in TMatrixDSym (solo i 3 parametri che usi: fA, mA, sA, sB)
+            // Ordine Minuit: 0=fA(FR), 1=mA(muG), 2=sA(SA), 3=sB(SB)
+            // Per la varianza servono solo fA(0), sA(2), sB(3)
+            TMatrixDSym covMatrix(3);
+            int idx[3] = {0, 2, 3}; // indici Minuit dei parametri (fA, sA, sB)
+            for(int i = 0; i < 3; i++)
+               for(int j = 0; j < 3; j++)
+                  covMatrix(i,j) = cov[idx[i]][idx[j]];
 
+            // Varianza della mistura
+            double var     = FR * SA*SA + (1.0 - FR) * SB*SB;
+            double std_val = TMath::Sqrt(var);
+
+            // Gradiente di Var rispetto a (fA, sA, sB)
+            TVectorD grad_var(3);
+            grad_var(0) = SA*SA - SB*SB;      // dVar/dfA
+            grad_var(1) = 2.0 * FR * SA;      // dVar/dsA
+            grad_var(2) = 2.0 * (1.0-FR) * SB; // dVar/dsB
+
+            // delta_Var^2 = g^T * V * g
+            TVectorD cov_times_grad = covMatrix * grad_var;
+            double var_err_sq = grad_var * cov_times_grad;
+            double delta_var  = TMath::Sqrt(TMath::Abs(var_err_sq)); // Abs per protezione numerica
+
+            // Propagazione a Std = sqrt(Var)
+            double delta_std = delta_var / (2.0 * std_val);
+
+            g_RESOLUTION_TOT->SetPoint(h, histo_diff_mc_time_bincenters[h], std_val);
+            g_RESOLUTION_TOT->SetPointError(h, 0.0, delta_std);
+            */   
+         
+
+
+         // ----- PLOT FUNZIONE FITTATA -----
 
          std::vector<double> x_points;
          std::vector<double> y_points;
 
-         Double_t pars[5] = {val0,val1,val2,val3,val4};
+         Double_t pars[nparam] = {val0,val1,val2,val3,val4};
+         //Double_t pars[nparam] = {FR,muG,SA,SB};
 
          for(int xi=0; xi<10000; xi++)
          {
@@ -358,18 +499,40 @@ void lifetimeANA::Loop()
             y_points.push_back(pdf_proj(&x,pars,histo_diff_mc_time_bins[h]->GetEntries(),histo_diff_mc_time_bins[h]->GetBinWidth(1)));
          }
 
-         //TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
-         //plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
-         //plot_f->SetLineColor(kRed);
+         TGraph * plot_f = new TGraph(10000,x_points.data(),y_points.data());
+         plot_f->SetMaximum(histo_diff_mc_time_bins[h]->GetMaximum()*1.05);
+         plot_f->SetLineColor(kRed);
 
-         //TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
-         //c_plot->cd();
-         //plot_f->Draw();
-         //histo_diff_mc_time_bins[h]->Draw("same");
-         //histo_file->cd();
-         //c_plot->Write();
-      }
+         TCanvas *c_plot = new TCanvas(Form("plot_fit_%d",h));
+         c_plot->cd();
+         plot_f->Draw();
+         histo_diff_mc_time_bins[h]->Draw("same");
+         histo_file->cd();
+         c_plot->Write();
+
+         delete plot_f;
+         delete c_plot;
+         delete my_gMinuit;
+
+         xvar.clear();
+      //}
    };
+
+   cout << endl << endl << "/////////// RESOLUTION PARAMETERS ///////////" << endl;
+
+   Double_t mA_fixed = std::accumulate(meanA_vec.begin(), meanA_vec.end(), 0.0)/meanA_vec.size();
+   Double_t mB_fixed = std::accumulate(meanB_vec.begin(), meanB_vec.end(), 0.0)/meanB_vec.size();
+   Double_t sA_fixed = std::accumulate(sigmaA_vec.begin(), sigmaA_vec.end(), 0.0)/sigmaA_vec.size();
+   Double_t sB_fixed = std::accumulate(sigmaB_vec.begin(), sigmaB_vec.end(), 0.0)/sigmaB_vec.size();
+   Double_t f_fixed = std::accumulate(fraction_vec.begin(), fraction_vec.end(), 0.0)/fraction_vec.size();
+   Double_t resolution_fixed = std::accumulate(resolution_vec.begin(), resolution_vec.end(), 0.0)/resolution_vec.size();
+
+   cout << "mA: " << mA_fixed << endl;
+   cout << "mB: " << mB_fixed << endl;
+   cout << "sA: " << sA_fixed << endl;
+   cout << "sB: " << sB_fixed << endl;
+   cout << "f: " << f_fixed << endl;
+   cout << "THE RESOLUTION IS: " << resolution_fixed * 410.3 << " fs" << endl;
    
    // Double_t matrix[5][5];
    // Int_t n=5;
@@ -404,7 +567,8 @@ void lifetimeANA::Loop()
 
    int estrazione = 0;
    int eventi_buoni = 0;
-   Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+   //Double_t fixed_par[7] = {1., 4.63990e-01, 6.71361e-03, 8.41433e-02, 1-4.63990e-01 , 1.56500e-02, 1.28286e-01};
+   Double_t fixed_par[7] = {1., f_fixed, mA_fixed, sA_fixed, 1-f_fixed, mB_fixed, sB_fixed};
    Double_t fixed_par_h[7];
    for (int k = 1; k < 7; k++) 
    {
@@ -662,7 +826,7 @@ void lifetimeANA::Loop()
 
       //Error on x: bin width/2, otherwise you get a doubled error
 
-      cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
+      //cout << extracted_time->GetBinCenter(bin) << " " << ratio << endl;
 
       acceptance->SetPoint(bin-1,extracted_time->GetBinCenter(bin),ratio);
       acceptance->SetPointError(bin-1,extracted_time->GetBinWidth(bin)/2.0,ratio_error);
@@ -676,7 +840,7 @@ void lifetimeANA::Loop()
 
    TF1 *acceptance_tf1 = new TF1(
       "acceptance_tf1",
-      acceptance_func,
+      acceptance_func_mod, //<--
       0,
       10,
       7
@@ -701,7 +865,7 @@ void lifetimeANA::Loop()
    );
 
    // Perform fit
-   acceptance->Fit(acceptance_tf1, "", "", 0., 10.);
+   acceptance->Fit(acceptance_tf1, "R", "", 0.5, 10.);
 
    // Fit quality
    Double_t fit_chi2 = acceptance_tf1->GetChisquare();
@@ -712,18 +876,57 @@ void lifetimeANA::Loop()
    cout << "ndof = " << fit_ndof << endl;
    cout << "prob = " << fit_prob << endl;
 
-   // Draw
-   TCanvas *c_acceptance_fit =
-      new TCanvas("acceptance_fit", "", 800, 600);
-
+   // ***** DRAW *****
+   TCanvas *c_acceptance_fit = new TCanvas("acceptance_fit", "", 800, 600);
    c_acceptance_fit->cd();
+   const float split = 0.3;
+
+   // --- FIT ---
+   TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
+   pad_fit->SetBottomMargin(0.); 
+   pad_fit->Draw();
+   pad_fit->cd();
 
    acceptance->SetMarkerStyle(20);
    acceptance->Draw("AP");
-
    acceptance_tf1->SetLineColor(kRed);
    acceptance_tf1->SetLineWidth(2);
    acceptance_tf1->Draw("same");   
+
+   // --- RESIDUALS ---
+   c_acceptance_fit->cd();
+
+   TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
+   pad_res->SetTopMargin(0.);
+   pad_res->Draw();
+   pad_res->cd();
+
+   int n = acceptance->GetN();
+
+   TGraphErrors *residuals = new TGraphErrors(n);
+   residuals -> SetMarkerStyle(7);
+   residuals -> GetXaxis()-> SetTitle("t / 410.3 fs");
+   residuals -> GetYaxis()-> SetTitle("residuals");
+
+   for (int i = 0; i < n; i++) 
+   {
+      Double_t x, y;
+      acceptance->GetPoint(i, x, y);
+      Double_t y_fit  = acceptance_tf1->Eval(x);
+      Double_t ey     = acceptance->GetErrorY(i);
+      Double_t res    = y - y_fit;
+
+      residuals->SetPoint(i, x, res);
+      residuals->SetPointError(i, 0., ey);
+   }
+   residuals->Draw("AP same");
+
+   TLine *line_zero = new TLine(0., 0., 10., 0.);
+   line_zero->SetLineStyle(2);
+   line_zero->SetLineColor(kGray);
+   line_zero->Draw("same");
+
+   c_acceptance_fit->Update();
 
    /*
       //Create Canvas
@@ -786,7 +989,8 @@ void lifetimeANA::Loop()
    }
 
    acceptance-> Write("acceptance_graph");
-       g_resolution->SetTitle(
+       
+   g_resolution->SetTitle(
         "Resolution vs Proper Time;"
         "Proper Time;"
         "Resolution"
@@ -810,6 +1014,16 @@ void lifetimeANA::Loop()
 
    g_resolution2->Write("resolution2_graph");
 
+   g_RESOLUTION_TOT->SetMarkerStyle(20);
+
+   g_RESOLUTION_TOT->Draw("AP E1");
+
+   g_RESOLUTION_TOT->Write("resolution2_graph");
+
+   g_RESOLUTION_2_GAUSS_CORRECT -> SetMarkerStyle(7);
+   g_RESOLUTION_2_GAUSS_CORRECT -> Write("RES_CORR");
+   g_MU_2_GAUSS_CORRECT -> SetMarkerStyle(7);
+   g_MU_2_GAUSS_CORRECT -> Write("MU_CORR");
 
    xy->Write();
    extracted_time->Write();
