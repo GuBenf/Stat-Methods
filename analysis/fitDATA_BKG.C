@@ -33,8 +33,6 @@ std::vector<double> norm_grid;
 
 TH1D *h_time = new TH1D("h_time","",100,0,10);
 
-TH1D * histo_data_MKpi = new TH1D("histo_data_MKpi","",150,1.8,1.95);
-
 
 Double_t acceptance_func_mod(Double_t *x, Double_t *par)
 {
@@ -90,7 +88,7 @@ Double_t computeNorm(Double_t tau)
     return sum;
 }
 
-for (double tau = 0.1; tau < 2.0; tau += 0.01)
+for (double tau = 0.1; tau < 10.0; tau += 0.01)
 {
     tau_grid.push_back(tau);
     norm_grid.push_back(computeNorm(tau));
@@ -133,13 +131,38 @@ Double_t pdf_proj(Double_t *x, Double_t *par, Double_t N, Double_t bin_width)
     return N * pdf_norm(x[0], par) * bin_width;
 }
 
+// 
+
+
+//  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+//   1  tau          3.40304e+00   1.22615e-02   3.83827e-04   4.36550e-02
+
+//========== FIT RESULT ==========
+//Parameter : tau
+//tau_fit   = 1396.27 fs
+//error     = 5.03091 fs
+//================================
 
 // ******* FUNCTIONS TO FIT THE INVARIANT MASS ********* 
 
 std::vector<double> x_invariant_mass;
-double X_MIN_INVARIANT_MASS = 1.855;
-double X_MAX_INVARIANT_MASS = 1.875;
-double BIN_WIDTH_INVARIANT_MASS = 0.001;
+double X_MIN_INVARIANT_MASS = 1.85;
+double X_MAX_INVARIANT_MASS = 1.88;
+
+//p0                        =      54150.5   +/-   578.437     
+//p1                        =      1.86482   +/-   2.98666e-05 
+//p2                        =   0.00521984   +/-   4.64803e-05 
+//p3                        =      13.5657   +/-   0.460617    
+//chi2 = 55.3241
+//ndof = 56
+//prob = 0.500404
+
+double MAX_HISTO = 1.95;
+double MIN_HISTO = 1.8;
+double BIN_HISTO = 300;
+double BIN_WIDTH_INVARIANT_MASS = (MAX_HISTO-MIN_HISTO)/BIN_HISTO;
+
+TH1D * histo_data_MKpi = new TH1D("histo_data_MKpi","",BIN_HISTO,MIN_HISTO,MAX_HISTO);
 
 Double_t pdf_double_gauss(Double_t x, Double_t *par)
 {
@@ -183,15 +206,62 @@ void fcn_double_gauss(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
 
 Double_t invariant_mass_Gauss_func(Double_t *x, Double_t *par)
 {
-    //return par[0]*( par[3] * TMath::Gaus(x[0],par[1],par[2],1) + (1-par[3]) * TMath::Gaus(x[4],par[5],par[6],1));
-   return par[0]*( TMath::Gaus(x[0],par[1],par[2],1) );
+    //return par[0]*(par[6] + par[3] * TMath::Gaus(x[0],par[1],par[2],1) + (1-par[3]) * TMath::Gaus(x[0],par[4],par[5],1));
+    return par[0]*(par[3] + TMath::Gaus(x[0],par[1],par[2],1));
+    //return par[0]*( TMath::Gaus(x[0],par[1],par[2],1) );
 }
+
+/*
+Double_t invariant_mass_Gauss_func(Double_t *x, Double_t *par)
+{
+  Double_t _N ; // Total normalization
+  Double_t _fs; // Signal fraction; 
+  Double_t _fA; // Relative fraction of Gaussian A wrt Gaussian B
+  Double_t _mA; // Mean Gaussian A
+  Double_t _sA; // Sigma Gaussian A
+  Double_t _mB; // Mean Gaussian A
+  Double_t _sB; // Sigma Gaussian B
+  Double_t _slope; // Exponential slope
+ 
+  _N  = par[0];
+  _fs = par[1];
+  _fA = par[2];
+  _mA = par[3];
+  _sA = par[4];
+  _mB = par[5];
+  _sB = par[6];
+  _slope = par[7];
+
+  Double_t _fb;
+  Double_t _fB;
+  
+  _fb = 1. - _fs;
+  _fB = 1. - _fA;
+
+  Double_t value = _N*( _fs * (_fA*(TMath::Gaus(x[0],_mA,_sA,1)) + _fB*(TMath::Gaus(x[0],_mB,_sB,1))) + 
+			_fb * (_slope/(TMath::Exp(_slope * X_MAX_INVARIANT_MASS)-TMath::Exp(_slope * X_MIN_INVARIANT_MASS))) * TMath::Exp(_slope * x[0])  );
+ return value;
+}
+*/
 
 Double_t invariant_mass_Gauss_func_fit(Double_t *x, Double_t *par)
 {
    return BIN_WIDTH_INVARIANT_MASS*invariant_mass_Gauss_func(x,par);
 }
 
+
+TH1D * left_bkg = new TH1D("left_bkg","",100,0,10);
+
+TH1D * right_bkg = new TH1D("rigth_bkg","",100,0,10);
+
+TH1D * average_bkg = new TH1D("average_bkg", "", 100,0,10);
+
+TH1D * tot_bkg = new TH1D("tot_bkg", "", 100,0,10);
+
+left_bkg -> Sumw2();
+right_bkg -> Sumw2();
+average_bkg -> Sumw2();
+tot_bkg -> Sumw2();
 
 void lifetimeANA::Loop()
 {  
@@ -213,31 +283,86 @@ void lifetimeANA::Loop()
       { 
 	      histo_data_MKpi ->Fill(M0_MKpi);
 
+          if(M0_MKpi < 1.86482 - 3 * 0.00521984)
+          {
+            left_bkg -> Fill(M0_time / 410.3e-15);
+
+            if (M0_time / 410.3e-15 >= XMIN && M0_time / 410.3e-15 <= XMAX)
+            {
+                xvar.push_back(M0_time / 410.3e-15);
+            }
+
+            tot_bkg -> Fill(M0_time / 410.3e-15);
+          }
+          if(M0_MKpi > 1.86482 + 3 * 0.00521984)
+          {
+            right_bkg -> Fill(M0_time / 410.3e-15);
+
+            if (M0_time / 410.3e-15 >= XMIN && M0_time / 410.3e-15 <= XMAX)
+            {
+                xvar.push_back(M0_time / 410.3e-15);
+            }
+
+            tot_bkg -> Fill(M0_time / 410.3e-15);
+            
+          }
+
       }; //end DATA
 
       if (id==13) //MC
       {
-            double t = M0_time / 410.3e-15;
+            //double t = M0_time / 410.3e-15;
 
-            h_time->Fill(t);
+            //h_time->Fill(t);
 
-            if (t >= XMIN && t <= XMAX)
-            {
-            xvar.push_back(t);
-            }
+            //if (t >= XMIN && t <= XMAX)
+            //{
+            //xvar.push_back(t);
+            //}
 
       }; //end MC
 
       };// #### end loop over jentry
 
+      h_time = (TH1D*)tot_bkg -> Clone("h_time");
+
+      for(int bin = 1; bin < right_bkg->GetNbinsX(); bin++)
+      {
+        double left_y = left_bkg -> GetBinContent(bin);
+        double right_y = right_bkg -> GetBinContent(bin);
+        double sigma_left_y = left_bkg -> GetBinError(bin);
+        double sigma_rigth_y = right_bkg -> GetBinError(bin);
+        average_bkg -> SetBinContent(bin,(left_y+right_y)/2);
+        average_bkg -> SetBinError(bin,1./2*std::sqrt(std::pow(sigma_left_y,2)+std::pow(sigma_rigth_y,2)));
+      }
+
       // ****** FIT INVARIANT MASS ********
 
       double bin_min = histo_data_MKpi -> FindBin(X_MIN_INVARIANT_MASS);
       double bin_max = histo_data_MKpi -> FindBin(X_MAX_INVARIANT_MASS);
-      TF1 * invariant_mass_Gauss = new TF1("invariant_mass_Gauss",invariant_mass_Gauss_func_fit,1.8,1.95,3);
+      TF1 * invariant_mass_Gauss = new TF1("invariant_mass_Gauss",invariant_mass_Gauss_func_fit,1.8,1.95,4);
       invariant_mass_Gauss -> SetParameter(0,histo_data_MKpi->Integral(bin_min,bin_max));
+      //invariant_mass_Gauss -> SetParameter(0,histo_data_MKpi->Integral());
+
       invariant_mass_Gauss -> SetParameter(1,1.864);
       invariant_mass_Gauss -> SetParameter(2,0.007);
+
+      invariant_mass_Gauss -> SetParameter(3,4);
+
+      //invariant_mass_Gauss -> SetParameter(3,0.5);
+      //invariant_mass_Gauss -> SetParameter(4,1.864);
+      //invariant_mass_Gauss -> SetParameter(5,0.007);
+      //invariant_mass_Gauss -> SetParameter(6,4);
+
+      //invariant_mass_Gauss -> SetParameter(1,0.5);
+      //invariant_mass_Gauss -> SetParameter(2,0.5);
+      //invariant_mass_Gauss -> SetParameter(3,1.864);
+      //invariant_mass_Gauss -> SetParameter(4,0.007);
+      //invariant_mass_Gauss -> SetParameter(5,1.864);
+      //invariant_mass_Gauss -> SetParameter(6,0.007);
+      //invariant_mass_Gauss -> SetParameter(7,1);
+      //invariant_mass_Gauss -> SetParameter(8,1);
+
 
       histo_data_MKpi -> Fit(invariant_mass_Gauss,"L","",X_MIN_INVARIANT_MASS,X_MAX_INVARIANT_MASS);
  
@@ -249,18 +374,13 @@ void lifetimeANA::Loop()
       cout << "ndof = " << fit_ndof << endl;
       cout << "prob = " << fit_prob << endl;
 
-      TCanvas * c_fit_inv_mass = new TCanvas("c_fit_inv_mass");
-      c_fit_inv_mass -> cd();
-      histo_data_MKpi->Draw("E");
-      invariant_mass_Gauss->Draw("SAME");
-      c_fit_inv_mass -> Update();
 
-
-      /*
+      
       // ***** FIT ***** 
 
       const int nparam = 1;
       int n_fit = xvar.size();
+      cout << "DIMENSION " << n_fit << endl;
 
       TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
       //gMinuit->SetPrintLevel(-1);
@@ -270,10 +390,10 @@ void lifetimeANA::Loop()
       Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
         
       // Set starting values and step sizes for parameters
-      Double_t vstart[nparam] = {1.};
+      Double_t vstart[nparam] = {2.5};
       Double_t step[nparam]   = {0.01};   //step 0 li rende costanti
      
-      my_gMinuit->mnparm(0, "tau", vstart[0], step[0], 0.1, 2., ierflg);
+      my_gMinuit->mnparm(0, "tau", vstart[0], step[0], 0.1, 10., ierflg);
 
       arglist[0] = 500.;//500;
       arglist[1] = 0.1;
@@ -379,12 +499,18 @@ void lifetimeANA::Loop()
       // final update
       c_fit->Update();
       c_fit->Draw();
-      */
+      
     
       TFile * f = new TFile("outfile_fit_DATA.root","RECREATE");
       //c_fit -> Write();
       histo_data_MKpi -> Write();
-      c_fit_inv_mass ->Write();
+      left_bkg->Scale(1./left_bkg->Integral());
+      right_bkg->Scale(1./right_bkg->Integral());
+      average_bkg->Scale(1./average_bkg->Integral());
+      left_bkg -> Write();
+      right_bkg -> Write();
+      average_bkg -> Write();
+      c_fit -> Write();
 
       f->Close();
 
