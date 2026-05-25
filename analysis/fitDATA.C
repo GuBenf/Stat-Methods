@@ -33,6 +33,9 @@ std::vector<double> norm_grid;
 
 TH1D *h_time = new TH1D("h_time","",100,0,10);
 
+TH1D * histo_data_MKpi = new TH1D("histo_data_MKpi","",150,1.8,1.95);
+
+
 Double_t acceptance_func_mod(Double_t *x, Double_t *par)
 {
     Double_t xx = x[0];
@@ -131,6 +134,65 @@ Double_t pdf_proj(Double_t *x, Double_t *par, Double_t N, Double_t bin_width)
 }
 
 
+// ******* FUNCTIONS TO FIT THE INVARIANT MASS ********* 
+
+std::vector<double> x_invariant_mass;
+double X_MIN_INVARIANT_MASS = 1.855;
+double X_MAX_INVARIANT_MASS = 1.875;
+double BIN_WIDTH_INVARIANT_MASS = 0.001;
+
+Double_t pdf_double_gauss(Double_t x, Double_t *par)
+{
+
+ Double_t _fA;
+ Double_t _mA;
+ Double_t _mB;
+ Double_t _sA;
+ Double_t _sB;
+ 
+ _fA  = par[0];	
+//  _fA  = 1;			
+ _mA  = par[1];
+ _mB  = par[2];
+ _sA  = par[3];
+ _sB  = par[4];
+
+ Double_t value = _fA*(TMath::Gaus(x,_mA,_sA,1)) + (1-_fA)*(TMath::Gaus(x,_mB,_sB,1));
+ return value;
+}
+
+Double_t pdf_proj_double_gauss(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
+{
+  return (max*bin_width)*pdf_double_gauss(x[0],par);
+}
+
+
+void fcn_double_gauss(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
+{
+
+  Double_t Like=0;
+  Int_t i=0;
+  for(size_t i=0; i<x_invariant_mass.size(); ++i)
+    {
+      Double_t p = pdf_double_gauss(x_invariant_mass[i],par);
+      Like += TMath::Log(p);
+  };
+   f= - 2. * Like;
+}
+
+
+Double_t invariant_mass_Gauss_func(Double_t *x, Double_t *par)
+{
+    //return par[0]*( par[3] * TMath::Gaus(x[0],par[1],par[2],1) + (1-par[3]) * TMath::Gaus(x[4],par[5],par[6],1));
+   return par[0]*( TMath::Gaus(x[0],par[1],par[2],1) );
+}
+
+Double_t invariant_mass_Gauss_func_fit(Double_t *x, Double_t *par)
+{
+   return BIN_WIDTH_INVARIANT_MASS*invariant_mass_Gauss_func(x,par);
+}
+
+
 void lifetimeANA::Loop()
 {  
   
@@ -147,6 +209,12 @@ void lifetimeANA::Loop()
 
       // #### My code #########
 
+      if (id==1) //DATA
+      { 
+	      histo_data_MKpi ->Fill(M0_MKpi);
+
+      }; //end DATA
+
       if (id==13) //MC
       {
             double t = M0_time / 410.3e-15;
@@ -155,13 +223,40 @@ void lifetimeANA::Loop()
 
             if (t >= XMIN && t <= XMAX)
             {
-                xvar.push_back(t);
+            xvar.push_back(t);
             }
 
       }; //end MC
 
       };// #### end loop over jentry
 
+      // ****** FIT INVARIANT MASS ********
+
+      double bin_min = histo_data_MKpi -> FindBin(X_MIN_INVARIANT_MASS);
+      double bin_max = histo_data_MKpi -> FindBin(X_MAX_INVARIANT_MASS);
+      TF1 * invariant_mass_Gauss = new TF1("invariant_mass_Gauss",invariant_mass_Gauss_func_fit,1.8,1.95,3);
+      invariant_mass_Gauss -> SetParameter(0,histo_data_MKpi->Integral(bin_min,bin_max));
+      invariant_mass_Gauss -> SetParameter(1,1.864);
+      invariant_mass_Gauss -> SetParameter(2,0.007);
+
+      histo_data_MKpi -> Fit(invariant_mass_Gauss,"L","",X_MIN_INVARIANT_MASS,X_MAX_INVARIANT_MASS);
+ 
+      Double_t fit_chi2 = invariant_mass_Gauss->GetChisquare();
+      Int_t    fit_ndof = invariant_mass_Gauss->GetNDF();
+      Double_t fit_prob = invariant_mass_Gauss->GetProb();
+
+      cout << "chi2 = " << fit_chi2 << endl;
+      cout << "ndof = " << fit_ndof << endl;
+      cout << "prob = " << fit_prob << endl;
+
+      TCanvas * c_fit_inv_mass = new TCanvas("c_fit_inv_mass");
+      c_fit_inv_mass -> cd();
+      histo_data_MKpi->Draw("E");
+      invariant_mass_Gauss->Draw("SAME");
+      c_fit_inv_mass -> Update();
+
+
+      /*
       // ***** FIT ***** 
 
       const int nparam = 1;
@@ -284,75 +379,13 @@ void lifetimeANA::Loop()
       // final update
       c_fit->Update();
       c_fit->Draw();
+      */
+    
+      TFile * f = new TFile("outfile_fit_DATA.root","RECREATE");
+      //c_fit -> Write();
+      histo_data_MKpi -> Write();
+      c_fit_inv_mass ->Write();
 
-      // // ***** DRAW *****
-      // TCanvas *c_fit = new TCanvas("c_fit", "");
-      // c_fit->cd();
-      // const float split = 0.3;
-
-      // // --- FIT ---
-      // TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
-
-      // pad_fit->cd();
-
-      // gStyle->SetOptStat(0);
-      // gPad->SetTicks(1,1);
-
-      // h_time->SetMarkerStyle(20);
-      // h_time->SetMarkerSize(0.8);
-      // h_time->SetLineColor(kBlack);
-      // h_time->SetTitle("");
-      // h_time->GetXaxis()->SetTitle("t / 410.3 fs");
-      // h_time->GetYaxis()->SetTitle("Events");
-      // h_time->GetXaxis()->SetRangeUser(0.5, 10.0);
-
-      // h_time->Draw("E");
-
-      // fit_function_plot->SetLineColor(kRed);
-      // fit_function_plot->SetLineWidth(2);
-      // fit_function_plot->Draw("L SAME");
-      // c_fit->cd();
-
-
-      // // --- RESIDUALS ---
-      // c_fit->cd();
-
-      // TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
-      // pad_res->SetTopMargin(0.);
-      // pad_res->Draw();
-      // pad_res->cd();
-
-      // int n = h_time->GetNbinsX();
-
-      // TGraphErrors *residuals = new TGraphErrors(n);
-      // residuals -> SetMarkerStyle(7);
-      // residuals -> GetXaxis()-> SetTitle("t / 410.3 fs");
-      // residuals -> GetYaxis()-> SetTitle("residuals");
-
-      // for (int i = 0; i < n; i++) 
-      // {
-      //       Double_t x, y;
-      //       x = h_time->GetBinCenter(i+1);
-      //       y = h_time->GetBinContent(i+1);
-      //       Double_t y_fit  = pdf_proj(&x,pars,h_time->GetEntries(),h_time->GetBinWidth(1));
-      //       Double_t ey     = h_time->GetBinError(i+1);
-      //       Double_t res    = y - y_fit;
-
-      //       residuals->SetPoint(i, x, res);
-      //       residuals->SetPointError(i, 0., ey);
-      // }
-      // residuals->Draw("P same");
-
-      // TLine *line_zero = new TLine(0., 0., 10., 0.);
-      // line_zero->SetLineStyle(2);
-      // line_zero->SetLineColor(kGray);
-      // line_zero->Draw("same");
-
-      // c_fit->Update();
-      // c_fit->Draw();
-      // c_fit->Update();      
-      TFile * f = new TFile("outfile_fit_MC.root","RECREATE");
-      c_fit -> Write();
       f->Close();
 
 }
