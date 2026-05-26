@@ -29,8 +29,6 @@ Double_t ACCEPTANCE_PAR_FIXED[7] = {0.58397, -1.77281, 1.75128, 1.41352, -0.8250
 using namespace std;
 
 std::vector<double> xvar;
-std::vector<double> tau_grid;
-std::vector<double> norm_grid;
 
 TH1D *h_time = new TH1D("h_time","",100,0,10);
 
@@ -86,41 +84,71 @@ Double_t pdf_exp_x_gauss(Double_t x, Double_t *par)
    return value;
 }
 
-Double_t computeNorm(Double_t tau)
+// ---- Griglia 2D per la normalizzazione ----
+std::vector<double> tau_grid;
+std::vector<double> frac_grid;
+std::vector<std::vector<double>> norm_grid_2d;  // norm_grid_2d[i_tau][i_frac]
+
+const double TAU_MIN  = 0.1,  TAU_MAX  = 10.0, TAU_STEP  = 0.01;
+const double FRAC_MIN = 0.0,  FRAC_MAX = 1.0,  FRAC_STEP = 0.01;
+
+Double_t computeNorm(Double_t tau, Double_t fraction)
 {
     Double_t sum = 0;
-    Double_t dx = 0.001;  // fine enough
+    Double_t dx  = 0.001;
+    Double_t par[2] = {tau, fraction};
 
     for (double x = XMIN; x < XMAX; x += dx)
-    {
-        double p = pdf_exp_x_gauss(x, &tau);
-        sum += p * dx;
-    }
+        sum += pdf_exp_x_gauss(x, par) * dx;
+
     return sum;
 }
 
-for (double tau = 0.1; tau < 10.0; tau += 0.01)
+// Da chiamare UNA volta prima del fit, fuori da Loop()
+void buildNormGrid()
 {
-    tau_grid.push_back(tau);
-    norm_grid.push_back(computeNorm(tau));
+    for (double tau = TAU_MIN; tau < TAU_MAX; tau += TAU_STEP)
+        tau_grid.push_back(tau);
+
+    for (double f = FRAC_MIN; f <= FRAC_MAX; f += FRAC_STEP)
+        frac_grid.push_back(f);
+
+    norm_grid_2d.resize(tau_grid.size(),
+                        std::vector<double>(frac_grid.size(), 0.0));
+
+    for (size_t i = 0; i < tau_grid.size(); ++i)
+        for (size_t j = 0; j < frac_grid.size(); ++j)
+            norm_grid_2d[i][j] = computeNorm(tau_grid[i], frac_grid[j]);
 }
 
-double getNorm(double tau)
+double getNorm(double tau, double fraction)
 {
-    // linear interpolation (fast)
-    int i = int((tau - tau_grid[0]) / 0.01);
-    if (i < 0) i = 0;
-    if (i >= tau_grid.size()-1) i = tau_grid.size()-2;
+    // interpolazione bilineare
+    int i = int((tau     - tau_grid[0])  / TAU_STEP);
+    int j = int((fraction - frac_grid[0]) / FRAC_STEP);
 
-    double t1 = tau_grid[i], t2 = tau_grid[i+1];
-    double n1 = norm_grid[i], n2 = norm_grid[i+1];
-    return n1 + (tau - t1) * (n2 - n1) / (t2 - t1);
+    if (i < 0) i = 0;
+    if (j < 0) j = 0;
+    if (i >= (int)tau_grid.size()  - 1) i = tau_grid.size()  - 2;
+    if (j >= (int)frac_grid.size() - 1) j = frac_grid.size() - 2;
+
+    double t1 = tau_grid[i],   t2 = tau_grid[i+1];
+    double f1 = frac_grid[j],  f2 = frac_grid[j+1];
+
+    double n11 = norm_grid_2d[i]  [j],   n12 = norm_grid_2d[i]  [j+1];
+    double n21 = norm_grid_2d[i+1][j],   n22 = norm_grid_2d[i+1][j+1];
+
+    // pesi
+    double wt = (tau      - t1) / (t2 - t1);
+    double wf = (fraction - f1) / (f2 - f1);
+
+    return n11*(1-wt)*(1-wf) + n21*wt*(1-wf)
+         + n12*(1-wt)*wf     + n22*wt*wf;
 }
 
 double pdf_norm(double x, double *par)
 {
-    double raw = pdf_exp_x_gauss(x, par);
-    return raw / getNorm(par[0]);
+    return pdf_exp_x_gauss(x, par) / getNorm(par[0], par[1]);
 }
 
 void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
@@ -131,7 +159,7 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
   for(size_t i=0; i<xvar.size(); ++i)
     {
       double p = pdf_exp_x_gauss(xvar[i], par);
-      p /= getNorm(par[0]);
+      p /= getNorm(par[0],par[1]);
       Like += log(p);
   };
    f= - 2. * Like;
@@ -167,6 +195,8 @@ Double_t pdf_proj(Double_t *x, Double_t *par, Double_t N, Double_t bin_width)
 void lifetimeANA::Loop()
 {  
   
+    buildNormGrid();
+
       if (fChain == 0) return;
 
       Long64_t nentries = fChain->GetEntriesFast();
