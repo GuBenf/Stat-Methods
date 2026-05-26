@@ -366,14 +366,73 @@ void lifetimeANA::Loop()
 
       histo_data_MKpi -> Fit(invariant_mass_Gauss,"L","",X_MIN_INVARIANT_MASS,X_MAX_INVARIANT_MASS);
  
-      Double_t fit_chi2 = invariant_mass_Gauss->GetChisquare();
-      Int_t    fit_ndof = invariant_mass_Gauss->GetNDF();
-      Double_t fit_prob = invariant_mass_Gauss->GetProb();
+      // -------------------- PULL PLOT (INVARIANT MASS) --------------------
 
-      cout << "chi2 = " << fit_chi2 << endl;
-      cout << "ndof = " << fit_ndof << endl;
-      cout << "prob = " << fit_prob << endl;
-
+      const int n_bins = histo_data_MKpi->GetNbinsX();
+        
+      TCanvas *c_mass_pull = new TCanvas("c_mass_pull","mass pull",800,600);
+        
+      TPad *pad_mass = new TPad("pad_mass","",0,0.3,1,1);
+      TPad *pad_pull_mass = new TPad("pad_pull_mass","",0,0,1,0.3);
+        
+      pad_mass->SetBottomMargin(0.02);
+      pad_pull_mass->SetTopMargin(0.02);
+      pad_pull_mass->SetBottomMargin(0.25);
+        
+      pad_mass->Draw();
+      pad_pull_mass->Draw();
+        
+      // ---------------- TOP PAD: histogram + fit ----------------
+      pad_mass->cd();
+        
+      histo_data_MKpi->Draw("E");
+        
+      invariant_mass_Gauss->SetRange(
+          X_MIN_INVARIANT_MASS,
+          X_MAX_INVARIANT_MASS
+      );
+      invariant_mass_Gauss->SetLineColor(kRed);
+      invariant_mass_Gauss->Draw("SAME");
+      
+      // ---------------- BOTTOM PAD: pulls ----------------
+      pad_pull_mass->cd();
+      
+      TGraphErrors *mass_pulls = new TGraphErrors(n_bins);
+      mass_pulls->SetMarkerStyle(7);
+      mass_pulls->GetYaxis()->SetTitle("Pull");
+      mass_pulls->GetXaxis()->SetTitle("m(K#pi) [GeV]");
+      
+      for (int i = 1; i <= n_bins; i++)
+      {
+      
+          double x = histo_data_MKpi->GetBinCenter(i);
+          double y = histo_data_MKpi->GetBinContent(i);
+          double ey = histo_data_MKpi->GetBinError(i);
+      
+          if (x < X_MIN_INVARIANT_MASS || x > X_MAX_INVARIANT_MASS)
+              continue;
+      
+          double y_fit = invariant_mass_Gauss->Eval(x);
+      
+          double pull = 0;
+          if (ey > 0) pull = (y - y_fit) / ey;
+      
+          mass_pulls->SetPoint(i-1, x, pull);
+          mass_pulls->SetPointError(i-1, 0, 1);
+      }
+      
+      mass_pulls->SetMinimum(-5);
+      mass_pulls->SetMaximum(5);
+      mass_pulls->Draw("AP");
+      mass_pulls->GetHistogram()->GetXaxis()->SetLimits(MIN_HISTO, MAX_HISTO);
+      
+      
+      // zero line
+      TLine *zero_line = new TLine(1.8,0,1.95,0);
+      zero_line->SetLineStyle(2);
+      zero_line->Draw("same");
+      
+      c_mass_pull->Update();
 
       
       // ***** FIT ***** 
@@ -458,44 +517,47 @@ void lifetimeANA::Loop()
       // IMPORTANT: go back to canvas
       c_fit->cd();
 
-      // -------------------- BOTTOM PAD --------------------
-      TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
-      pad_res->SetTopMargin(0.02);
-      pad_res->SetBottomMargin(0.25);
-      pad_res->Draw();
-      pad_res->cd();
-
-      // residuals
+      // -------------------- BOTTOM PAD (PULLS) --------------------
+      TPad *pad_pull = new TPad("pad_pull", "", 0., 0., 1., split);
+      pad_pull->SetTopMargin(0.02);
+      pad_pull->SetBottomMargin(0.25);
+      pad_pull->Draw();
+      pad_pull->cd();
+        
       int n = h_time->GetNbinsX();
-
-      TGraphErrors *residuals = new TGraphErrors(n);
-      residuals -> SetMarkerStyle(7);
-      residuals -> GetXaxis()-> SetTitle("t / 410.3 fs");
-      residuals -> GetYaxis()-> SetTitle("residuals");
-
-      for (int i = 0; i < n; i++) 
+        
+      TGraphErrors *pulls = new TGraphErrors(n);
+      pulls->SetMarkerStyle(7);
+        
+      pulls->GetXaxis()->SetTitle("t / 410.3 fs");
+      pulls->GetYaxis()->SetTitle("Pull");
+        
+      // optional: axis range for visibility
+      pulls->SetMinimum(-5);
+      pulls->SetMaximum(5);
+        
+      for (int i = 0; i < n; i++)
       {
-            Double_t x, y;
-            x = h_time->GetBinCenter(i+1);
-            y = h_time->GetBinContent(i+1);
-            Double_t y_fit  = pdf_proj(&x,pars,n_fit,h_time->GetBinWidth(1));
-            Double_t ey     = h_time->GetBinError(i+1);
-            Double_t res    = y - y_fit;
-
-            residuals->SetPoint(i, x, res);
-            residuals->SetPointError(i, 0., ey);
+          double x  = h_time->GetBinCenter(i+1);
+          double y  = h_time->GetBinContent(i+1);
+          double ey = h_time->GetBinError(i+1);
+      
+          double y_fit = pdf_proj(&x, pars, n_fit, h_time->GetBinWidth(1));
+      
+          // avoid division by zero
+          double pull = 0;
+          if (ey > 0) pull = (y - y_fit) / ey;
+      
+          pulls->SetPoint(i, x, pull);
+          pulls->SetPointError(i, 0., 1.0);
       }
-      residuals->Draw("P same");
-
-      // baseline
-      residuals->GetXaxis()->SetLimits(0.0, 10.0);
-
+      
+      pulls->Draw("AP");
+      
+      // baseline at 0
       TLine *line_zero = new TLine(0.0, 0., 10., 0.);
       line_zero->SetLineStyle(2);
-      fit_function_plot->SetLineColor(kRed);
-
       line_zero->Draw("same");
-
       // final update
       c_fit->Update();
       c_fit->Draw();
@@ -511,6 +573,7 @@ void lifetimeANA::Loop()
       right_bkg -> Write();
       average_bkg -> Write();
       c_fit -> Write();
+      c_mass_pull->Write();
 
       f->Close();
 
