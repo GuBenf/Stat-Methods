@@ -387,7 +387,7 @@ void lifetimeANA::Loop()
       c_fit->Draw();
       
     
-      TFile * f = new TFile("outfile_fit_DATA.root","RECREATE");
+      TFile * f = new TFile("outfile_fit_DATA_SIGNAL_SINGLE_NORM.root","RECREATE");
       //c_fit -> Write();
       c_fit -> Write();
 

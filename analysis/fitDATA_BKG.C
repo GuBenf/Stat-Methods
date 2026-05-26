@@ -501,7 +501,7 @@ void lifetimeANA::Loop()
       c_fit->Draw();
       
     
-      TFile * f = new TFile("outfile_fit_DATA.root","RECREATE");
+      TFile * f = new TFile("outfile_fit_DATA_BKG.root","RECREATE");
       //c_fit -> Write();
       histo_data_MKpi -> Write();
       left_bkg->Scale(1./left_bkg->Integral());

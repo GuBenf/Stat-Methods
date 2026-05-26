@@ -119,7 +119,7 @@ Double_t acceptance_func_mod(Double_t *x, Double_t *par)
 // p3   =    -0.489007   +/-   0.422909 
 
 //Create a new file to store histograms
-TFile *histo_file = new TFile("./_root/histo_file_new.root","RECREATE","put a title");
+TFile *histo_file = new TFile("./histo_file_new.root","RECREATE","put a title");
 
 void lifetimeANA::Loop()
 {

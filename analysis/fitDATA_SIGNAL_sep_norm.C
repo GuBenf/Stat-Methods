@@ -699,7 +699,7 @@ void lifetimeANA::Loop()
 
     TFile *f =
         new TFile(
-            "outfile_fit_DATA.root",
+            "outfile_fit_DATA_SIGNAL_SINGLE_NORM.root",
             "RECREATE");
 
     c_fit->Write();
