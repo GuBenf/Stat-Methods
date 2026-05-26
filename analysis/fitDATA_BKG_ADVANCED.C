@@ -88,7 +88,7 @@ Double_t computeNorm(Double_t tau)
     return sum;
 }
 
-for (double tau = 0.1; tau < 10.0; tau += 0.01)
+for (double tau = 0.01; tau < 10.0; tau += 0.001)
 {
     tau_grid.push_back(tau);
     norm_grid.push_back(computeNorm(tau));
@@ -97,7 +97,7 @@ for (double tau = 0.1; tau < 10.0; tau += 0.01)
 double getNorm(double tau)
 {
     // linear interpolation (fast)
-    int i = int((tau - tau_grid[0]) / 0.01);
+    int i = int((tau - tau_grid[0]) / 0.001);
     if (i < 0) i = 0;
     if (i >= tau_grid.size()-1) i = tau_grid.size()-2;
 
@@ -106,10 +106,14 @@ double getNorm(double tau)
     return n1 + (tau - t1) * (n2 - n1) / (t2 - t1);
 }
 
-double pdf_norm(double x, double *par)
+
+Double_t pdf_background(Double_t x, Double_t *par)
 {
-    double raw = pdf_exp_x_gauss(x, par);
-    return raw / getNorm(par[0]);
+    Double_t first_exp = pdf_exp_x_gauss(x,&par[0])/getNorm(par[0]);
+
+    Double_t second_exp = pdf_exp_x_gauss(x,&par[1])/getNorm(par[1]);
+
+    return par[2] * first_exp + (1 - par[2]) * second_exp;
 }
 
 void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
@@ -119,8 +123,8 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
   Int_t i=0;
   for(size_t i=0; i<xvar.size(); ++i)
     {
-      double p = pdf_exp_x_gauss(xvar[i], par);
-      p /= getNorm(par[0]);
+      double p = pdf_background(xvar[i], par);
+      //p /= getNorm(par[0]);
       Like += log(p);
   };
    f= - 2. * Like;
@@ -128,7 +132,7 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
 
 Double_t pdf_proj(Double_t *x, Double_t *par, Double_t N, Double_t bin_width)
 {
-    return N * pdf_norm(x[0], par) * bin_width;
+    return N * pdf_background(x[0], par) * bin_width;
 }
 
 // 
@@ -448,7 +452,7 @@ void lifetimeANA::Loop()
       
       // ***** FIT ***** 
 
-      const int nparam = 1;
+      const int nparam = 3;
       int n_fit = xvar.size();
       cout << "DIMENSION " << n_fit << endl;
 
@@ -460,10 +464,12 @@ void lifetimeANA::Loop()
       Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
         
       // Set starting values and step sizes for parameters
-      Double_t vstart[nparam] = {2.5};
-      Double_t step[nparam]   = {0.01};   //step 0 li rende costanti
+      Double_t vstart[nparam] = {2.,3.5,0.2};
+      Double_t step[nparam]   = {0.01,0.01,0.01};   //step 0 li rende costanti
      
-      my_gMinuit->mnparm(0, "tau", vstart[0], step[0], 0.1, 10., ierflg);
+      my_gMinuit->mnparm(0, "tau1", vstart[0], step[0], 0.01, 10., ierflg);
+      my_gMinuit->mnparm(1, "tau2", vstart[1], step[1], 0.01, 10., ierflg);
+      my_gMinuit->mnparm(2, "fraction", vstart[2], step[2], 0., 1., ierflg);
 
       arglist[0] = 500.;//500;
       arglist[1] = 0.1;
@@ -476,21 +482,24 @@ void lifetimeANA::Loop()
       my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
       my_gMinuit->mnprin(3,amin);
    
-      Double_t tau_fit, etau_fit, bnd1, bnd2;
+      Double_t tau1_fit, etau1_fit, tau2_fit, etau2_fit, fraction, efraction,  bnd1, bnd2;
       Int_t ivar=0;
       TString chnam;
         
-      my_gMinuit->mnpout(0, chnam, tau_fit, etau_fit, bnd1, bnd2, ivar);
-      std::cout << "\n========== FIT RESULT ==========\n";
-      std::cout << "Parameter : " << chnam << std::endl;
-      std::cout << "tau_fit   = " << tau_fit*410.3 << " fs" << std::endl;
-      std::cout << "error     = " << etau_fit*410.3 << " fs" << std::endl;
-      std::cout << "================================\n";
+      my_gMinuit->mnpout(0, chnam, tau1_fit, etau1_fit, bnd1, bnd2, ivar);
+      my_gMinuit->mnpout(1, chnam, tau2_fit, etau2_fit, bnd1, bnd2, ivar);
+      my_gMinuit->mnpout(2, chnam, fraction, efraction, bnd1, bnd2, ivar);
+
+      //std::cout << "\n========== FIT RESULT ==========\n";
+      //std::cout << "Parameter : " << chnam << std::endl;
+      //std::cout << "tau_fit   = " << tau_fit*410.3 << " fs" << std::endl;
+      //std::cout << "error     = " << etau_fit*410.3 << " fs" << std::endl;
+      //std::cout << "================================\n";
 
       std::vector<double> x_points;
       std::vector<double> y_points;
 
-      Double_t pars[nparam] = {tau_fit};
+      Double_t pars[nparam] = {tau1_fit,tau2_fit,fraction};
 
       for(int xi=0; xi<10000; xi++)
       {
@@ -523,6 +532,8 @@ void lifetimeANA::Loop()
       h_time->Draw("E");
 
       // overlay fit
+      fit_function_plot->SetLineColor(kRed);
+      fit_function_plot->SetMarkerColor(kRed);
       fit_function_plot->Draw("L SAME");
 
       // IMPORTANT: go back to canvas
