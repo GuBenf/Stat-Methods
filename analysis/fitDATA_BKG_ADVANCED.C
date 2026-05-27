@@ -430,7 +430,7 @@ void lifetimeANA::Loop()
           gr_purity->SetPoint(point, nsigma, purity);
           gr_signal->SetPoint(point, nsigma, signal);
 
-          cout << "nsigma = " << nsigma << "  purity = " << purity << endl;
+          cout << "nsigma = " << nsigma << "  purity = " << purity << "  signal = " << signal << endl;
       
           point++;
       }
@@ -454,25 +454,22 @@ void lifetimeANA::Loop()
       gPad->Update();
       
       double rightmax = 0;
+      double rightmin = 1;
 
       for (int i = 0; i < gr_signal->GetN(); i++)
       {
           double x, y;
           gr_signal->GetPoint(i, x, y);
 
-          if (y > rightmax)
-              rightmax = y;
-      }      
-      TGaxis *axis = new TGaxis(
-          gPad->GetUxmax(),
-          gPad->GetUymin(),
-          gPad->GetUxmax(),
-          gPad->GetUymax(),
-          0,
-          rightmax,
-          510,
-          "+L"
-      );
+          if (y > rightmax) rightmax = y;
+          if (y < rightmin) rightmin = y;
+
+      }
+      rightmax *= 1.05;
+
+      double leftmin = gPad->GetUymin();
+      double leftmax = gPad->GetUymax();
+      TGaxis *axis = new TGaxis(gPad->GetUxmax(), leftmin, gPad->GetUxmax(), leftmax, rightmin, rightmax, 510, "+L");
       
       axis->SetLineColor(kRed);
       axis->SetLabelColor(kRed);
@@ -482,16 +479,17 @@ void lifetimeANA::Loop()
       
       // Rescale signal graph to overlay
       
-      double scale = gPad->GetUymax() / rightmax;      
       TGraph *gr_signal_scaled = new TGraph();
       
       for(int i = 0; i < gr_signal->GetN(); i++)
       {
           double x, y;
           gr_signal->GetPoint(i, x, y);
-      
-          gr_signal_scaled->SetPoint(i, x, y * scale);
-      }
+          double y_scaled = leftmin + (y - rightmin) * (leftmax - leftmin) / (rightmax - rightmin);
+
+          gr_signal_scaled->SetPoint(i, x, y_scaled);
+
+        }
       
       gr_signal_scaled->SetLineColor(kRed);
       gr_signal_scaled->SetMarkerColor(kRed);
@@ -504,13 +502,9 @@ void lifetimeANA::Loop()
       
       TLegend *leg = new TLegend(0.15,0.75,0.4,0.88);
       
-      leg->AddEntry(gr_purity,
-                    "Purity S/(S+B)",
-                    "lp");
+      leg->AddEntry(gr_purity, "Purity S/(S+B)", "lp");
       
-      leg->AddEntry(gr_signal_scaled,
-                    "Signal Integral",
-                    "lp");
+      leg->AddEntry(gr_signal_scaled, "Signal Integral", "lp");
       
       leg->Draw();
       
