@@ -75,21 +75,10 @@ Double_t signal_pdf(Double_t x, Double_t tau)
 
     Double_t signalA =
         fA *
-        (1.0 / (2.0 * tau) *
-         TMath::Exp((sigmaA * sigmaA - 2.0 * tau * x) /
-                    (2.0 * tau * tau)) *
-         (TMath::Erf((tau * x - sigmaA * sigmaA) /
-                     (TMath::Sqrt(2.0) * tau * sigmaA)) +
-          1.0));
+        (1.0 / (2.0 * tau) * TMath::Exp((sigmaA * sigmaA - 2.0 * tau * x) / (2.0 * tau * tau)) * (TMath::Erf((tau * x - sigmaA * sigmaA) / (TMath::Sqrt(2.0) * tau * sigmaA)) + 1.0));
 
     Double_t signalB =
-        fB *
-        (1.0 / (2.0 * tau) *
-         TMath::Exp((sigmaB * sigmaB - 2.0 * tau * x) /
-                    (2.0 * tau * tau)) *
-         (TMath::Erf((tau * x - sigmaB * sigmaB) /
-                     (TMath::Sqrt(2.0) * tau * sigmaB)) +
-          1.0));
+        fB * (1.0 / (2.0 * tau) * TMath::Exp((sigmaB * sigmaB - 2.0 * tau * x) / (2.0 * tau * tau)) * (TMath::Erf((tau * x - sigmaB * sigmaB) / (TMath::Sqrt(2.0) * tau * sigmaB)) + 1.0));
 
     Double_t val = (signalA + signalB);
 
@@ -112,23 +101,9 @@ Double_t background_pdf(Double_t x)
     Double_t sigmaA = S_A_FIXED;
     Double_t sigmaB = S_B_FIXED;
 
-    Double_t bkgA =
-        fA *
-        (1.0 / (2.0 * tauB) *
-         TMath::Exp((sigmaA * sigmaA - 2.0 * tauB * x) /
-                    (2.0 * tauB * tauB)) *
-         (TMath::Erf((tauB * x - sigmaA * sigmaA) /
-                     (TMath::Sqrt(2.0) * tauB * sigmaA)) +
-          1.0));
+    Double_t bkgA = fA * (1.0 / (2.0 * tauB) * TMath::Exp((sigmaA * sigmaA - 2.0 * tauB * x) / (2.0 * tauB * tauB)) * (TMath::Erf((tauB * x - sigmaA * sigmaA) / (TMath::Sqrt(2.0) * tauB * sigmaA)) + 1.0));
 
-    Double_t bkgB =
-        fB *
-        (1.0 / (2.0 * tauB) *
-         TMath::Exp((sigmaB * sigmaB - 2.0 * tauB * x) /
-                    (2.0 * tauB * tauB)) *
-         (TMath::Erf((tauB * x - sigmaB * sigmaB) /
-                     (TMath::Sqrt(2.0) * tauB * sigmaB)) +
-          1.0));
+    Double_t bkgB = fB * (1.0 / (2.0 * tauB) * TMath::Exp((sigmaB * sigmaB - 2.0 * tauB * x) / (2.0 * tauB * tauB)) * (TMath::Erf((tauB * x - sigmaB * sigmaB) / (TMath::Sqrt(2.0) * tauB * sigmaB)) + 1.0));
 
     Double_t val = (bkgA + bkgB);
 
@@ -223,11 +198,9 @@ Double_t pdf_norm(Double_t x, Double_t *par)
     Double_t tau = par[0];
     Double_t fsig = par[1];
 
-    Double_t sig =
-        signal_pdf(x, tau) / getSignalNorm(tau);
+    Double_t sig = signal_pdf(x, tau) / getSignalNorm(tau);
 
-    Double_t bkg =
-        background_pdf(x) / background_norm;
+    Double_t bkg = background_pdf(x) / background_norm;
 
     return fsig * sig + (1.0 - fsig) * bkg;
 }
@@ -370,23 +343,9 @@ void lifetimeANA::Loop()
     Double_t vstart[nparam] = {1.0, 0.5};
     Double_t step[nparam]   = {0.01, 0.01};
 
-    my_gMinuit->mnparm(
-        0,
-        "tau",
-        vstart[0],
-        step[0],
-        0.1,
-        10.0,
-        ierflg);
+    my_gMinuit->mnparm(0, "tau", vstart[0], step[0], 0.1, 10.0, ierflg);
 
-    my_gMinuit->mnparm(
-        1,
-        "signal_fraction",
-        vstart[1],
-        step[1],
-        0.0,
-        1.0,
-        ierflg);
+    my_gMinuit->mnparm(1, "signal_fraction", vstart[1], step[1], 0.0, 1.0, ierflg);
 
     arglist[0] = 500;
     arglist[1] = 0.1;
@@ -400,13 +359,7 @@ void lifetimeANA::Loop()
     Double_t amin, edm, errdef;
     Int_t nvpar, nparx, icstat;
 
-    my_gMinuit->mnstat(
-        amin,
-        edm,
-        errdef,
-        nvpar,
-        nparx,
-        icstat);
+    my_gMinuit->mnstat(amin, edm, errdef, nvpar, nparx, icstat);
 
     my_gMinuit->mnprin(3, amin);
 
@@ -422,37 +375,17 @@ void lifetimeANA::Loop()
 
     TString chnam;
 
-    my_gMinuit->mnpout(
-        0,
-        chnam,
-        tau_fit,
-        etau_fit,
-        bnd1,
-        bnd2,
-        ivar);
+    my_gMinuit->mnpout(0, chnam, tau_fit, etau_fit, bnd1, bnd2, ivar);
 
-    my_gMinuit->mnpout(
-        1,
-        chnam,
-        signal_fraction_fit,
-        e_signal_fraction_fit,
-        bnd1,
-        bnd2,
-        ivar);
+    my_gMinuit->mnpout(1, chnam, signal_fraction_fit, e_signal_fraction_fit, bnd1, bnd2, ivar);
 
     std::cout << "\n========== FIT RESULT ==========\n";
 
-    std::cout << "tau_fit = "
-              << tau_fit * 410.3
-              << " fs\n";
+    std::cout << "tau_fit = " << tau_fit * 410.3 << " fs\n";
 
-    std::cout << "error = "
-              << etau_fit * 410.3
-              << " fs\n";
+    std::cout << "error = " << etau_fit * 410.3 << " fs\n";
 
-    std::cout << "signal fraction = "
-              << signal_fraction_fit
-              << "\n";
+    std::cout << "signal fraction = " << signal_fraction_fit << "\n";
 
     std::cout << "================================\n";
 
@@ -477,37 +410,21 @@ void lifetimeANA::Loop()
         double xmin = 0.0;
         double xmax = 10.0;
 
-        double x =
-            xmin +
-            xi * (xmax - xmin) / 10000.0;
+        double x = xmin + xi * (xmax - xmin) / 10000.0;
 
         x_points.push_back(x);
 
         // normalized signal/background PDFs
 
-        double sig =
-            signal_pdf(x, tau_fit)
-            /
-            getSignalNorm(tau_fit);
+        double sig = signal_pdf(x, tau_fit) / getSignalNorm(tau_fit);
 
-        double bkg =
-            background_pdf(x)
-            /
-            background_norm;
+        double bkg = background_pdf(x) / background_norm;
 
         // expected histogram counts
 
-        double ysig =
-            n_fit *
-            signal_fraction_fit *
-            sig *
-            h_time->GetBinWidth(1);
+        double ysig = n_fit * signal_fraction_fit * sig * h_time->GetBinWidth(1);
 
-        double ybkg =
-            n_fit *
-            (1.0 - signal_fraction_fit) *
-            bkg *
-            h_time->GetBinWidth(1);
+        double ybkg = n_fit * (1.0 - signal_fraction_fit) * bkg * h_time->GetBinWidth(1);
 
         double ytot = ysig + ybkg;
 
@@ -520,23 +437,11 @@ void lifetimeANA::Loop()
     // CREATE GRAPHS
     // ---------------------------------------------
 
-    TGraph *fit_total =
-        new TGraph(
-            10000,
-            x_points.data(),
-            y_total.data());
+    TGraph *fit_total = new TGraph(10000, x_points.data(), y_total.data());
 
-    TGraph *fit_signal =
-        new TGraph(
-            10000,
-            x_points.data(),
-            y_signal.data());
+    TGraph *fit_signal = new TGraph(10000, x_points.data(), y_signal.data());
 
-    TGraph *fit_background =
-        new TGraph(
-            10000,
-            x_points.data(),
-            y_background.data());
+    TGraph *fit_background = new TGraph(10000, x_points.data(), y_background.data());
 
     // ---------------------------------------------
     // STYLE
@@ -557,12 +462,7 @@ void lifetimeANA::Loop()
     // CANVAS
     // ---------------------------------------------
 
-    TCanvas *c_fit =
-        new TCanvas(
-            "c_fit",
-            "fit",
-            800,
-            600);
+    TCanvas *c_fit = new TCanvas("c_fit", "fit", 800, 600);
 
     c_fit->cd();
 
@@ -572,14 +472,7 @@ void lifetimeANA::Loop()
     // TOP PAD
     // ---------------------------------------------
 
-    TPad *pad_fit =
-        new TPad(
-            "pad_fit",
-            "",
-            0.,
-            split,
-            1.,
-            1.);
+    TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
 
     pad_fit->SetBottomMargin(0.02);
 
@@ -603,12 +496,7 @@ void lifetimeANA::Loop()
     // LEGEND
     // ---------------------------------------------
 
-    TLegend *leg =
-        new TLegend(
-            0.60,
-            0.65,
-            0.88,
-            0.88);
+    TLegend *leg = new TLegend(0.60, 0.65, 0.88, 0.88);
 
     leg->AddEntry(h_time, "Data", "lep");
     leg->AddEntry(fit_total, "Total fit", "l");
@@ -625,14 +513,7 @@ void lifetimeANA::Loop()
     // BOTTOM PAD
     // ---------------------------------------------
 
-    TPad *pad_res =
-        new TPad(
-            "pad_res",
-            "",
-            0.,
-            0.,
-            1.,
-            split);
+    TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
 
     pad_res->SetTopMargin(0.02);
     pad_res->SetBottomMargin(0.25);
@@ -643,48 +524,41 @@ void lifetimeANA::Loop()
 
     int n = h_time->GetNbinsX();
 
-    TGraphErrors *residuals =
-        new TGraphErrors(n);
+    TGraphErrors *residuals = new TGraphErrors(n);
 
     residuals->SetMarkerStyle(7);
 
     residuals->GetXaxis()->SetTitle("t / 410.3 fs");
     residuals->GetYaxis()->SetTitle("pull");
+    TH1D *h_pull = new TH1D("h_pull", "Pull distribution;Pull;Entries", 20, -5, 5);      
+
 
     for (int i = 0; i < n; i++)
     {
-        Double_t x =
-            h_time->GetBinCenter(i + 1);
+        Double_t x = h_time->GetBinCenter(i + 1);
 
-        Double_t y =
-            h_time->GetBinContent(i + 1);
+        Double_t y = h_time->GetBinContent(i + 1);
 
-        Double_t y_fit =
-            pdf_proj(
-                &x,
-                pars,
-                n_fit,
-                h_time->GetBinWidth(1));
+        Double_t y_fit = pdf_proj(&x, pars, n_fit, h_time->GetBinWidth(1));
 
-        Double_t ey =
-            h_time->GetBinError(i + 1);
+        Double_t ey = h_time->GetBinError(i + 1);
 
         Double_t pull = 0.0;
 
-        if (ey > 0)
-            pull = (y - y_fit) / ey;
+        if (ey > 0) pull = (y - y_fit) / ey;
 
         residuals->SetPoint(i, x, pull);
 
         residuals->SetPointError(i, 0., 1.0);
+
+        h_pull->Fill(pull);
     }
 
     residuals->Draw("AP");
 
     residuals->GetXaxis()->SetLimits(0.0, 10.0);
 
-    TLine *line_zero =
-        new TLine(0.0, 0., 10., 0.);
+    TLine *line_zero = new TLine(0.0, 0., 10., 0.);
 
     line_zero->SetLineStyle(2);
 
@@ -696,13 +570,35 @@ void lifetimeANA::Loop()
 
     c_fit->Update();
     c_fit->Draw();
+    
+    TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "Pull distribution", 800, 600);
+    c_pull_hist->cd();
 
-    TFile *f =
-        new TFile(
-            "outfile_fit_DATA_SIGNAL_SINGLE_NORM.root",
-            "RECREATE");
+
+    h_pull->SetLineColor(kBlue + 1);
+    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
+    h_pull->GetXaxis()->SetTitle("Pull");
+    h_pull->GetYaxis()->SetTitle("Entries");
+        
+    h_pull->Draw("HIST");
+        
+    TF1 *gaus = new TF1("gaus", "gaus", -3, 3);
+    gaus->SetParameters(h_pull->GetMaximum(), 0., 1.);
+        
+    h_pull->Fit(gaus, "R");
+        
+    gaus->SetLineColor(kRed);
+    gaus->Draw("same");
+        
+    c_pull_hist->Update();
+      
+    gaus->Draw("same");
+
+    TFile *f = new TFile( "outfile_fit_DATA_SIGNAL_SINGLE_NORM.root", "RECREATE");
 
     c_fit->Write();
+    c_pull_hist->Write();
+
 
     f->Close();
 }

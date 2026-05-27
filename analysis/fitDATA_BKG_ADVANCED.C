@@ -88,10 +88,24 @@ Double_t computeNorm(Double_t tau)
     return sum;
 }
 
-for (double tau = 0.01; tau < 10.0; tau += 0.001)
+// for (double tau = 0.01; tau < 10.0; tau += 0.001)
+// {
+//     tau_grid.push_back(tau);
+//     norm_grid.push_back(computeNorm(tau));
+// }
+
+void initNormGrid()
 {
-    tau_grid.push_back(tau);
-    norm_grid.push_back(computeNorm(tau));
+    tau_grid.clear();
+    norm_grid.clear();
+
+    for (double tau = 0.01; tau < 10.0; tau += 0.001)
+    {
+        tau_grid.push_back(tau);
+        norm_grid.push_back(computeNorm(tau));
+    }
+
+    std::cout << "Initialized norm grid with " << tau_grid.size() << " points" << std::endl;
 }
 
 double getNorm(double tau)
@@ -279,6 +293,7 @@ tot_bkg -> Sumw2();
 
 void lifetimeANA::Loop()
 {  
+      initNormGrid();
   
       if (fChain == 0) return;
 
@@ -379,7 +394,126 @@ void lifetimeANA::Loop()
 
 
       histo_data_MKpi -> Fit(invariant_mass_Gauss,"L0","",X_MIN_INVARIANT_MASS,X_MAX_INVARIANT_MASS);
- 
+
+      // ------------- SIGNAL/BKG RATIO IN SELECTED AREA -------------------
+
+      double mean  = 1.86482;
+      double sigma = 0.00540974;
+        
+      // Background parameters
+      double bkg_const = 56509.3 * 11.6043;
+        
+      // Graph
+      TGraph *gr_purity = new TGraph();
+      TGraph *gr_signal = new TGraph();        
+      int point = 0;
+        
+      // Loop from 0.1 sigma to 5 sigma
+      for(double nsigma = 0.1; nsigma <= 5.0; nsigma += 0.1)
+      {
+          double sig_min = mean - nsigma * sigma;
+          double sig_max = mean + nsigma * sigma;
+      
+          // Total integral
+          double total = invariant_mass_Gauss->Integral(sig_min, sig_max) / BIN_WIDTH_INVARIANT_MASS;
+      
+          // Background integral
+          double bkg = bkg_const * (sig_max - sig_min);
+      
+          // Signal
+          double signal = total - bkg;
+      
+          // Purity = S / (S + B)
+          double purity = signal / total;
+      
+          // Store point
+          gr_purity->SetPoint(point, nsigma, purity);
+          gr_signal->SetPoint(point, nsigma, signal);
+
+          cout << "nsigma = " << nsigma << "  purity = " << purity << endl;
+      
+          point++;
+      }
+      
+      // Draw
+      TCanvas *c1 = new TCanvas("c1", "Purity and Signal Integral", 900, 700);
+      
+      // First graph: purity
+      
+      gr_purity->SetTitle("Purity and Signal Integral vs N_{#sigma};N_{#sigma};Purity");
+      
+      gr_purity->SetLineColor(kBlue);
+      gr_purity->SetMarkerColor(kBlue);
+      gr_purity->SetMarkerStyle(20);
+      gr_purity->SetLineWidth(2);
+      
+      gr_purity->Draw("ALP");
+      
+      // Second axis for signal integral
+      
+      gPad->Update();
+      
+      double rightmax = 0;
+
+      for (int i = 0; i < gr_signal->GetN(); i++)
+      {
+          double x, y;
+          gr_signal->GetPoint(i, x, y);
+
+          if (y > rightmax)
+              rightmax = y;
+      }      
+      TGaxis *axis = new TGaxis(
+          gPad->GetUxmax(),
+          gPad->GetUymin(),
+          gPad->GetUxmax(),
+          gPad->GetUymax(),
+          0,
+          rightmax,
+          510,
+          "+L"
+      );
+      
+      axis->SetLineColor(kRed);
+      axis->SetLabelColor(kRed);
+      axis->SetTitleColor(kRed);
+      axis->SetTitle("Signal Integral");
+      axis->Draw();
+      
+      // Rescale signal graph to overlay
+      
+      double scale = gPad->GetUymax() / rightmax;      
+      TGraph *gr_signal_scaled = new TGraph();
+      
+      for(int i = 0; i < gr_signal->GetN(); i++)
+      {
+          double x, y;
+          gr_signal->GetPoint(i, x, y);
+      
+          gr_signal_scaled->SetPoint(i, x, y * scale);
+      }
+      
+      gr_signal_scaled->SetLineColor(kRed);
+      gr_signal_scaled->SetMarkerColor(kRed);
+      gr_signal_scaled->SetMarkerStyle(21);
+      gr_signal_scaled->SetLineWidth(2);
+      
+      gr_signal_scaled->Draw("LP SAME");
+      
+      // Legend
+      
+      TLegend *leg = new TLegend(0.15,0.75,0.4,0.88);
+      
+      leg->AddEntry(gr_purity,
+                    "Purity S/(S+B)",
+                    "lp");
+      
+      leg->AddEntry(gr_signal_scaled,
+                    "Signal Integral",
+                    "lp");
+      
+      leg->Draw();
+      
       // -------------------- PULL PLOT (INVARIANT MASS) --------------------
 
       const int n_bins = histo_data_MKpi->GetNbinsX();
@@ -416,6 +550,9 @@ void lifetimeANA::Loop()
       mass_pulls->SetMarkerStyle(7);
       mass_pulls->GetYaxis()->SetTitle("Pull");
       mass_pulls->GetXaxis()->SetTitle("m(K#pi) [GeV]");
+
+      TH1D *h_mass_pull = new TH1D("h_mass_pull", "Mass pull distribution;Pull;Entries", 20, -5, 5);      
+
       
       for (int i = 1; i <= n_bins; i++)
       {
@@ -423,17 +560,20 @@ void lifetimeANA::Loop()
           double x = histo_data_MKpi->GetBinCenter(i);
           double y = histo_data_MKpi->GetBinContent(i);
           double ey = histo_data_MKpi->GetBinError(i);
+          double bin_low  = histo_data_MKpi->GetBinLowEdge(i);
+          double bin_high = histo_data_MKpi->GetBinLowEdge(i+1);
+          double bin_width = bin_high - bin_low;
       
           if (x < X_MIN_INVARIANT_MASS || x > X_MAX_INVARIANT_MASS)
               continue;
       
-          double y_fit = invariant_mass_Gauss->Eval(x);
-      
+          double y_fit = invariant_mass_Gauss->Integral(bin_low, bin_high) / bin_width;      
           double pull = 0;
           if (ey > 0) pull = (y - y_fit) / ey;
       
           mass_pulls->SetPoint(i-1, x, pull);
           mass_pulls->SetPointError(i-1, 0, 1);
+          h_mass_pull->Fill(pull);
       }
       
       mass_pulls->SetMinimum(-5);
@@ -448,6 +588,29 @@ void lifetimeANA::Loop()
       zero_line->Draw("same");
       
       c_mass_pull->Update();
+
+      TCanvas *c_mass_pull_hist = new TCanvas("c_mass_pull_hist", "Pull distribution", 800, 600);
+      c_mass_pull_hist->cd();
+        
+      h_mass_pull->SetLineColor(kBlue + 1);
+    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
+      h_mass_pull->GetXaxis()->SetTitle("Pull");
+      h_mass_pull->GetYaxis()->SetTitle("Entries");
+        
+      h_mass_pull->Draw("HIST");
+        
+      TF1 *gaus_mass = new TF1("gaus_mass", "gaus", -3, 3);
+      gaus_mass->SetParameters(h_mass_pull->GetMaximum(), 0., 1.);
+        
+      h_mass_pull->Fit(gaus_mass, "R");
+        
+      gaus_mass->SetLineColor(kRed);
+      gaus_mass->Draw("same");
+        
+      c_mass_pull_hist->Update();
+      
+      gaus_mass->Draw("same");
+
 
       
       // ***** FIT ***** 
@@ -547,6 +710,8 @@ void lifetimeANA::Loop()
       pad_pull->cd();
         
       int n = h_time->GetNbinsX();
+
+      TH1D *h_pull = new TH1D("h_pull", "Pull distribution;Pull;Entries", 20, -5, 5);      
         
       TGraphErrors *pulls = new TGraphErrors(n);
       pulls->SetMarkerStyle(7);
@@ -572,6 +737,8 @@ void lifetimeANA::Loop()
       
           pulls->SetPoint(i, x, pull);
           pulls->SetPointError(i, 0., 1.0);
+          h_pull->Fill(pull);
+
       }
       
       pulls->Draw("AP");
@@ -581,8 +748,27 @@ void lifetimeANA::Loop()
       line_zero->SetLineStyle(2);
       line_zero->Draw("same");
       // final update
-      c_fit->Update();
-      c_fit->Draw();
+      TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "Pull distribution", 800, 600);
+      c_pull_hist->cd();
+        
+      h_pull->SetLineColor(kBlue + 1);
+    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
+      h_pull->GetXaxis()->SetTitle("Pull");
+      h_pull->GetYaxis()->SetTitle("Entries");
+        
+      h_pull->Draw("HIST");
+        
+      TF1 *gaus = new TF1("gaus", "gaus", -3, 3);
+      gaus->SetParameters(h_pull->GetMaximum(), 0., 1.);
+        
+      h_pull->Fit(gaus, "R");
+        
+      gaus->SetLineColor(kRed);
+      gaus->Draw("same");
+        
+      c_pull_hist->Update();
+      
+      gaus->Draw("same");
       
     
       TFile * f = new TFile("outfile_fit_DATA_BKG.root","RECREATE");
@@ -596,6 +782,10 @@ void lifetimeANA::Loop()
       average_bkg -> Write();
       c_fit -> Write();
       c_mass_pull->Write();
+      gr_purity->Write();
+      c1->Write();
+      c_pull_hist->Write();
+      c_mass_pull_hist->Write();
 
       f->Close();
 
