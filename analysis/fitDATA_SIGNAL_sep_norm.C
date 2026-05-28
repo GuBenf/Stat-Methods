@@ -17,7 +17,24 @@ Double_t MU_B_FIXED = 0.00536732;   //--> NOT
 Double_t S_A_FIXED = 0.0825203;
 Double_t S_B_FIXED = 0.130739;
 Double_t F_FIXED = 0.495402;
-Double_t TAU_BACKGROUND = 3.40304;
+Double_t TAU_BACKGROUND_1 = 0.074;
+Double_t TAU_BACKGROUND_2 = 3.46;
+Double_t F_BKG = 0.0074;
+
+// 2 expos full sides
+//    1  tau1         7.20000e-02   5.39140e-05  -5.03475e-08   2.93382e+01
+//    2  tau2         3.45820e+00   2.01168e-02  -4.05536e-06   1.38089e-02
+//    3  fraction     7.74489e-03   6.20111e-04   3.86001e-05  -1.69050e-02
+
+// 2 expos left side
+//    1  tau1         1.59921e-02   7.19275e-04  -0.00000e+00   4.79701e+00
+//    2  tau2         3.56155e+00   3.23689e-02  -0.00000e+00   1.00623e+00
+//    3  fraction     2.72642e-03   4.85397e-04   0.00000e+00  -6.06067e+00
+
+// 2 expos right side
+//    1  tau1         9.40002e-02   2.88527e-04   0.00000e+00  -1.62049e+01
+//    2  tau2         3.39464e+00   2.57665e-02   0.00000e+00  -3.54302e-01
+//    3  fraction     1.24951e-02   1.03647e-03   0.00000e+00  -3.69557e+00
 
 const double XMIN = 0.5;
 const double XMAX = 10.0;
@@ -93,19 +110,28 @@ Double_t signal_pdf(Double_t x, Double_t tau)
 
 Double_t background_pdf(Double_t x)
 {
-    Double_t tauB = TAU_BACKGROUND;
+    Double_t tauB_1 = TAU_BACKGROUND_1;
+    Double_t tauB_2 = TAU_BACKGROUND_2;
 
     Double_t fA = F_FIXED;
     Double_t fB = 1.0 - F_FIXED;
 
+    Double_t fC = F_BKG;
+
     Double_t sigmaA = S_A_FIXED;
     Double_t sigmaB = S_B_FIXED;
 
-    Double_t bkgA = fA * (1.0 / (2.0 * tauB) * TMath::Exp((sigmaA * sigmaA - 2.0 * tauB * x) / (2.0 * tauB * tauB)) * (TMath::Erf((tauB * x - sigmaA * sigmaA) / (TMath::Sqrt(2.0) * tauB * sigmaA)) + 1.0));
+    Double_t bkgA_1 = fA * (1.0 / (2.0 * tauB_1) * TMath::Exp((sigmaA * sigmaA - 2.0 * tauB_1 * x) / (2.0 * tauB_1 * tauB_1)) * (TMath::Erf((tauB_1 * x - sigmaA * sigmaA) / (TMath::Sqrt(2.0) * tauB_1 * sigmaA)) + 1.0));
 
-    Double_t bkgB = fB * (1.0 / (2.0 * tauB) * TMath::Exp((sigmaB * sigmaB - 2.0 * tauB * x) / (2.0 * tauB * tauB)) * (TMath::Erf((tauB * x - sigmaB * sigmaB) / (TMath::Sqrt(2.0) * tauB * sigmaB)) + 1.0));
+    Double_t bkgB_1 = fB * (1.0 / (2.0 * tauB_1) * TMath::Exp((sigmaB * sigmaB - 2.0 * tauB_1 * x) / (2.0 * tauB_1 * tauB_1)) * (TMath::Erf((tauB_1 * x - sigmaB * sigmaB) / (TMath::Sqrt(2.0) * tauB_1 * sigmaB)) + 1.0));
 
-    Double_t val = (bkgA + bkgB);
+    Double_t bkgA_2 = fA * (1.0 / (2.0 * tauB_2) * TMath::Exp((sigmaA * sigmaA - 2.0 * tauB_2 * x) / (2.0 * tauB_2 * tauB_2)) * (TMath::Erf((tauB_2 * x - sigmaA * sigmaA) / (TMath::Sqrt(2.0) * tauB_2 * sigmaA)) + 1.0));
+
+    Double_t bkgB_2 = fB * (1.0 / (2.0 * tauB_2) * TMath::Exp((sigmaB * sigmaB - 2.0 * tauB_2 * x) / (2.0 * tauB_2 * tauB_2)) * (TMath::Erf((tauB_2 * x - sigmaB * sigmaB) / (TMath::Sqrt(2.0) * tauB_2 * sigmaB)) + 1.0));
+
+
+
+    Double_t val = fC * (bkgA_1 + bkgB_1) + (1.-fC) * (bkgA_2 + bkgB_2);
 
     val *= acceptance_func_mod(&x, ACCEPTANCE_PAR_FIXED);
 
@@ -233,10 +259,7 @@ void fcn(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t)
 // PROJECTION FOR HISTOGRAM PLOT
 // ---------------------------------------------------
 
-Double_t pdf_proj(Double_t *x,
-                  Double_t *par,
-                  Double_t N,
-                  Double_t bin_width)
+Double_t pdf_proj(Double_t *x, Double_t *par, Double_t N, Double_t bin_width)
 {
     return N * pdf_norm(x[0], par) * bin_width;
 }
@@ -341,13 +364,13 @@ void lifetimeANA::Loop()
     Int_t ierflg = 0;
 
     Double_t vstart[nparam] = {1.0, 0.5};
-    Double_t step[nparam]   = {0.01, 0.01};
+    Double_t step[nparam]   = {0.001, 0.001};
 
     my_gMinuit->mnparm(0, "tau", vstart[0], step[0], 0.1, 10.0, ierflg);
 
     my_gMinuit->mnparm(1, "signal_fraction", vstart[1], step[1], 0.0, 1.0, ierflg);
 
-    arglist[0] = 500;
+    arglist[0] = 5000;
     arglist[1] = 0.1;
 
     my_gMinuit->mnexcm("MIGRAD", arglist, 2, ierflg);
@@ -399,11 +422,7 @@ void lifetimeANA::Loop()
     std::vector<double> y_signal;
     std::vector<double> y_background;
 
-    Double_t pars[nparam] =
-    {
-        tau_fit,
-        signal_fraction_fit
-    };
+    Double_t pars[nparam] = {tau_fit, signal_fraction_fit};
 
     for (int xi = 0; xi < 10000; xi++)
     {

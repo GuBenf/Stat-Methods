@@ -621,14 +621,14 @@ void lifetimeANA::Loop()
       Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
         
       // Set starting values and step sizes for parameters
-      Double_t vstart[nparam] = {2.,3.5,0.2};
-      Double_t step[nparam]   = {0.01,0.01,0.01};   //step 0 li rende costanti
+      Double_t vstart[nparam] = {0.2,3.5,0.2};
+      Double_t step[nparam]   = {0.001,0.001,0.001};   //step 0 li rende costanti
      
       my_gMinuit->mnparm(0, "tau1", vstart[0], step[0], 0.01, 10., ierflg);
       my_gMinuit->mnparm(1, "tau2", vstart[1], step[1], 0.01, 10., ierflg);
       my_gMinuit->mnparm(2, "fraction", vstart[2], step[2], 0., 1., ierflg);
 
-      arglist[0] = 500.;//500;
+      arglist[0] = 5000.;//500;
       arglist[1] = 0.1;
 
       my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
