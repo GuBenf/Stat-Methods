@@ -720,7 +720,8 @@ for (double xmin_loop : xmin_values)
       
     // gaus->Draw("same");
 
-    TCanvas *c_scan = new TCanvas("c_scan", "XMIN scan", 800, 600);
+    TCanvas *c_scan = new TCanvas("c_scan", "XMIN scan");
+    c_scan -> SetBottomMargin(0.15);
 
 TGraphErrors *gr_scan =
     new TGraphErrors(
@@ -731,15 +732,43 @@ TGraphErrors *gr_scan =
         tau_errors.data()
     );
 
+double sum_tau = 0;
+double sum_errors = 0;
+int punti = 0;
+for(int tau = 0; tau < tau_results.size(); tau++)
+{
+    if(xmin_values[tau] > 1)
+    {
+        sum_tau = sum_tau + tau_results[tau];
+        sum_errors = sum_errors + tau_errors[tau] * tau_errors[tau];
+        punti ++;
+    }
+}
+
+double average_error = TMath::Sqrt(sum_errors)/punti;
+double average_tau = sum_tau/punti;
+
+cout << "AVERAGE TAU: " << average_tau << " PM " << average_error << endl;
+
+
 gr_scan->SetTitle("Lifetime vs XMIN;XMIN;tau [fs]");
 
-gr_scan->SetMarkerStyle(20);
-gr_scan->SetMarkerSize(1.2);
-gr_scan->SetLineWidth(2);
+gr_scan->SetMarkerStyle(8);
+gr_scan->SetMarkerSize(0.5);
+gr_scan ->GetYaxis() -> SetTitleOffset(0.8);
+gr_scan->GetYaxis()->SetTitle("#tau [fs]");
+gr_scan->GetYaxis()->SetTitleSize(0.06);
+gr_scan->GetYaxis()->SetLabelSize(0.05);
+gr_scan->GetXaxis()->SetTitle("Lower bound fit interval [fs / 410.3]");
+gr_scan->GetXaxis()->SetTitleSize(0.06);
+gr_scan->GetXaxis()->SetLabelSize(0.05);
+gr_scan->Draw("PE");
 
 gr_scan->Draw("AP");
 
 c_scan->Update();
+
+c_scan -> SaveAs("PLOT_REPORT/TAU_VARYING_XMIN.pdf");
 
     TFile *f = new TFile( "outfile_fit_DATA_SIGNAL_SINGLE_NORM.root", "RECREATE");
 
