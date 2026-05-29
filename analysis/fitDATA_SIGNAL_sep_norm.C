@@ -17,9 +17,14 @@ Double_t MU_B_FIXED = 0.00536732;   //--> NOT
 Double_t S_A_FIXED = 0.0825203;
 Double_t S_B_FIXED = 0.130739;
 Double_t F_FIXED = 0.495402;
-Double_t TAU_BACKGROUND_1 = 0.074;
-Double_t TAU_BACKGROUND_2 = 3.46;
-Double_t F_BKG = 0.0074;
+//Double_t TAU_BACKGROUND_1 = 0.074;
+//Double_t TAU_BACKGROUND_2 = 3.46;
+//Double_t F_BKG = 0.0074;
+
+//--> tagliando a 0.7
+Double_t TAU_BACKGROUND_1 =  1.01002e-01;
+Double_t TAU_BACKGROUND_2 = 3.46973e+00;
+Double_t F_BKG = 3.53064e-03;
 
 // 2 expos full sides
 //    1  tau1         7.20000e-02   5.39140e-05  -5.03475e-08   2.93382e+01
@@ -36,7 +41,7 @@ Double_t F_BKG = 0.0074;
 //    2  tau2         3.39464e+00   2.57665e-02   0.00000e+00  -3.54302e-01
 //    3  fraction     1.24951e-02   1.03647e-03   0.00000e+00  -3.69557e+00
 
-const double XMIN = 0.5;
+const double XMIN = 0.7;
 const double XMAX = 10.0;
 
 Double_t MAX_ACCEPTANCE = 0.115673;
@@ -493,7 +498,7 @@ void lifetimeANA::Loop()
 
     TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
 
-    pad_fit->SetBottomMargin(0.02);
+    pad_fit->SetBottomMargin(0.0);
 
     pad_fit->Draw();
 
@@ -505,7 +510,13 @@ void lifetimeANA::Loop()
 
     h_time->GetXaxis()->SetRangeUser(0., 10.0);
 
-    h_time->Draw("E");
+    h_time->SetMarkerStyle(8);
+    h_time->SetMarkerSize(0.5);
+    h_time ->GetYaxis() -> SetTitleOffset(0.85);
+    h_time->GetYaxis()->SetTitle("counts / 0.1 [fs / 410.3]");
+    h_time->GetYaxis()->SetTitleSize(0.06);
+    h_time->GetYaxis()->SetLabelSize(0.05);
+    h_time->Draw("PE");
 
     fit_total->Draw("L SAME");
     fit_signal->Draw("L SAME");
@@ -534,8 +545,8 @@ void lifetimeANA::Loop()
 
     TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
 
-    pad_res->SetTopMargin(0.02);
-    pad_res->SetBottomMargin(0.25);
+    pad_res->SetTopMargin(0.0);
+    pad_res->SetBottomMargin(0.3);
 
     pad_res->Draw();
 
@@ -545,16 +556,27 @@ void lifetimeANA::Loop()
 
     TGraphErrors *residuals = new TGraphErrors(n);
 
-    residuals->SetMarkerStyle(7);
+    residuals -> SetMarkerStyle(8);
+    residuals -> SetTitle("");
+    residuals -> SetMarkerSize(0.4);
+    residuals -> GetYaxis() -> SetTitleOffset(0.3);
+    residuals -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+    residuals -> GetYaxis()-> SetTitle("pulls");
+    residuals -> GetYaxis()-> SetTitleSize(0.13);
+    residuals -> GetXaxis()-> SetTitleSize(0.13);
+    residuals -> GetYaxis()-> SetLabelSize(0.11);
+    residuals -> GetXaxis()-> SetLabelSize(0.11);
+    residuals->Draw("APE");
 
-    residuals->GetXaxis()->SetTitle("t / 410.3 fs");
-    residuals->GetYaxis()->SetTitle("pull");
-    TH1D *h_pull = new TH1D("h_pull", "Pull distribution;Pull;Entries", 20, -5, 5);      
+    TH1D *h_pull = new TH1D("h_pull", "", 20, -5, 5);      
 
 
     for (int i = 0; i < n; i++)
     {
         Double_t x = h_time->GetBinCenter(i + 1);
+        
+        if(x >= XMIN)
+        {
 
         Double_t y = h_time->GetBinContent(i + 1);
 
@@ -571,6 +593,7 @@ void lifetimeANA::Loop()
         residuals->SetPointError(i, 0., 1.0);
 
         h_pull->Fill(pull);
+        }
     }
 
     residuals->Draw("AP");
@@ -588,18 +611,25 @@ void lifetimeANA::Loop()
     // ---------------------------------------------
 
     c_fit->Update();
+
+    c_fit -> SaveAs("PLOT_REPORT/FINAL_FIT.pdf");
+
     c_fit->Draw();
     
-    TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "Pull distribution", 800, 600);
+    TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "Pull distribution");
     c_pull_hist->cd();
 
-
-    h_pull->SetLineColor(kBlue + 1);
-    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
-    h_pull->GetXaxis()->SetTitle("Pull");
-    h_pull->GetYaxis()->SetTitle("Entries");
         
-    h_pull->Draw("HIST");
+    c_pull_hist -> SetBottomMargin(0.15   );
+      h_pull -> GetXaxis() -> SetLabelSize(0.04);
+      h_pull -> GetXaxis() -> SetTitleSize(0.05);
+      h_pull -> GetXaxis() -> SetTitleOffset(0.9);
+      h_pull -> GetYaxis() -> SetTitleOffset(1);
+      h_pull -> GetYaxis() -> SetLabelSize(0.04);
+      h_pull -> GetYaxis() -> SetTitleSize(0.05);
+      h_pull -> GetXaxis() -> SetTitle("(y - y_{fit})/#sigma_{fit}");
+      h_pull -> GetYaxis() -> SetTitle("counts");
+      h_pull -> Draw("HIST");
         
     TF1 *gaus = new TF1("gaus", "gaus", -3, 3);
     gaus->SetParameters(h_pull->GetMaximum(), 0., 1.);
@@ -610,8 +640,7 @@ void lifetimeANA::Loop()
     gaus->Draw("same");
         
     c_pull_hist->Update();
-      
-    gaus->Draw("same");
+    c_pull_hist->SaveAs("PLOT_REPORT/PULL_DISTRO_FINAL_FIT.pdf");
 
     TFile *f = new TFile( "outfile_fit_DATA_SIGNAL_SINGLE_NORM.root", "RECREATE");
 

@@ -628,27 +628,41 @@ void lifetimeANA::Loop()
    std::array<Color_t,10> colors = {kOrange, kRed, kPink+1, kBlack, kMagenta, kViolet+1, kBlue,kCyan, kGreen, kAzure+7};
    std::array<std::string, 10> labels;
 
-   for(int h = 0; h < labels.size(); h++){ labels[h] = Form("Mean life: %.1f", mean_lives[h]); }
+   for(int h = 0; h < labels.size(); h++){ labels[h] = Form("#tau = %.1f #times 410.3 fs", mean_lives[h]); }
    
    TCanvas *c_acceptances_lives = new TCanvas("acceptance_lives","");
    c_acceptances_lives -> cd();
-   TLegend *ll = new TLegend();
+   c_acceptances_lives->SetBottomMargin(0.1);
+   c_acceptances_lives->SetTopMargin(0.1);
+   TLegend *ll = new TLegend(0.5,0.15,0.8,0.5);
 
-   g_acceptances[2] -> GetYaxis()->SetLimits(0.,1);
+   g_acceptances[2] -> GetXaxis()->SetLimits(0.,6);
+   g_acceptances[2] -> GetYaxis()->SetLimits(0.,0.125);
+   g_acceptances[2] -> GetYaxis()->SetRangeUser(0.,0.125);
+   g_acceptances[2] -> GetXaxis() -> SetTitle("t [fs / 410.3]");
+   g_acceptances[2] -> GetXaxis() -> SetTitleSize(0.05);
+   g_acceptances[2] -> GetXaxis() -> SetLabelSize(0.04);
+   g_acceptances[2] -> GetYaxis() -> SetTitle("acceptance");
+   g_acceptances[2] -> GetYaxis() -> SetTitleOffset(0.95);
+   g_acceptances[2] -> GetXaxis() -> SetTitleOffset(0.9);
+   g_acceptances[2] -> GetYaxis() -> SetTitleSize(0.05);
+   g_acceptances[2] -> GetYaxis() -> SetLabelSize(0.04);
    g_acceptances[2]-> SetLineColor(colors[2]);
-   g_acceptances[2]-> Draw("ALP");
-   g_acceptances[2]-> SetMarkerSize(2);
+   g_acceptances[2]->SetLineWidth(2);
+   g_acceptances[2]-> Draw("AL");
    ll->AddEntry(g_acceptances[2], labels[2].c_str());
 
    for(int h=3; h< g_acceptances.size(); h++)
    {
       g_acceptances[h]-> SetLineColor(colors[h]);
-      g_acceptances[h]-> SetMarkerSize(2);
+      g_acceptances[h]-> SetLineWidth(2);
       g_acceptances[h]-> Draw("SAME");
       ll -> AddEntry(g_acceptances[h], (labels[h]).c_str());
    }
+   ll->SetTextSize(0.04);
    ll->Draw("same");
    c_acceptances_lives->Update();
+   c_acceptances_lives -> SaveAs("PLOT_REPORT/ACCEPTANCE_VARIATION.pdf");
 
    /*
    std::array<TH1D*,10> histo_mean_lives;
@@ -877,17 +891,23 @@ void lifetimeANA::Loop()
    cout << "prob = " << fit_prob << endl;
 
    // ***** DRAW *****
-   TCanvas *c_acceptance_fit = new TCanvas("acceptance_fit", "", 800, 600);
+   TCanvas *c_acceptance_fit = new TCanvas("acceptance_fit", "");
    c_acceptance_fit->cd();
    const float split = 0.3;
 
    // --- FIT ---
    TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
+   pad_fit->SetTopMargin(0.1);
    pad_fit->SetBottomMargin(0.); 
    pad_fit->Draw();
    pad_fit->cd();
 
-   acceptance->SetMarkerStyle(20);
+   acceptance->SetMarkerStyle(8);
+   acceptance->SetMarkerSize(0.5);
+   acceptance ->GetYaxis() -> SetTitleOffset(0.7);
+   acceptance->GetYaxis()->SetTitle("acceptance");
+   acceptance->GetYaxis()->SetTitleSize(0.06);
+   acceptance->GetYaxis()->SetLabelSize(0.05);
    acceptance->Draw("AP");
    acceptance_tf1->SetLineColor(kRed);
    acceptance_tf1->SetLineWidth(2);
@@ -898,15 +918,23 @@ void lifetimeANA::Loop()
 
    TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
    pad_res->SetTopMargin(0.);
+   pad_res->SetBottomMargin(0.3);
    pad_res->Draw();
    pad_res->cd();
 
    int n = acceptance->GetN();
 
    TGraphErrors *residuals = new TGraphErrors(n);
-   residuals -> SetMarkerStyle(7);
-   residuals -> GetXaxis()-> SetTitle("t / 410.3 fs");
-   residuals -> GetYaxis()-> SetTitle("residuals");
+   residuals -> SetMarkerStyle(8);
+   residuals -> SetTitle("");
+   residuals -> SetMarkerSize(0.4);
+   residuals -> GetYaxis() -> SetTitleOffset(0.3);
+   residuals -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+   residuals -> GetYaxis()-> SetTitle("pulls");
+   residuals -> GetYaxis()-> SetTitleSize(0.13);
+   residuals -> GetXaxis()-> SetTitleSize(0.13);
+   residuals -> GetYaxis()-> SetLabelSize(0.11);
+   residuals -> GetXaxis()-> SetLabelSize(0.11);
 
    for (int i = 0; i < n; i++) 
    {
@@ -914,10 +942,10 @@ void lifetimeANA::Loop()
       acceptance->GetPoint(i, x, y);
       Double_t y_fit  = acceptance_tf1->Eval(x);
       Double_t ey     = acceptance->GetErrorY(i);
-      Double_t res    = y - y_fit;
+      Double_t res    = (y - y_fit)/ey;
 
       residuals->SetPoint(i, x, res);
-      residuals->SetPointError(i, 0., ey);
+      residuals->SetPointError(i, 0., 1.);
    }
    residuals->Draw("AP same");
 
@@ -927,6 +955,8 @@ void lifetimeANA::Loop()
    line_zero->Draw("same");
 
    c_acceptance_fit->Update();
+
+   c_acceptance_fit -> SaveAs("PLOT_REPORT/FIT_ACCEPTANCE.pdf");
 
    /*
       //Create Canvas
@@ -1020,9 +1050,44 @@ void lifetimeANA::Loop()
 
    g_RESOLUTION_TOT->Write("resolution2_graph");
 
-   g_RESOLUTION_2_GAUSS_CORRECT -> SetMarkerStyle(7);
+   TCanvas *c_resolution = new TCanvas("c_resolution", "");
+   c_resolution->cd();
+   c_resolution -> SetBottomMargin(0.1);
+   c_resolution -> SetTopMargin(0.05);
+   g_RESOLUTION_2_GAUSS_CORRECT -> SetMarkerStyle(8);
+   g_RESOLUTION_2_GAUSS_CORRECT -> SetMarkerSize(0.5);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetXaxis() -> SetLabelSize(0.04);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetXaxis() -> SetTitleSize(0.05);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetXaxis() -> SetTitleOffset(0.9);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetYaxis() -> SetTitleOffset(1);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetYaxis() -> SetLabelSize(0.04);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetYaxis() -> SetTitleSize(0.05);
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetXaxis() -> SetTitle("MC time true [fs / 410.3]");
+   g_RESOLUTION_2_GAUSS_CORRECT -> GetYaxis() -> SetTitle("resolution [fs / 410.3]");
+   g_RESOLUTION_2_GAUSS_CORRECT -> Draw("AP");
+   c_resolution -> SaveAs("PLOT_REPORT/RESOLUTION.pdf");
+
+   TCanvas *c_bias = new TCanvas("c_bias","");
+   c_bias->cd(); 
+   c_bias -> SetBottomMargin(0.1);
+   c_bias -> SetTopMargin(0.05);
+   g_MU_2_GAUSS_CORRECT -> SetMarkerStyle(8);
+   g_MU_2_GAUSS_CORRECT -> SetMarkerSize(0.5);
+   g_MU_2_GAUSS_CORRECT -> GetXaxis() -> SetLabelSize(0.04);
+   g_MU_2_GAUSS_CORRECT -> GetXaxis() -> SetTitleOffset(0.9);
+   g_MU_2_GAUSS_CORRECT -> GetYaxis() -> SetTitleOffset(1);
+   g_MU_2_GAUSS_CORRECT -> GetXaxis() -> SetTitleSize(0.05);
+   g_MU_2_GAUSS_CORRECT -> GetYaxis() -> SetLabelSize(0.04);
+   g_MU_2_GAUSS_CORRECT -> GetYaxis() -> SetTitleSize(0.05);
+   g_MU_2_GAUSS_CORRECT -> GetXaxis() -> SetTitle("MC time true [fs / 410.3]");
+   g_MU_2_GAUSS_CORRECT -> GetYaxis() -> SetTitle("bias [fs / 410.3]");
+   g_MU_2_GAUSS_CORRECT -> Draw("AP");
+   c_bias -> SaveAs("PLOT_REPORT/BIAS.pdf");
+   
+
+   histo_file->cd();
+
    g_RESOLUTION_2_GAUSS_CORRECT -> Write("RES_CORR");
-   g_MU_2_GAUSS_CORRECT -> SetMarkerStyle(7);
    g_MU_2_GAUSS_CORRECT -> Write("MU_CORR");
 
    xy->Write();

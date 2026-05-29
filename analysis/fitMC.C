@@ -18,7 +18,7 @@ Double_t S_A_FIXED = 0.0825203;
 Double_t S_B_FIXED = 0.130739;
 Double_t F_FIXED = 0.495402;
 
-const double XMIN = 0.5;
+const double XMIN = 0.7;
 const double XMAX = 10.0;
 
 Double_t MAX_ACCEPTANCE = 0.115673;
@@ -151,10 +151,11 @@ void lifetimeANA::Loop()
       {
             double t = M0_time / 410.3e-15;
 
-            h_time->Fill(t);
+            
 
             if (t >= XMIN && t <= XMAX)
             {
+                h_time->Fill(t);
                 xvar.push_back(t);
             }
 
@@ -220,14 +221,14 @@ void lifetimeANA::Loop()
 
       TGraph * fit_function_plot = new TGraph(10000,x_points.data(),y_points.data());
 
-      TCanvas *c_fit = new TCanvas("c_fit", "fit", 800, 600);
+      TCanvas *c_fit = new TCanvas("c_fit", "fit");
       c_fit->cd();
 
       const float split = 0.3;
 
       // -------------------- TOP PAD --------------------
       TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
-      pad_fit->SetBottomMargin(0.02);
+      pad_fit->SetBottomMargin(0.0);
       pad_fit->Draw();
       pad_fit->cd();
 
@@ -235,9 +236,17 @@ void lifetimeANA::Loop()
       gPad->SetTicks(1,1);
 
       h_time->GetXaxis()->SetRangeUser(0., 10.0);
-      h_time->Draw("E");
+      
+      h_time->SetMarkerStyle(8);
+      h_time->SetMarkerSize(0.5);
+      h_time ->GetYaxis() -> SetTitleOffset(0.9);
+      h_time->GetYaxis()->SetTitle("counts / 0.1 [fs / 410.3]");
+      h_time->GetYaxis()->SetTitleSize(0.06);
+      h_time->GetYaxis()->SetLabelSize(0.05);
+      h_time->Draw("PE");
 
       // overlay fit
+      fit_function_plot -> SetLineWidth(2);
       fit_function_plot->Draw("L SAME");
 
       // IMPORTANT: go back to canvas
@@ -245,32 +254,49 @@ void lifetimeANA::Loop()
 
       // -------------------- BOTTOM PAD --------------------
       TPad *pad_res = new TPad("pad_res", "", 0., 0., 1., split);
-      pad_res->SetTopMargin(0.02);
-      pad_res->SetBottomMargin(0.25);
+      pad_res->SetTopMargin(0.0);
+      pad_res->SetBottomMargin(0.3);
       pad_res->Draw();
       pad_res->cd();
 
       // residuals
       int n = h_time->GetNbinsX();
 
+      TH1D *pull_hist = new TH1D("pull_hist", "", 30, -5, 5);
+
       TGraphErrors *residuals = new TGraphErrors(n);
       residuals -> SetMarkerStyle(7);
-      residuals -> GetXaxis()-> SetTitle("t / 410.3 fs");
-      residuals -> GetYaxis()-> SetTitle("residuals");
+      residuals -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+      residuals -> GetYaxis()-> SetTitle("pull");
 
       for (int i = 0; i < n; i++) 
       {
             Double_t x, y;
             x = h_time->GetBinCenter(i+1);
             y = h_time->GetBinContent(i+1);
-            Double_t y_fit  = pdf_proj(&x,pars,n_fit,h_time->GetBinWidth(1));
-            Double_t ey     = h_time->GetBinError(i+1);
-            Double_t res    = y - y_fit;
+            if(x >= XMIN)
+            {
+                Double_t y_fit  = pdf_proj(&x,pars,n_fit,h_time->GetBinWidth(1));
+                Double_t ey     = h_time->GetBinError(i+1);
+                Double_t res    = (y - y_fit)/ey;
 
-            residuals->SetPoint(i, x, res);
-            residuals->SetPointError(i, 0., ey);
+                residuals->SetPoint(i, x, res);
+                residuals->SetPointError(i, 0., 1.);
+                pull_hist -> Fill(res);
+            }
       }
-      residuals->Draw("P same");
+
+      residuals -> SetMarkerStyle(8);
+      residuals -> SetTitle("");
+      residuals -> SetMarkerSize(0.4);
+      residuals -> GetYaxis() -> SetTitleOffset(0.3);
+      residuals -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+      residuals -> GetYaxis()-> SetTitle("pulls");
+      residuals -> GetYaxis()-> SetTitleSize(0.13);
+      residuals -> GetXaxis()-> SetTitleSize(0.13);
+      residuals -> GetYaxis()-> SetLabelSize(0.11);
+      residuals -> GetXaxis()-> SetLabelSize(0.11);
+      residuals->Draw("APE");
 
       // baseline
       residuals->GetXaxis()->SetLimits(0.0, 10.0);
@@ -284,6 +310,33 @@ void lifetimeANA::Loop()
       // final update
       c_fit->Update();
       c_fit->Draw();
+      c_fit -> SaveAs("PLOT_REPORT/FIT_MC.pdf");
+
+      //Gaussian Fit for pulls 
+
+      TF1 *gaus = new TF1("gaus", "gaus", -3, 3);
+      gaus->SetParameters(pull_hist->GetMaximum(), 0., 1.);
+        
+      pull_hist->Fit(gaus, "R");
+        
+      gaus->SetLineColor(kRed);
+      
+
+      TCanvas * c_pull_hist = new TCanvas("c_pull_hist","");
+      c_pull_hist -> SetBottomMargin(0.15   );
+      pull_hist -> GetXaxis() -> SetLabelSize(0.04);
+      pull_hist -> GetXaxis() -> SetTitleSize(0.05);
+      pull_hist -> GetXaxis() -> SetTitleOffset(0.9);
+      pull_hist -> GetYaxis() -> SetTitleOffset(1);
+      pull_hist -> GetYaxis() -> SetLabelSize(0.04);
+      pull_hist -> GetYaxis() -> SetTitleSize(0.05);
+      pull_hist -> GetXaxis() -> SetTitle("(y - y_{fit})/#sigma_{fit}");
+      pull_hist -> GetYaxis() -> SetTitle("counts");
+      pull_hist -> Draw("HIST");
+      gaus->Draw("SAME");
+      c_pull_hist -> Update();
+      c_pull_hist -> SaveAs("PLOT_REPORT/PULL_DISTRO_MC_FIT.pdf");
+
 
       // // ***** DRAW *****
       // TCanvas *c_fit = new TCanvas("c_fit", "");

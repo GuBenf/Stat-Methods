@@ -18,7 +18,7 @@ Double_t S_A_FIXED = 0.0825203;
 Double_t S_B_FIXED = 0.130739;
 Double_t F_FIXED = 0.495402;
 
-const double XMIN = 0.5;
+const double XMIN = 0.7;
 const double XMAX = 10.0;
 
 Double_t MAX_ACCEPTANCE = 0.115673;
@@ -231,6 +231,15 @@ void fcn_double_gauss(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
    f= - 2. * Like;
 }
 
+Double_t invariant_mass_signal_func(Double_t *x, Double_t *par)
+{
+    return BIN_WIDTH_INVARIANT_MASS * (par[0]*(TMath::Gaus(x[0],par[1],par[2],1)));
+}
+
+Double_t invariant_mass_bkg_func(Double_t *x, Double_t *par)
+{
+    return BIN_WIDTH_INVARIANT_MASS*(par[0] * par[1]);
+}
 
 Double_t invariant_mass_Gauss_func(Double_t *x, Double_t *par)
 {
@@ -278,6 +287,8 @@ Double_t invariant_mass_Gauss_func_fit(Double_t *x, Double_t *par)
 }
 
 
+
+
 TH1D * left_bkg = new TH1D("left_bkg","",100,0,10);
 
 TH1D * right_bkg = new TH1D("rigth_bkg","",100,0,10);
@@ -321,7 +332,7 @@ void lifetimeANA::Loop()
                 xvar.push_back(M0_time / 410.3e-15);
             }
 
-            tot_bkg -> Fill(M0_time / 410.3e-15);
+            if (M0_time / 410.3e-15 >= XMIN) tot_bkg -> Fill(M0_time / 410.3e-15);
           }
           if(M0_MKpi > 1.86482 + 3 * 0.00540974)
           {
@@ -332,7 +343,7 @@ void lifetimeANA::Loop()
                 xvar.push_back(M0_time / 410.3e-15);
             }
 
-            tot_bkg -> Fill(M0_time / 410.3e-15);
+            if (M0_time / 410.3e-15 >= XMIN) tot_bkg -> Fill(M0_time / 410.3e-15);
             
           }
 
@@ -436,7 +447,7 @@ void lifetimeANA::Loop()
       }
       
       // Draw
-      TCanvas *c1 = new TCanvas("c1", "Purity and Signal Integral", 900, 700);
+      TCanvas *c1 = new TCanvas("c1", "Purity and Signal Integral");
       
       // First graph: purity
       
@@ -471,9 +482,11 @@ void lifetimeANA::Loop()
       double leftmax = gPad->GetUymax();
       TGaxis *axis = new TGaxis(gPad->GetUxmax(), leftmin, gPad->GetUxmax(), leftmax, rightmin, rightmax, 510, "+L");
       
+      axis->SetMaxDigits(3);
       axis->SetLineColor(kRed);
       axis->SetLabelColor(kRed);
       axis->SetTitleColor(kRed);
+      axis->SetTitleOffset(1);
       axis->SetTitle("Signal Integral");
       axis->Draw();
       
@@ -500,7 +513,7 @@ void lifetimeANA::Loop()
       
       // Legend
       
-      TLegend *leg = new TLegend(0.15,0.75,0.4,0.88);
+      TLegend *leg = new TLegend(0.25,0.2,0.5,0.3);
       
       leg->AddEntry(gr_purity, "Purity S/(S+B)", "lp");
       
@@ -508,18 +521,23 @@ void lifetimeANA::Loop()
       
       leg->Draw();
       
+      c1->SaveAs("PLOT_REPORT/SIGNAL_PURITY.pdf");
+
       // -------------------- PULL PLOT (INVARIANT MASS) --------------------
 
       const int n_bins = histo_data_MKpi->GetNbinsX();
         
       TCanvas *c_mass_pull = new TCanvas("c_mass_pull","mass pull",800,600);
+
+      gStyle->SetOptStat(0);
         
       TPad *pad_mass = new TPad("pad_mass","",0,0.3,1,1);
       TPad *pad_pull_mass = new TPad("pad_pull_mass","",0,0,1,0.3);
-        
-      pad_mass->SetBottomMargin(0.02);
-      pad_pull_mass->SetTopMargin(0.02);
-      pad_pull_mass->SetBottomMargin(0.25);
+
+      pad_mass->SetBottomMargin(0.);
+      pad_mass->SetTopMargin(0.1);
+      pad_pull_mass->SetTopMargin(0.);
+      pad_pull_mass->SetBottomMargin(0.3);
         
       pad_mass->Draw();
       pad_pull_mass->Draw();
@@ -527,7 +545,21 @@ void lifetimeANA::Loop()
       // ---------------- TOP PAD: histogram + fit ----------------
       pad_mass->cd();
         
-      histo_data_MKpi->Draw("E");
+      TF1 * invariant_mass_signal = new TF1("invariant_mass_signal",invariant_mass_signal_func,1.8,1.95,3);
+      TF1 * invariant_mass_bkg = new TF1("invariant_mass_bkg",invariant_mass_bkg_func,1.8,1.95,2);
+      invariant_mass_signal -> SetParameter(0,invariant_mass_Gauss->GetParameter(0));
+      invariant_mass_signal -> SetParameter(1,invariant_mass_Gauss->GetParameter(1));
+      invariant_mass_signal -> SetParameter(2,invariant_mass_Gauss->GetParameter(2));
+      invariant_mass_bkg -> SetParameter(0,invariant_mass_Gauss->GetParameter(0));
+      invariant_mass_bkg -> SetParameter(1,invariant_mass_Gauss->GetParameter(3));
+
+      histo_data_MKpi->SetMarkerStyle(8);
+      histo_data_MKpi->SetMarkerSize(0.5);
+      histo_data_MKpi ->GetYaxis() -> SetTitleOffset(0.87);
+      histo_data_MKpi->GetYaxis()->SetTitle("counts / 0.0005 [GeV]");
+      histo_data_MKpi->GetYaxis()->SetTitleSize(0.06);
+      histo_data_MKpi->GetYaxis()->SetLabelSize(0.05);
+      histo_data_MKpi->Draw("PE");
         
       invariant_mass_Gauss->SetRange(
           X_MIN_INVARIANT_MASS,
@@ -536,16 +568,34 @@ void lifetimeANA::Loop()
       invariant_mass_Gauss->SetNpx(5000);
       invariant_mass_Gauss->SetLineColor(kRed);
       invariant_mass_Gauss->Draw("SAME");
+
+      invariant_mass_signal->SetNpx(500);
+      invariant_mass_signal->SetLineColor(kBlue);
+      invariant_mass_signal->SetLineStyle(kDashed);
+      invariant_mass_signal->Draw("SAME");
+
+      invariant_mass_bkg->SetNpx(500);
+      invariant_mass_bkg->SetLineColor(kGreen);
+      invariant_mass_bkg->SetLineStyle(kDashed);
+      invariant_mass_bkg->Draw("SAME");
+
+      invariant_mass_Gauss->SetFillStyle(0);
+      invariant_mass_signal->SetFillStyle(0);
+      invariant_mass_bkg->SetFillStyle(0);
+
+      TLegend *l_fit = new TLegend(0.6, 0.4, 0.85, 0.8);
+      l_fit -> AddEntry(invariant_mass_Gauss,"total fit");
+      l_fit -> AddEntry(invariant_mass_signal,"gaussian signal");
+      l_fit -> AddEntry(invariant_mass_bkg,"constant background");
+      l_fit->SetTextSize(0.04);
+      l_fit -> Draw("SAME");
       
       // ---------------- BOTTOM PAD: pulls ----------------
       pad_pull_mass->cd();
       
       TGraphErrors *mass_pulls = new TGraphErrors(n_bins);
-      mass_pulls->SetMarkerStyle(7);
-      mass_pulls->GetYaxis()->SetTitle("Pull");
-      mass_pulls->GetXaxis()->SetTitle("m(K#pi) [GeV]");
 
-      TH1D *h_mass_pull = new TH1D("h_mass_pull", "Mass pull distribution;Pull;Entries", 20, -5, 5);      
+      TH1D *h_mass_pull = new TH1D("h_mass_pull", "", 20, -5, 5);      
 
       
       for (int i = 1; i <= n_bins; i++)
@@ -572,7 +622,17 @@ void lifetimeANA::Loop()
       
       mass_pulls->SetMinimum(-5);
       mass_pulls->SetMaximum(5);
-      mass_pulls->Draw("AP");
+      mass_pulls -> SetMarkerStyle(8);
+      mass_pulls -> SetTitle("");
+      mass_pulls -> SetMarkerSize(0.4);
+      mass_pulls -> GetYaxis() -> SetTitleOffset(0.3);
+      mass_pulls -> GetXaxis()-> SetTitle("M(K#pi) invariant mass [GeV]");
+      mass_pulls -> GetYaxis()-> SetTitle("pulls");
+      mass_pulls -> GetYaxis()-> SetTitleSize(0.13);
+      mass_pulls -> GetXaxis()-> SetTitleSize(0.13);
+      mass_pulls -> GetYaxis()-> SetLabelSize(0.11);
+      mass_pulls -> GetXaxis()-> SetLabelSize(0.11);
+      mass_pulls->Draw("APE");
       mass_pulls->GetHistogram()->GetXaxis()->SetLimits(MIN_HISTO, MAX_HISTO);
       
       
@@ -582,29 +642,35 @@ void lifetimeANA::Loop()
       zero_line->Draw("same");
       
       c_mass_pull->Update();
+      c_mass_pull -> SaveAs("PLOT_REPORT/FIT_INVARIANT_MASS.pdf");
 
-      TCanvas *c_mass_pull_hist = new TCanvas("c_mass_pull_hist", "Pull distribution", 800, 600);
+      TCanvas *c_mass_pull_hist = new TCanvas("c_mass_pull_hist", "");
       c_mass_pull_hist->cd();
-        
-      h_mass_pull->SetLineColor(kBlue + 1);
-    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
-      h_mass_pull->GetXaxis()->SetTitle("Pull");
-      h_mass_pull->GetYaxis()->SetTitle("Entries");
-        
-      h_mass_pull->Draw("HIST");
         
       TF1 *gaus_mass = new TF1("gaus_mass", "gaus", -3, 3);
       gaus_mass->SetParameters(h_mass_pull->GetMaximum(), 0., 1.);
         
       h_mass_pull->Fit(gaus_mass, "R");
+
+      c_mass_pull_hist -> SetBottomMargin(0.15   );
+      h_mass_pull -> GetXaxis() -> SetLabelSize(0.04);
+      h_mass_pull -> GetXaxis() -> SetTitleSize(0.05);
+      h_mass_pull -> GetXaxis() -> SetTitleOffset(0.9);
+      h_mass_pull -> GetYaxis() -> SetTitleOffset(1);
+      h_mass_pull -> GetYaxis() -> SetLabelSize(0.04);
+      h_mass_pull -> GetYaxis() -> SetTitleSize(0.05);
+      h_mass_pull -> GetXaxis() -> SetTitle("(y - y_{fit})/#sigma_{fit}");
+      h_mass_pull -> GetYaxis() -> SetTitle("counts");
+      h_mass_pull -> Draw("HIST");
+      gaus_mass->Draw("SAME");
         
       gaus_mass->SetLineColor(kRed);
       gaus_mass->Draw("same");
-        
-      c_mass_pull_hist->Update();
       
       gaus_mass->Draw("same");
 
+      c_mass_pull_hist->Update();
+      c_mass_pull_hist -> SaveAs("PLOT_REPORT/PULL_DISTRO_MASS_FIT.pdf");
 
       
       // ***** FIT ***** 
@@ -678,7 +744,7 @@ void lifetimeANA::Loop()
 
       // -------------------- TOP PAD --------------------
       TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
-      pad_fit->SetBottomMargin(0.02);
+      pad_fit->SetBottomMargin(0.0);
       pad_fit->Draw();
       pad_fit->cd();
 
@@ -686,7 +752,14 @@ void lifetimeANA::Loop()
       gPad->SetTicks(1,1);
 
       h_time->GetXaxis()->SetRangeUser(0., 10.0);
-      h_time->Draw("E");
+      h_time->SetLineColor(kBlack);
+      h_time->SetMarkerStyle(8);
+      h_time->SetMarkerSize(0.5);
+      h_time ->GetYaxis() -> SetTitleOffset(0.85);
+      h_time->GetYaxis()->SetTitle("counts / 0.1 [fs / 410.3]");
+      h_time->GetYaxis()->SetTitleSize(0.06);
+      h_time->GetYaxis()->SetLabelSize(0.05);
+      h_time->Draw("PE");
 
       // overlay fit
       fit_function_plot->SetLineColor(kRed);
@@ -698,14 +771,14 @@ void lifetimeANA::Loop()
 
       // -------------------- BOTTOM PAD (PULLS) --------------------
       TPad *pad_pull = new TPad("pad_pull", "", 0., 0., 1., split);
-      pad_pull->SetTopMargin(0.02);
-      pad_pull->SetBottomMargin(0.25);
+      pad_pull->SetTopMargin(0.0);
+      pad_pull->SetBottomMargin(0.3);
       pad_pull->Draw();
       pad_pull->cd();
         
       int n = h_time->GetNbinsX();
 
-      TH1D *h_pull = new TH1D("h_pull", "Pull distribution;Pull;Entries", 20, -5, 5);      
+      TH1D *h_pull = new TH1D("h_pull", "", 20, -5, 5);      
         
       TGraphErrors *pulls = new TGraphErrors(n);
       pulls->SetMarkerStyle(7);
@@ -722,6 +795,9 @@ void lifetimeANA::Loop()
           double x  = h_time->GetBinCenter(i+1);
           double y  = h_time->GetBinContent(i+1);
           double ey = h_time->GetBinError(i+1);
+
+          if( x >= XMIN)
+          {
       
           double y_fit = pdf_proj(&x, pars, n_fit, h_time->GetBinWidth(1));
       
@@ -732,37 +808,57 @@ void lifetimeANA::Loop()
           pulls->SetPoint(i, x, pull);
           pulls->SetPointError(i, 0., 1.0);
           h_pull->Fill(pull);
+          }
 
       }
       
-      pulls->Draw("AP");
+      pulls -> SetMarkerStyle(8);
+      pulls -> SetTitle("");
+      pulls -> SetMarkerSize(0.4);
+      pulls -> GetYaxis() -> SetTitleOffset(0.3);
+      pulls -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+      pulls -> GetYaxis()-> SetTitle("pulls");
+      pulls -> GetYaxis()-> SetTitleSize(0.13);
+      pulls -> GetXaxis()-> SetTitleSize(0.13);
+      pulls -> GetYaxis()-> SetLabelSize(0.11);
+      pulls -> GetXaxis()-> SetLabelSize(0.11);
+      pulls->Draw("APE");
       
       // baseline at 0
       TLine *line_zero = new TLine(0.0, 0., 10., 0.);
       line_zero->SetLineStyle(2);
       line_zero->Draw("same");
       // final update
-      TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "Pull distribution", 800, 600);
+
+      c_fit -> Update();
+      c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+
+
+      TCanvas *c_pull_hist = new TCanvas("c_pull_hist", "");
       c_pull_hist->cd();
-        
-      h_pull->SetLineColor(kBlue + 1);
-    //   h_pull->SetFillColorAlpha(kBlue - 9, 0.3);
-      h_pull->GetXaxis()->SetTitle("Pull");
-      h_pull->GetYaxis()->SetTitle("Entries");
-        
-      h_pull->Draw("HIST");
         
       TF1 *gaus = new TF1("gaus", "gaus", -3, 3);
       gaus->SetParameters(h_pull->GetMaximum(), 0., 1.);
         
       h_pull->Fit(gaus, "R");
+
+      c_pull_hist -> SetBottomMargin(0.15   );
+      h_pull -> GetXaxis() -> SetLabelSize(0.04);
+      h_pull -> GetXaxis() -> SetTitleSize(0.05);
+      h_pull -> GetXaxis() -> SetTitleOffset(0.9);
+      h_pull -> GetYaxis() -> SetTitleOffset(1);
+      h_pull -> GetYaxis() -> SetLabelSize(0.04);
+      h_pull -> GetYaxis() -> SetTitleSize(0.05);
+      h_pull -> GetXaxis() -> SetTitle("(y - y_{fit})/#sigma_{fit}");
+      h_pull -> GetYaxis() -> SetTitle("counts");
+      h_pull -> Draw("HIST");
+      gaus->Draw("SAME");
         
       gaus->SetLineColor(kRed);
       gaus->Draw("same");
         
       c_pull_hist->Update();
-      
-      gaus->Draw("same");
+      c_pull_hist -> SaveAs("PLOT_REPORT/PULL_DISTRO_BKG_FIT.pdf");
       
     
       TFile * f = new TFile("outfile_fit_DATA_BKG.root","RECREATE");
@@ -771,6 +867,33 @@ void lifetimeANA::Loop()
       left_bkg->Scale(1./left_bkg->Integral());
       right_bkg->Scale(1./right_bkg->Integral());
       average_bkg->Scale(1./average_bkg->Integral());
+
+      TCanvas * c_sidebands = new TCanvas();
+
+      right_bkg -> GetXaxis() -> SetLabelSize(0.04);
+      right_bkg -> GetXaxis() -> SetTitleSize(0.05);
+      right_bkg -> GetXaxis() -> SetTitleOffset(0.9);
+      right_bkg -> GetYaxis() -> SetTitleOffset(1);
+      right_bkg -> GetYaxis() -> SetLabelSize(0.04);
+      right_bkg -> GetYaxis() -> SetTitleSize(0.05);
+      right_bkg -> GetXaxis() -> SetTitle("t [fs / 410.3]");
+      right_bkg -> GetYaxis() -> SetTitle("counts / 0.1 [fs / 410.3]");
+      right_bkg -> SetLineColor(kBlue);
+      left_bkg -> SetLineColor(kRed);
+      average_bkg -> SetLineColor(kGreen);
+      average_bkg -> SetLineWidth(2);
+      right_bkg -> Draw("HIST");
+      left_bkg -> Draw("HIST SAME");
+      average_bkg -> Draw("HIST SAME");
+      TLegend *leg_side = new TLegend(0.6, 0.6, 0.9, 0.8);
+      leg_side -> AddEntry(left_bkg, "left sideband");
+      leg_side -> AddEntry(right_bkg, "right sideband");
+      leg_side -> AddEntry(average_bkg, "average");
+      leg_side -> SetTextSize(0.04);
+      leg_side -> Draw("SAME");
+      c_sidebands -> Update();
+      c_sidebands -> SaveAs("PLOT_REPORT/TIME_DISTRO_SIDEBANDS.pdf");
+
       left_bkg -> Write();
       right_bkg -> Write();
       average_bkg -> Write();
