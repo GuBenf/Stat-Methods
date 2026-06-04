@@ -1,3 +1,20 @@
-data/
-mc/
+D0_lifetime/package/data
+D0_lifetime/package/mc
+D0_lifetime/package/analysis/_root
+D0_lifetime/package/analysis/*.root
+D0_lifetime/package/analysis/*.rtf
+D0_lifetime/package/analysis/*.d
+D0_lifetime/package/analysis/*.so
+
+for_students
+video
+
+TauPhiMu/package/data
+TauPhiMu/package/mc
+TauPhiMu/package/analysis/_fig
+TauPhiMu/package/analysis/_root
+TauPhiMu/package/analysis/*.pcm
+TauPhiMu/package/analysis/*.root
+TauPhiMu/package/analysis/*.d
+TauPhiMu/package/analysis/*.so
 
