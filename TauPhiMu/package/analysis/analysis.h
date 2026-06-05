@@ -239,6 +239,7 @@ analysis::analysis(TTree *tree) : fChain(0)
 
   TChain * chain = new TChain("t_M0pipi","");
 
+/*
 #if 1
   chain->Add("../data/tree_data.root");
 #endif
@@ -249,6 +250,19 @@ analysis::analysis(TTree *tree) : fChain(0)
    chain->Add("../mc/tree_DSPLUS_PhiMuNu_mc_5M.root");
    chain->Add("../mc/tree_DSPLUS_TauNu_mc_1M.root");
  #endif
+ */
+
+ if(USE_MC == false)
+ {
+   chain->Add("../data/tree_data.root");
+ }
+ else if(USE_MC == true)
+ {
+   chain->Add("../mc/tree_DSPLUS_PhiPi_mc_50M.root");
+   chain->Add("../mc/tree_DPLUS_PhiPi_mc_50M.root");
+   chain->Add("../mc/tree_DSPLUS_PhiMuNu_mc_5M.root");
+   chain->Add("../mc/tree_DSPLUS_TauNu_mc_1M.root");
+ }
  
   
   tree = chain; 
