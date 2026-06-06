@@ -18,7 +18,9 @@ Double_t MASS_DS_PLUS_TAU_NU_HIGH = 1.81;
 int MASS_DS_PLUS_TAU_NU_BINS = 120;
 
 Double_t TOT_MASS_LOW = 1.6;
-Double_t TOT_MASS_HIGH = 2.6;
+// Double_t TOT_MASS_HIGH = 2.6;
+Double_t TOT_MASS_HIGH = 2.;
+
 int TOT_MASS_BINS = 400;
 
 //Double_t MASS_COMBINATORIA_LOW = 2.;
@@ -40,11 +42,18 @@ std::vector<double> vec_tot_mass_DATA;
 
 //std::vector<double> x_var;
 
-Double_t MU1_FIT_D_PLUS_PHI_PI = 1.86970e+00;
-Double_t MU2_FIT_D_PLUS_PHI_PI = 1.87050e+00;
-Double_t SIGMA1_FIT_D_PLUS_PHI_PI = 5.84594e-03;
-Double_t SIGMA2_FIT_D_PLUS_PHI_PI = 8.60173e-03;
-Double_t FRACTION_FIT_D_PLUS_PHI_PI = 9.17802e-01;
+Double_t MU1_FIT_D_PLUS_PHI_PI = 1.86969e+00;
+Double_t MU2_FIT_D_PLUS_PHI_PI = 1.87035e+00;
+Double_t SIGMA1_FIT_D_PLUS_PHI_PI = 5.79484e-03;
+Double_t SIGMA2_FIT_D_PLUS_PHI_PI = 8.15639e-03;
+Double_t FRACTION_FIT_D_PLUS_PHI_PI = 8.83747e-01;
+
+// Double_t MU1_FIT_D_PLUS_PHI_PI = 1.86970e+00;
+// Double_t MU2_FIT_D_PLUS_PHI_PI = 1.87050e+00;
+// Double_t SIGMA1_FIT_D_PLUS_PHI_PI = 5.84594e-03;
+// Double_t SIGMA2_FIT_D_PLUS_PHI_PI = 8.60173e-03;
+// Double_t FRACTION_FIT_D_PLUS_PHI_PI = 9.17802e-01;
+
 
 Double_t M0_FIT_DS_PLUS_PHI_MU_NU = 1.97801e+00;
 Double_t C_FIT_DS_PLUS_PHI_MU_NU = -3.82391e+00;
@@ -153,66 +162,66 @@ void analysis::Loop()
      
   }; //End Loop Events
 
-  cout << endl << "FIT INVARIANT MASS D_PLUS -> PHI PI" << endl << endl;
-  fit_unbinned_InvariantMass(vec_mass_Dplus_PhiPi_MC, 
-                            {0.5, 1.86, 1.88, 0.005, 0.007}, 
-                            {0.001, 0.001, 0.001, 0.001, 0.001}, 
-                            {0., 0., 0., 0., 0.}, 
-                            {1., 3., 3., 1., 1.}, 
-                            {"fraction","mu1","mu2","sigma1","sigma2"}, 
-                            mass_Dplus_PhiPi_MC, 
-                            outfile, 
-                            "D_Plus_Phi_Pi", 
-                            MASS_D_PLUS_PHI_PI_LOW, 
-                            MASS_D_PLUS_PHI_PI_HIGH
-                          );
+  // cout << endl << "FIT INVARIANT MASS D_PLUS -> PHI PI" << endl << endl;
+  // fit_unbinned_InvariantMass(vec_mass_Dplus_PhiPi_MC, 
+  //                           {0.5, 1.86, 1.88, 0.005, 0.007}, 
+  //                           {0.001, 0.001, 0.001, 0.001, 0.001}, 
+  //                           {0., 0., 0., 0., 0.}, 
+  //                           {1., 3., 3., 1., 1.}, 
+  //                           {"fraction","mu1","mu2","sigma1","sigma2"}, 
+  //                           mass_Dplus_PhiPi_MC, 
+  //                           outfile, 
+  //                           "D_Plus_Phi_Pi", 
+  //                           MASS_D_PLUS_PHI_PI_LOW, 
+  //                           MASS_D_PLUS_PHI_PI_HIGH
+  //                         );
 
-  cout << endl << "FIT INVARIANT MASS DS_PLUS -> PHI PI" << endl << endl;
-  fit_unbinned_InvariantMass(vec_mass_DSplus_PhiPi_MC, 
-                            {0.5, 1.966, 1.968, 0.005, 0.007}, 
-                            {0.001, 0.001, 0.001, 0.001, 0.001}, 
-                            {0., 0., 0., 0., 0.}, 
-                            {1., 3., 3., 1., 1.}, 
-                            {"fraction","mu1","mu2","sigma1","sigma2"}, 
-                            mass_DSplus_PhiPi_MC, 
-                            outfile, 
-                            "D_Plus_Phi_Mu_Nu", 
-                            MASS_DS_PLUS_PHI_PI_LOW, 
-                            MASS_DS_PLUS_PHI_PI_HIGH
-                          );
+  // cout << endl << "FIT INVARIANT MASS DS_PLUS -> PHI PI" << endl << endl;
+  // fit_unbinned_InvariantMass(vec_mass_DSplus_PhiPi_MC, 
+  //                           {0.5, 1.966, 1.968, 0.005, 0.007}, 
+  //                           {0.001, 0.001, 0.001, 0.001, 0.001}, 
+  //                           {0., 0., 0., 0., 0.}, 
+  //                           {1., 3., 3., 1., 1.}, 
+  //                           {"fraction","mu1","mu2","sigma1","sigma2"}, 
+  //                           mass_DSplus_PhiPi_MC, 
+  //                           outfile, 
+  //                           "D_Plus_Phi_Mu_Nu", 
+  //                           MASS_DS_PLUS_PHI_PI_LOW, 
+  //                           MASS_DS_PLUS_PHI_PI_HIGH
+  //                         );
 
-  cout << endl << "FIT INVARIANT MASS DS_PLUS -> TAU NU" << endl << endl;
-  fit_unbinned_InvariantMass(vec_mass_DSplus_TauNu_MC, 
-                            {0.5, 1.76, 1.78, 0.005, 0.007}, 
-                            {0.001, 0.001, 0.001, 0.001, 0.001}, 
-                            {0., 0., 0., 0., 0.}, 
-                            {1., 3., 3., 1., 1.}, 
-                            {"fraction","mu1","mu2","sigma1","sigma2"}, 
-                            mass_DSplus_TauNu_MC, 
-                            outfile, 
-                            "D_Plus_Phi_Tau_Nu", 
-                            MASS_DS_PLUS_TAU_NU_LOW, 
-                            MASS_DS_PLUS_TAU_NU_HIGH
-                          );
+  // cout << endl << "FIT INVARIANT MASS DS_PLUS -> TAU NU" << endl << endl;
+  // fit_unbinned_InvariantMass(vec_mass_DSplus_TauNu_MC, 
+  //                           {0.5, 1.76, 1.78, 0.005, 0.007}, 
+  //                           {0.001, 0.001, 0.001, 0.001, 0.001}, 
+  //                           {0., 0., 0., 0., 0.}, 
+  //                           {1., 3., 3., 1., 1.}, 
+  //                           {"fraction","mu1","mu2","sigma1","sigma2"}, 
+  //                           mass_DSplus_TauNu_MC, 
+  //                           outfile, 
+  //                           "D_Plus_Phi_Tau_Nu", 
+  //                           MASS_DS_PLUS_TAU_NU_LOW, 
+  //                           MASS_DS_PLUS_TAU_NU_HIGH
+  //                         );
 
-  cout << endl << "FIT INVARIANT MASS DS_PLUS -> PHI MU NU" << endl << endl;
-  fit_unbinned_Argus(vec_mass_DSplus_PhiMuNu_MC, 
-                    //{1.98, -4.0,  1.5}, 
-                    //{0.001,  0.001,  0.001}, 
-                    //{1.95, -10., 0.1}, 
-                    //{2.05, -1., 2.5}, 
-                    //{"m0", "c", "p"}, 
-                    {-4.0,  1.5}, 
-                    {0.001,  0.001}, 
-                    {-10., 0.1}, 
-                    {-1., 2.5}, 
-                    {"c", "p"}, 
-                    mass_DSplus_PhiMuNu_MC, 
-                    outfile, 
-                    "DS_Plus_Phi_Mu_Nu",
-                    MASS_DS_PLUS_PHI_MU_NU_LOW,
-                    MASS_DS_PLUS_PHI_MU_NU_HIGH
-                  );
+  // cout << endl << "FIT INVARIANT MASS DS_PLUS -> PHI MU NU" << endl << endl;
+  // fit_unbinned_Argus(vec_mass_DSplus_PhiMuNu_MC, 
+  //                   //{1.98, -4.0,  1.5}, 
+  //                   //{0.001,  0.001,  0.001}, 
+  //                   //{1.95, -10., 0.1}, 
+  //                   //{2.05, -1., 2.5}, 
+  //                   //{"m0", "c", "p"}, 
+  //                   {-4.0,  1.5}, 
+  //                   {0.001,  0.001}, 
+  //                   {-10., 0.1}, 
+  //                   {-1., 2.5}, 
+  //                   {"c", "p"}, 
+  //                   mass_DSplus_PhiMuNu_MC, 
+  //                   outfile, 
+  //                   "DS_Plus_Phi_Mu_Nu",
+  //                   MASS_DS_PLUS_PHI_MU_NU_LOW,
+  //                   MASS_DS_PLUS_PHI_MU_NU_HIGH
+  //                 );
 
   //cout << endl << "FIT INVARIANT MASS COMBINATORIAL" << endl << endl;
   //fit_unbinned_Combinatorial(vec_mass_combinatorial, 
@@ -230,11 +239,12 @@ void analysis::Loop()
 
   cout << endl << "FIT INVARIANT MASS TOTAL SPECTRUM" << endl << endl;
   fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
-                            {0.25, 0.25, 0.25, 0.25, 1.}, 
-                            {0.001, 0.001, 0.001, 0.001, 0.001}, 
+  // fit_unbinned_TotalSpectrum(vec_tot_mass_MC, 
+                            {0.3, 0.15, 0.25, 0.01, 2.}, 
+                            {0.01, 0.01, 0.01, 0.0001, 0.01}, 
                             {0., 0., 0., 0., 0.}, 
                             {1., 1., 1., 1., 10.}, 
-                            {"fraction","mu1","mu2","sigma1","sigma2"}, 
+                            {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu","tau"}, 
                             tot_mass_DATA, 
                             outfile, 
                             "Total_Invariant_Mass_Spectrum", 
@@ -242,12 +252,25 @@ void analysis::Loop()
                             TOT_MASS_HIGH
                           );
 
+  // fit_unbinned_TotalSpectrum(vec_tot_mass_MC, 
+  //                           {0.2, 0.1, 0.15, 0.3}, 
+  //                           {0.01, 0.01, 0.01, 0.01}, 
+  //                           {0., 0., 0., 0.}, 
+  //                           {1., 1., 1., 1.}, 
+  //                           {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
+  //                           tot_mass_DATA, 
+  //                           outfile, 
+  //                           "Total_Invariant_Mass_Spectrum", 
+  //                           TOT_MASS_LOW, 
+  //                           TOT_MASS_HIGH
+  //                         );
+
   mass_Dplus_PhiPi_MC->Write();
   mass_DSplus_PhiMuNu_MC->Write();
   mass_DSplus_PhiPi_MC->Write();
   mass_DSplus_TauNu_MC->Write();
   tot_mass_MC->Write();
-   
+  outfile->Close();
 }
 
 
