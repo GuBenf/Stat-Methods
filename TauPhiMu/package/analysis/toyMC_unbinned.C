@@ -25,9 +25,18 @@ Double_t TAU_FIT_COMBINATORIAL = 1.03078e+00;
 Double_t TOT_MASS_LOW = 1.6;
 Double_t TOT_MASS_HIGH = 2.1;
 
+//Double_t f_D_PhiPi = 0.0214727;
+//Double_t f_Ds_PhiNuMu = 0.652866;
+//Double_t f_Ds_PhiPi = 0.04305;
+
+Double_t f_D_PhiPi = 0.0215021;
+Double_t f_Ds_PhiMuNu = 0.653769;
+Double_t f_Ds_PhiPi = 0.0431105;
+
+Double_t fSigTrue = 0.01;
 
 #define analysis_cxx
-#include "fit_unbinned_TotalSpectrum.h"
+#include "fit_unbinned_TotalSpectrum_pseudo.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -41,29 +50,27 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile.root","UPDATE");
+  TFile * outfile = TFile::Open("outfile.root","RECREATE");
 
   gRandom ->SetSeed (12345);
   const double mMin = 1.60;
   const double mMax = 2.10;
-  const int nBins = 50;
+  const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 10;
+  const int nToys = 10000;
 
-  const double nTotTrue = 1000.0;
-  const double fSigTrue = 0.05;
-  const double fDsPhiPi = 0.1203;
-  const double fDPhiPi = 0.201;
-  const double fDsPhiMuNu = 0.358;
+  const double nTotTrue = 10000.0;
 
   // Known model used to generate the pseudo - experiments .
   // TF1 :: GetRandom uses only the shape of the function.
   TF1 generatorModel("generatorModel", total_mass_spectrum_pdf , mMin , mMax, 4);
-  generatorModel.SetParameters(fDsPhiPi, fDPhiPi, fDsPhiMuNu, fSigTrue);
-  TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo -experiments", 50, 0.0, 1.0);
+  generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
+  TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo -experiments", 200, 0.0, 0.05);
 
   for (int iToy = 0; iToy < nToys; ++iToy) 
   {
+    cout << "PROCESSING " << iToy << " TOY" << endl;
+
     TH1D *hToy = new TH1D(Form("hToy_%d",iToy), "", nBins, mMin, mMax);
     // const int nObs = gRandom ->Poisson(nTotTrue); // Extended toy generation .
     const int nObs = nTotTrue;
@@ -76,11 +83,12 @@ void toy()
       vec_generated.push_back(m);
     }
 
-    Double_t fSigfromFIT = fit_unbinned_TotalSpectrum(vec_generated, 
-                            {0.1203, 0.201, 0.358, 0.05}, 
+    Double_t fSigfromFIT = fit_unbinned_TotalSpectrum(
+                            vec_generated, 
+                            {0.02, 0.65, 0.04, 0.01}, 
                             {0.01, 0.01, 0.01, 0.0001}, 
                             {0., 0., 0., 0.}, 
-                            {1., 1., 1., 1.}, 
+                            {0., 0., 0., 0.}, 
                             {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
                             hToy, 
                             outfile, 

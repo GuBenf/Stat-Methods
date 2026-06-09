@@ -111,11 +111,19 @@ Double_t total_mass_spectrum_pdf(Double_t *xx, Double_t *par)
   Double_t f_DS_TauNu = par[3];
   Double_t tau = par[4];
 
-  Double_t val = f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) + 
-                 f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) + 
-                 f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
-                 f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + 
-                 (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi - f_DS_TauNu) * _combinatorial_pdf(x,&tau);
+  //Double_t val = f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) + 
+  //               f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) + 
+  //               f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
+  //               f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + 
+  //               (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi - f_DS_TauNu) * _combinatorial_pdf(x,&tau);
+
+  Double_t val = f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + (1-f_DS_TauNu) *
+                 (
+                    f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) +
+                    f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) +
+                    f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
+                    (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi) * _combinatorial_pdf(x,&tau)
+                 );
   return val;
 
 }
@@ -159,7 +167,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
 
       TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
       
-      my_gMinuit->SetPrintLevel(0);
+      my_gMinuit->SetPrintLevel(-1);
       //my_gMinuit->mnexcm("SET PRINT", nullptr, 0, ierflg);
       //my_gMinuit->mnexcm("SET NOWarnings", nullptr, 0, ierflg);
       //my_gMinuit->mnexcm("SET NOGradient", arglist, 0, ierflg);
@@ -185,8 +193,11 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       Int_t nvpar,nparx,icstat;
       my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
 
-      //if (icstat == 3 && edm < 1e-3){ std::cout << "FIT CONVERGED (EDM=" << edm << ")\n"; }
-      //else { std::cout << "FIT NOT CONVERGED (icstat=" << icstat << ", EDM=" << edm << ")\n"; }
+      cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+      cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+
+      if (icstat == 3 && edm < 1e-3){ std::cout << "FIT CONVERGED (EDM=" << edm << ")\n"; }
+      else { std::cout << "FIT NOT CONVERGED (icstat=" << icstat << ", EDM=" << edm << ")\n"; }
       // my_gMinuit->mnprin(3,amin);
       // std::vector<double> parss(nparam);
       // std::vector<double> errs(nparam);
@@ -201,13 +212,13 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
 
           my_gMinuit->mnpout(par, pname, val, err, lowb, upb, ivar);
 
-          //if (blinded && par == SIG_IDX)
-          //{
-              //std::cout << pname << " = [BLINDED]" << std::endl;
-              //continue;
-          //}
+          if (blinded && par == SIG_IDX)
+          {
+              std::cout << pname << " = [BLINDED]" << std::endl;
+              continue;
+          }
 
-          //std::cout << pname << " = " << val << " ± " << err << std::endl;
+          std::cout << pname << " = " << val << " ± " << err << std::endl;
       }
 
       Double_t pars[nparam];
@@ -326,11 +337,11 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       fit_combinatorial->SetMarkerColor(kWhite);
 
 
-      TLegend *l = new TLegend(0.2,0.2,0.45,0.45);
+      TLegend *l = new TLegend(0.15,0.2,0.4,0.45);
       l->AddEntry(fit_function_plot,"total fit");
-      l->AddEntry(fit_D_PhiPi,"D#rightarrow#phi#pi");
-      l->AddEntry(fit_DS_PhiPi,"D_S#rightarrow#phi#pi");
-      l->AddEntry(fit_DS_PhiMuNu,"D_S#rightarrow#phi#mu#nu_{#mu}");
+      l->AddEntry(fit_D_PhiPi,"D#rightarrow#var_phi#pi");
+      l->AddEntry(fit_DS_PhiPi,"D_S#rightarrow#var_phi#pi");
+      l->AddEntry(fit_DS_PhiMuNu,"D_S#rightarrow#var_phi#mu#nu_{#mu}");
       l->AddEntry(fit_combinatorial,"exponential bkg.");
       l-> SetTextSize(0.04);
       l->Draw("SAME");

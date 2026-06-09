@@ -93,13 +93,13 @@ Double_t total_mass_spectrum_pdf(Double_t *xx, Double_t *par)
                               SIGMA2_FIT_MASS_DS_PLUS_TAU_NU
                             };
 
-  Double_t val = f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) + 
-                 f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) + 
-                 f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
-                 f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + 
-                 (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi - f_DS_TauNu) * 
-                 //_combinatorial_pdf(x,&tau);
-                 _combinatorial_pdf(x,&TAU_FIT_COMBINATORIAL);
+  Double_t val = f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + (1-f_DS_TauNu) *
+                 (
+                    f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) +
+                    f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) +
+                    f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
+                    (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi) * _combinatorial_pdf(x,&TAU_FIT_COMBINATORIAL)
+                 );
   return val;
 
 }
@@ -135,6 +135,9 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
      const int n_fit = x_var.size();
 
       TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
+
+      my_gMinuit->SetPrintLevel(-1);
+
       my_gMinuit->SetFCN(fcn_total_mass_spectrum);      // set the FCN
         
       Double_t arglist[2];
@@ -148,6 +151,7 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
       arglist[0] = 5000.;//500;
       arglist[1] = 0.1;
 
+      my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
 
       // Print results
       Double_t amin,edm,errdef;
@@ -163,6 +167,7 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
           my_gMinuit->mnpout(par, pname, val, err, lowb, upb, ivar);
       }
 
+      
       Double_t pars[nparam];
       Double_t pars_errors[nparam];
 
@@ -172,10 +177,9 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
       for(int par = 0; par < nparam; par++)
       {
           my_gMinuit->mnpout(par, chnam, pars[par], pars_errors[par], low[par], high[par], ivar);
-
-          if (blinded && par == SIG_IDX)
-              pars[par] = 0;
       }
+
+      /*
       std::vector<double> x_points;
       std::vector<double> y_points;
 
@@ -323,6 +327,7 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
       file -> cd();
       c_fit -> Write();
       //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+      */
 
       return pars[3];
 }

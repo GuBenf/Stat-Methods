@@ -73,6 +73,13 @@ Double_t FRACTION_FIT_MASS_DS_PLUS_TAU_NU = 7.88093e-01;
 
 Double_t TAU_FIT_COMBINATORIAL = 1.03132e+00;
 
+//Double_t f_D_PhiPi = 0.0214727;
+//Double_t f_Ds_PhiNuMu = 0.652866;
+//Double_t f_Ds_PhiPi = 0.04305;
+
+Double_t f_D_PhiPi = 0.02;
+Double_t f_Ds_PhiNuMu = 0.65;
+Double_t f_Ds_PhiPi = 0.04;
 
 #define analysis_cxx
 #include "analysis.h"
@@ -254,12 +261,12 @@ void analysis::Loop()
     cout << endl << "FIT INVARIANT MASS TOTAL SPECTRUM -- " /*<< rnd_offset*/ << endl << endl;
     fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
                             //{0.15, 0.3, 0.25, 0.01 - rnd_offset, 2.}, 
-                            {0.15, 0.3, 0.25, 0.01, 1.},
+                            {f_D_PhiPi, f_Ds_PhiNuMu, f_Ds_PhiPi, 0.01, 1.03},
                             {0.01, 0.01, 0.01, 0.0001, 0.01}, 
                             //{0., 0., 0., 0. - rnd_offset, 0.01}, 
                             //{1., 1., 1., 1. - rnd_offset, 10.}, 
                             {0., 0., 0., 0., 0.}, 
-                            {1., 1., 1., 1., 2.},
+                            {0., 0., 0., 0., 0.},
                             {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu","tau"}, 
                             tot_mass_DATA, 
                             outfile, 
