@@ -1,7 +1,4 @@
-//gRandom->SetSeed(0);
-//Double_t rnd_offset = gRandom->Rndm();
-
-//Double_t rnd_offset = 0;
+std::vector<double> x_var;
 
 Double_t _invariant_mass_pdf(Double_t x, Double_t *par)
 {
@@ -12,11 +9,6 @@ Double_t _invariant_mass_pdf(Double_t x, Double_t *par)
   Double_t sigma2 = par[4];
 
   return frac * TMath::Gaus(x,mu1,sigma1,1) + (1-frac) * TMath::Gaus(x,mu2,sigma2,1);
-}
-
-Double_t _pdf_proj_invariant_mass(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
-{
-  return (max*bin_width)*_invariant_mass_pdf(x[0],par);
 }
 
 double _pdf_Argus ( double *x , double * par )
@@ -50,11 +42,6 @@ double _pdf_Argus ( double *x , double * par )
 
 }
 
-Double_t _pdf_proj_argus(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
-{
-  return (max*bin_width)*_pdf_Argus(&x[0],par);
-}
-
 Double_t _combinatorial_pdf(Double_t x, Double_t *par)
 {
   Double_t tau = par[0];
@@ -66,10 +53,15 @@ Double_t _combinatorial_pdf(Double_t x, Double_t *par)
   return val / norm;
 }
 
-Double_t _pdf_proj_combinatorial(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
+
+Double_t total_mass_spectrum_pdf(Double_t *xx, Double_t *par)
 {
-  return (max*bin_width)*_combinatorial_pdf(x[0],par);
-}
+  Double_t x = xx[0];
+  Double_t f_D_PhiPi = par[0]; 
+  Double_t f_DS_PhiMuNu = par[1];
+  Double_t f_DS_PhiPi = par[2];
+  Double_t f_DS_TauNu = par[3];
+  //Double_t tau = par[4];
 
   Double_t par_D_PhiPi[5] = {
                              FRACTION_FIT_D_PLUS_PHI_PI,
@@ -101,21 +93,13 @@ Double_t _pdf_proj_combinatorial(Double_t *x, Double_t *par, Int_t max, Double_t
                               SIGMA2_FIT_MASS_DS_PLUS_TAU_NU
                             };
 
-Double_t total_mass_spectrum_pdf(Double_t *xx, Double_t *par)
-{
-  Double_t x = xx[0];
-  Double_t f_D_PhiPi = par[0]; 
-  Double_t f_DS_PhiMuNu = par[1];
-  Double_t f_DS_PhiPi = par[2];
-  //Double_t f_DS_TauNu = par[3] + rnd_offset;
-  Double_t f_DS_TauNu = par[3];
-  Double_t tau = par[4];
-
   Double_t val = f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) + 
                  f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) + 
                  f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
                  f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + 
-                 (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi - f_DS_TauNu) * _combinatorial_pdf(x,&tau);
+                 (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi - f_DS_TauNu) * 
+                 //_combinatorial_pdf(x,&tau);
+                 _combinatorial_pdf(x,&TAU_FIT_COMBINATORIAL);
   return val;
 
 }
@@ -129,44 +113,30 @@ void fcn_total_mass_spectrum(Int_t &, Double_t *, Double_t &f, Double_t *par, In
 {
   Double_t Like=0;
   Int_t i=0;
-  //Double_t sum = par[0] + par[1] + par[2] + (par[3] + rnd_offset);
-
-  //Double_t penalty = 0.0;
-
-  //if(sum > 1.0) penalty = 1e8*(sum-1.0)*(sum-1.0);
 
   for(size_t i=0; i<x_var.size(); ++i)
   {
       Double_t p = total_mass_spectrum_pdf(&x_var[i],par);
       Like += TMath::Log(p);
   };
-   
-  //f= - 2. * Like + penalty;
+
   f= - 2. * Like;
 
 
 }
 
-void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<double> vstart, std::vector<double> step, std::vector<double> low, std::vector<double> high,  std::vector<std::string> par_names, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
+Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<double> vstart, std::vector<double> step, std::vector<double> low, std::vector<double> high,  std::vector<std::string> par_names, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
 {
      x_var = input_xvar;
 
-     const int SIG_IDX = 3;
-     const int nparam = 5;
+    const int nparam = 4;
 
 
      const int n_fit = x_var.size();
 
       TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
-      
-      my_gMinuit->SetPrintLevel(0);
-      //my_gMinuit->mnexcm("SET PRINT", nullptr, 0, ierflg);
-      //my_gMinuit->mnexcm("SET NOWarnings", nullptr, 0, ierflg);
-      //my_gMinuit->mnexcm("SET NOGradient", arglist, 0, ierflg);
-
-
       my_gMinuit->SetFCN(fcn_total_mass_spectrum);      // set the FCN
-
+        
       Double_t arglist[2];
       Int_t ierflg = 0;  // Error return code: 0 if the command was correctly executed, >0 otherwise. 
      
@@ -178,20 +148,11 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       arglist[0] = 5000.;//500;
       arglist[1] = 0.1;
 
-      my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
-      //gErrorIgnoreLevel = kFatal;
+
       // Print results
       Double_t amin,edm,errdef;
       Int_t nvpar,nparx,icstat;
       my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
-
-      //if (icstat == 3 && edm < 1e-3){ std::cout << "FIT CONVERGED (EDM=" << edm << ")\n"; }
-      //else { std::cout << "FIT NOT CONVERGED (icstat=" << icstat << ", EDM=" << edm << ")\n"; }
-      // my_gMinuit->mnprin(3,amin);
-      // std::vector<double> parss(nparam);
-      // std::vector<double> errs(nparam);
-
-      bool blinded = true;
 
       for (int par = 0; par < nparam; par++)
       {
@@ -200,14 +161,6 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
           Int_t ivar;
 
           my_gMinuit->mnpout(par, pname, val, err, lowb, upb, ivar);
-
-          //if (blinded && par == SIG_IDX)
-          //{
-              //std::cout << pname << " = [BLINDED]" << std::endl;
-              //continue;
-          //}
-
-          //std::cout << pname << " = " << val << " ± " << err << std::endl;
       }
 
       Double_t pars[nparam];
@@ -221,41 +174,22 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
           my_gMinuit->mnpout(par, chnam, pars[par], pars_errors[par], low[par], high[par], ivar);
 
           if (blinded && par == SIG_IDX)
-              //pars[par] = 0 - rnd_offset;
               pars[par] = 0;
       }
       std::vector<double> x_points;
       std::vector<double> y_points;
 
-      std::vector<double> x_no_blind;
-      std::vector<double> y_D_PhiPi;
-      std::vector<double> y_DS_PhiPi;
-      std::vector<double> y_DS_PhiMuNu;
-      std::vector<double> y_Combinatorial;
-      
-
       for(int xi=0; xi<10000; xi++)
       { 
             double x = xmin + xi * (xmax-xmin)/10000;
 
-            x_no_blind.push_back(x);
-            y_D_PhiPi.push_back(_pdf_proj_invariant_mass(&x,par_D_PhiPi,int(n_fit*pars[0]),h_time->GetBinWidth(1)));
-            y_DS_PhiPi.push_back(_pdf_proj_invariant_mass(&x,par_DS_PhiPi,int(n_fit*pars[2]),h_time->GetBinWidth(1)));
-            y_DS_PhiMuNu.push_back(_pdf_proj_argus(&x,par_DS_PhiMuNu,int(n_fit*pars[1]),h_time->GetBinWidth(1)));
-            y_Combinatorial.push_back(_pdf_proj_combinatorial(&x,&pars[4],int(n_fit*(1 - pars[0] - pars[1] - pars[2] - pars[3])),h_time->GetBinWidth(1)));
-
-            if(TMath::Abs(x - 1.77699) <= 3 * 0.00581298)continue; //BLINDING
+            //if(TMath::Abs(x - 1.77699) <= 3 * 0.00581298)continue; //BLINDING
 
             x_points.push_back(x);
             y_points.push_back(pdf_proj_total_mass_spectrum(&x,pars,n_fit,h_time->GetBinWidth(1)));
       }
 
       TGraph * fit_function_plot = new TGraph(x_points.size(),x_points.data(),y_points.data());
-
-      TGraph * fit_D_PhiPi = new TGraph(x_no_blind.size(),x_no_blind.data(),y_D_PhiPi.data());
-      TGraph * fit_DS_PhiPi = new TGraph(x_no_blind.size(),x_no_blind.data(),y_DS_PhiPi.data());
-      TGraph * fit_DS_PhiMuNu = new TGraph(x_no_blind.size(),x_no_blind.data(),y_DS_PhiMuNu.data());
-      TGraph * fit_combinatorial = new TGraph(x_no_blind.size(),x_no_blind.data(),y_Combinatorial.data());
 
       TCanvas *c_fit = new TCanvas(Form("fit_%s",name.c_str()), "");
       c_fit->cd();
@@ -287,11 +221,11 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       {
           double x = h_plot->GetBinCenter(i);
 
-          if (fabs(x - 1.77699) <= 3 * 0.00581298)
-          {
-              h_plot->SetBinContent(i, 0);
-              h_plot->SetBinError(i, 0);
-          }
+          //if (fabs(x - 1.77699) <= 3 * 0.00581298)
+          //{
+              //h_plot->SetBinContent(i, 0);
+              //h_plot->SetBinError(i, 0);
+          //}
       }
       h_plot->SetLineColor(kBlack);
       h_plot->SetMarkerStyle(8);
@@ -307,34 +241,6 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       fit_function_plot->SetMarkerColor(kRed);
       fit_function_plot->SetLineWidth(2);
       fit_function_plot->Draw("L SAME");
-
-      fit_D_PhiPi->Draw("L SAME");
-      fit_D_PhiPi->SetLineColor(kViolet);
-      fit_D_PhiPi->SetLineStyle(kDashed);
-      fit_D_PhiPi->SetMarkerColor(kWhite);
-      fit_DS_PhiPi->Draw("L SAME");
-      fit_DS_PhiPi->SetLineColor(kOrange);
-      fit_DS_PhiPi->SetLineStyle(kDashed);
-      fit_DS_PhiPi->SetMarkerColor(kWhite);
-      fit_DS_PhiMuNu->Draw("L SAME");
-      fit_DS_PhiMuNu->SetLineColor(kBlue);
-      fit_DS_PhiMuNu->SetLineStyle(kDashed);
-      fit_DS_PhiMuNu->SetMarkerColor(kWhite);
-      fit_combinatorial->Draw("L SAME");
-      fit_combinatorial->SetLineColor(kGreen);
-      fit_combinatorial->SetLineStyle(kDashed);
-      fit_combinatorial->SetMarkerColor(kWhite);
-
-
-      TLegend *l = new TLegend(0.2,0.2,0.45,0.45);
-      l->AddEntry(fit_function_plot,"total fit");
-      l->AddEntry(fit_D_PhiPi,"D#rightarrow#phi#pi");
-      l->AddEntry(fit_DS_PhiPi,"D_S#rightarrow#phi#pi");
-      l->AddEntry(fit_DS_PhiMuNu,"D_S#rightarrow#phi#mu#nu_{#mu}");
-      l->AddEntry(fit_combinatorial,"exponential bkg.");
-      l-> SetTextSize(0.04);
-      l->Draw("SAME");
-
 
       // IMPORTANT: go back to canvas
       c_fit->cd();
@@ -362,7 +268,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       {
           double x  = h_time->GetBinCenter(i+1);
 
-          if (fabs(x - 1.77699) <= 3 * 0.00581298) continue; //BLINDING ALSO ON PULLS
+          //if (fabs(x - 1.77699) <= 3 * 0.00581298) continue;
 
           double y  = h_time->GetBinContent(i+1);
           double ey = h_time->GetBinError(i+1);
@@ -417,4 +323,6 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       file -> cd();
       c_fit -> Write();
       //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+
+      return pars[3];
 }

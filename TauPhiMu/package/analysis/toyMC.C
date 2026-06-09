@@ -109,65 +109,72 @@ Double_t modelFormula(double *xx, double *p){
   Double_t comb = (1-p[2]-p[5]-p[6]-p[7])* _combinatorial_pdf(x,&TAU_FIT_COMBINATORIAL);
 
   // Total pdf
+  //
   Double_t tot_pdf = p[0]*p[1]*(sig + ds_phipi + d_phipi + ds_phimunu + comb);
 
   return tot_pdf;
 }
 
 
-void analysis::Loop () {
-gRandom ->SetSeed (12345);
-const double mMin = 1.60;
-const double mMax = 2.10;
-const int nBins = 50;
-const double binWidth = (mMax - mMin) / nBins;
-const int nToys = 1000;
+void analysis::Loop () 
+{
 
-const double nTotTrue = 500.0;
-const double fSigTrue = 0.05;
-const double meanTrue = 1.78;
-const double sigmaTrue = 0.02;
-const double fDsPhiPi = 0.1203;
-const double fDPhiPi = 0.201;
-const double fDsPhiMuNu = 0.358;
+  gRandom ->SetSeed (12345);
+  const double mMin = 1.60;
+  const double mMax = 2.10;
+  const int nBins = 50;
+  const double binWidth = (mMax - mMin) / nBins;
+  const int nToys = 1000;
 
-// const char* modelFormula = "[0]*[5]*([1]* TMath ::Gaus(x,[2] ,[3] ,1) + (1.0 -[1]) *([4]* TMath::Exp([4]*(x -1.60))/(TMath::Exp ([4]*(2.10 -1.60)) -1.0)))";
+  const double nTotTrue = 500.0;
+  const double fSigTrue = 0.05;
+  const double meanTrue = 1.78;
+  const double sigmaTrue = 0.02;
+  const double fDsPhiPi = 0.1203;
+  const double fDPhiPi = 0.201;
+  const double fDsPhiMuNu = 0.358;
 
-// Known model used to generate the pseudo - experiments .
-// TF1 :: GetRandom uses only the shape of the function.
-TF1 generatorModel("generatorModel", modelFormula , mMin , mMax, 8);
-generatorModel.SetParameters(nTotTrue, binWidth, fSigTrue, meanTrue, sigmaTrue, fDsPhiPi, fDPhiPi, fDsPhiMuNu);
-TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo -experiments", 50, 0.0, 1.0);
-for (int iToy = 0; iToy < nToys; ++iToy) {
-TH1D hToy("hToy", "Toy dataset;M;Candidates", nBins , mMin , mMax);
-// const int nObs = gRandom ->Poisson(nTotTrue); // Extended toy generation .
-const int nObs = nTotTrue;
-for (int i = 0; i < nObs; ++i) {
-const double m = generatorModel.GetRandom(mMin , mMax);
-hToy.Fill(m);
-}
-// Fit model:
-// par [0] = Ntot
-// par [1] = fsig
-// par [2] = Gaussian mean
-// par [3] = Gaussian width
-// par [4] = exponential slope
-// par [5] = bin width , fixed
-TF1 fitModel("fitModel", modelFormula , mMin , mMax, 8);
-fitModel.SetParameters(nObs , binWidth, fSigTrue, meanTrue, sigmaTrue, fDsPhiPi, fDPhiPi, fDsPhiMuNu);
-fitModel.SetParNames("Ntot", "binWidth", "fsig", "mean", "sigma", "fDsPhiPi", "fDPhiPi", "fDsPhiMuNu");
-fitModel.FixParameter (0, nObs); // or comment to let it float
-fitModel.FixParameter (1, binWidth);
-hToy.Fit(&fitModel , "LI");
-const double nTotFit = fitModel.GetParameter (0);
-const double fSigFit = fitModel.GetParameter (2);
-const double nSigFit = fSigFit * nTotFit;
-hfSigFit.Fill(fSigFit);
-}
-TCanvas c("c", "Pseudo -experiment result", 800, 600);
-hfSigFit.Draw("HIST");
-c.SaveAs("toy_fitted_signal_yield.pdf");
-}
+  // const char* modelFormula = "[0]*[5]*([1]* TMath ::Gaus(x,[2] ,[3] ,1) + (1.0 -[1]) *([4]* TMath::Exp([4]*(x -1.60))/(TMath::Exp ([4]*(2.10 -1.60)) -1.0)))";
+
+  // Known model used to generate the pseudo - experiments .
+  // TF1 :: GetRandom uses only the shape of the function.
+  TF1 generatorModel("generatorModel", modelFormula , mMin , mMax, 8);
+  generatorModel.SetParameters(nTotTrue, binWidth, fSigTrue, meanTrue, sigmaTrue, fDsPhiPi, fDPhiPi, fDsPhiMuNu);
+  TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo -experiments", 50, 0.0, 1.0);
+
+  for (int iToy = 0; iToy < nToys; ++iToy) 
+  {
+    TH1D hToy("hToy", "Toy dataset;M;Candidates", nBins , mMin , mMax);
+    // const int nObs = gRandom ->Poisson(nTotTrue); // Extended toy generation .
+    const int nObs = nTotTrue;
+    for (int i = 0; i < nObs; ++i) 
+    {
+      const double m = generatorModel.GetRandom(mMin , mMax);
+      hToy.Fill(m);
+    }
+    // Fit model:
+    // par [0] = Ntot
+    // par [1] = fsig
+    // par [2] = Gaussian mean
+    // par [3] = Gaussian width
+    // par [4] = exponential slope
+    // par [5] = bin width , fixed
+    
+    TF1 fitModel("fitModel", modelFormula , mMin , mMax, 8);
+    fitModel.SetParameters(nObs , binWidth, fSigTrue, meanTrue, sigmaTrue, fDsPhiPi, fDPhiPi, fDsPhiMuNu);
+    fitModel.SetParNames("Ntot", "binWidth", "fsig", "mean", "sigma", "fDsPhiPi", "fDPhiPi", "fDsPhiMuNu");
+    fitModel.FixParameter (0, nObs); // or comment to let it float
+    fitModel.FixParameter (1, binWidth);
+    hToy.Fit(&fitModel , "LI");
+    const double nTotFit = fitModel.GetParameter (0);
+    const double fSigFit = fitModel.GetParameter (2);
+    const double nSigFit = fSigFit * nTotFit;
+    hfSigFit.Fill(fSigFit);
+  }
+  TCanvas c("c", "Pseudo -experiment result", 800, 600);
+  hfSigFit.Draw("HIST");
+  c.SaveAs("toy_fitted_signal_yield.pdf");
+  }
 /*
 void analysis::Loop()
 {
