@@ -31,7 +31,7 @@ std::tuple<Double_t,Double_t> fit_unbinned_Gauss(std::vector<double> input_xvar,
      const int n_fit = x_var.size();
 
       TMinuit *my_gMinuit = new TMinuit(nparam);  //initialize TMinuit with a maximum of 5 params
-      gMinuit->SetPrintLevel(0);
+      gMinuit->SetPrintLevel(-1);
       my_gMinuit->SetFCN(fcn_iv);      // set the FCN
         
       Double_t arglist[2];

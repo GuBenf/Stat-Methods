@@ -33,7 +33,6 @@ Double_t f_D_PhiPi = 0.0215021;
 Double_t f_Ds_PhiMuNu = 0.653769;
 Double_t f_Ds_PhiPi = 0.0431105;
 
-Double_t fSigTrue = 0.01;
 
 Double_t EFF_D_PhiPi = 53699./50e6;
 Double_t EFF_Ds_PhiMuNu = 95217./5e6;
@@ -63,6 +62,10 @@ Double_t CS_pp_Ds = 353;
 Double_t SIGMA_CS_pp_D = 2;
 Double_t SIGMA_CS_pp_Ds = 9;
 
+Double_t R_STEP = 0.01;
+Double_t INTEGRATION_STEP = 0.01;
+Double_t f_Sig_STEP = 0.001;
+
 Double_t Gauss_pdf(Double_t *x, Double_t *par)
 {
   return TMath::Gaus(x[0],par[0],par[1],1);
@@ -89,11 +92,53 @@ Double_t sample_val(Double_t mu, Double_t sigma)
 Double_t Likelihood_ratio(Double_t *x, Double_t *par)
 {
   Double_t val;
-  if(x >= 0) val = TMath::Exp(-1./2 * std::pow((x - par[0]),2));
-  else val = TMath::Exp(x * par[0] - par[0] * par[0] / 2);
+  if(x[0] >= 0) val = TMath::Exp(-1./2 * std::pow((x[0] - par[0]),2));
+  else val = TMath::Exp(x[0] * par[0] - par[0] * par[0] / 2);
+
+  return val;
 }
 
-Double_t 
+std::pair<Double_t,Double_t> get_x1_x2_at_R(Double_t R, Double_t mu, Double_t sigma)
+{
+  Double_t x_right = mu + std::sqrt(-2 * std::log(R));
+  
+  Double_t x_left_1 = mu - std::sqrt(-2 * std::log(R));
+
+  Double_t x_left_2 = std::log(R)/mu + mu/2.;
+
+  Double_t x_left;
+  if(x_left_1 > 0){x_left = x_left_1;}
+  else{x_left = x_left_2;}
+
+  return {x_left,x_right};
+}
+
+Double_t numeric_gaus_integral(Double_t x1, Double_t x2, Double_t mu, Double_t sigma)
+{
+  Double_t sum = 0;
+  Double_t pars[2] = {mu,sigma};
+
+  for(Double_t x = x1; x <= x2; x += INTEGRATION_STEP)
+  {
+    sum = sum + Gauss_pdf(&x,pars);
+  }
+
+  return sum * INTEGRATION_STEP;
+}
+
+std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigma)
+{
+  for(Double_t R = 0.99; R > 0; R -= R_STEP )
+  {
+    std::pair<Double_t,Double_t> x_interval = get_x1_x2_at_R(R,mu,sigma);
+
+    Double_t integral = numeric_gaus_integral(x_interval.first, x_interval.second, mu, sigma);
+
+    if(integral >= 0.9){return x_interval;} 
+  }
+
+  return {-1,-1};
+}
 
 #define analysis_cxx
 #include "fit_unbinned_TotalSpectrum_pseudo.h"
@@ -127,21 +172,34 @@ void toy()
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 5000;
+  const int nToys = 1000;
 
   const double nTotTrue = 1000.0;
 
+  std::vector<double> lower_belt;
+  std::vector<double> upper_belt;
+  std::vector<double> f_sig_belt;
+
+int point = -1;
+for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
+{
+
+  f_sig_belt.push_back(fSigTrue);
+
+  cout << "PROCESSING f_Sig = " << fSigTrue << endl;
+  point ++;
+
   // Known model used to generate the pseudo - experiments .
   // TF1 :: GetRandom uses only the shape of the function.
-  TF1 generatorModel("generatorModel", total_mass_spectrum_pdf , mMin , mMax, 4);
+  TF1 generatorModel(Form("generatorModel_%d",point), total_mass_spectrum_pdf , mMin , mMax, 4);
   generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
-  TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, fSigTrue - 5*fSigTrue, fSigTrue + 5*fSigTrue);
-  TH1D hdifffSigFit("hdifffSigFit", "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, -0.04, 0.04);
-  TH1D hpullSigFit("hpullSigFit", "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, -10., 10.);
-  TH1D hfSig_over_fPhiMuNu("hfSig_over_fPhiMuNu","Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, -0.04, 0.065);
-  TH1D hfBRSig("hfBRSig","BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, -0.025, 0.035);
-  TH1D hfR_tau("hfR_tau","R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, -0.006, 0.02);
-  TH1D *h_sigma_f_Sig = new TH1D("h_sigma_f_Sig","",100,6e-3,10.5e-3); 
+  TH1D hfSigFit(Form("hfSigFit_%d",point), "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, fSigTrue - 5*fSigTrue, fSigTrue + 5*fSigTrue);
+  TH1D hdifffSigFit(Form("hdifffSigFit_%d",point), "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, -0.04, 0.04);
+  TH1D hpullSigFit(Form("hpullSigFit_%d",point), "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, -10., 10.);
+  TH1D hfSig_over_fPhiMuNu(Form("hfSig_over_fPhiMuNu_%d",point),"Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, -0.04, 0.065);
+  TH1D hfBRSig(Form("hfBRSig_%d",point),"BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, -0.025, 0.035);
+  TH1D hfR_tau(Form("hfR_tau_%d",point),"R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, -0.006, 0.02);
+  TH1D *h_sigma_f_Sig = new TH1D(Form("h_sigma_f_Sig_%d",point),"",100,6e-3,10.5e-3); 
 
   for (int iToy = 0; iToy < nToys; ++iToy) 
   {
@@ -150,7 +208,7 @@ void toy()
 
     }
 
-    TH1D *hToy = new TH1D(Form("hToy_%d",iToy), "", nBins, mMin, mMax);
+    TH1D *hToy = new TH1D(Form("hToy_%d_%d",point,iToy), "", nBins, mMin, mMax);
     // const int nObs = gRandom ->Poisson(nTotTrue); // Extended toy generation .
     const int nObs = nTotTrue;
 
@@ -171,7 +229,7 @@ void toy()
                             {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
                             hToy, 
                             dummy, 
-                            Form("Generated_Invariant_Mass_Spectrum_%d",iToy), 
+                            Form("Generated_Invariant_Mass_Spectrum_%d_%d",point,iToy), 
                             mMin, 
                             mMax
                           );
@@ -211,13 +269,21 @@ void toy()
                                                                   {"mu", "sigma"}, 
                                                                   &hfSigFit, 
                                                                   outfile, 
-                                                                  "fsig", 
+                                                                  Form("fsig_%d",point), 
                                                                   -1, 
                                                                   1
                                                                   );
 
   cout << "\n\n **** FIT f_Sig : MU = " << std::get<0>(results_fit_fsig) << " SIGMA : " <<  std::get<1>(results_fit_fsig) << " ****\n\n" << endl;
   
+  Double_t mu_f_sig = std::get<0>(results_fit_fsig);
+  Double_t sigma_mu_f_sig = std::get<1>(results_fit_fsig);
+  
+  std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(mu_f_sig,sigma_mu_f_sig);
+
+  lower_belt.push_back(acceptance_interval.first);
+  upper_belt.push_back(acceptance_interval.second);
+
   std::tuple <Double_t,Double_t> results_fit_residuals = fit_unbinned_Gauss(  fdiffsig, 
                                                                         {0, 0.005}, 
                                                                         {0.001, 0.0001}, 
@@ -226,7 +292,7 @@ void toy()
                                                                         {"mu", "sigma"}, 
                                                                         &hdifffSigFit, 
                                                                         outfile, 
-                                                                        "residuals", 
+                                                                        Form("residuals_%d",point), 
                                                                         -1, 
                                                                         1
                                                                       );
@@ -241,7 +307,7 @@ void toy()
                                                                     {"mu", "sigma"},
                                                                     &hpullSigFit, 
                                                                     outfile, 
-                                                                    "pulls", 
+                                                                    Form("pulls_%d",point), 
                                                                     -10, 
                                                                     10
                                                                   );  
@@ -256,7 +322,7 @@ void toy()
                                                                     {"mu", "sigma"},
                                                                     &hfSig_over_fPhiMuNu, 
                                                                     outfile, 
-                                                                    "fSig_over_fPhiMuNu", 
+                                                                    Form("fSig_over_fPhiMuNu_%d",point), 
                                                                     -1, 
                                                                     1
                                                                   ); 
@@ -270,7 +336,7 @@ void toy()
                                                                     {"mu", "sigma"},
                                                                     &hfBRSig, 
                                                                     outfile, 
-                                                                    "BRSig", 
+                                                                    Form("BRSig_%d",point), 
                                                                     -1, 
                                                                     1
                                                                   );  
@@ -285,7 +351,7 @@ void toy()
                                                                     {"mu", "sigma"},
                                                                     &hfR_tau, 
                                                                     outfile, 
-                                                                    "R_tau", 
+                                                                    Form("R_tau_%d",point), 
                                                                     -1, 
                                                                     1
                                                                   );  
@@ -301,20 +367,45 @@ void toy()
                                                                     {"mu", "sigma"},
                                                                     h_sigma_f_Sig, 
                                                                     outfile, 
-                                                                    "sigma_fsig", 
+                                                                    Form("sigma_fsig_%d",point), 
                                                                     -1, 
                                                                     1
                                                                   );  
                                                                   
   cout << "\n\n **** FIT SIGMA f_Sig : MU = " << std::get<0>(results_fit_sigma_f_sigma) << " SIGMA : " <<  std::get<1>(results_fit_sigma_f_sigma) << " ****\n\n" << endl; 
 
-  TF1 *fit_gaus_binned = new TF1("fit_gaus_binned",Gauss_pdf_bin,-10,10,4);
+  TF1 *fit_gaus_binned = new TF1(Form("fit_gaus_binned_%d",point),Gauss_pdf_bin,-10,10,4);
   fit_gaus_binned -> SetParameters(0.05, 1., hpullSigFit.Integral(), hpullSigFit.GetBinWidth(1));
   fit_gaus_binned -> FixParameter(3,hpullSigFit.GetBinWidth(1));
   hpullSigFit.Fit(fit_gaus_binned,"L");
 
   hpullSigFit.Write();
-  outfile->Close();
-  dummy->Close();
+
+}
+
+TGraph * g_lower_belt = new TGraph(lower_belt.size(),f_sig_belt.data(),lower_belt.data());
+TGraph * g_upper_belt = new TGraph(upper_belt.size(),f_sig_belt.data(),upper_belt.data());
+
+TSpline3 *s_lower_belt = new TSpline3("spline_lower_belt",g_lower_belt);
+TSpline3 *s_upper_belt = new TSpline3("spline_upper_belt",g_upper_belt);
+
+TCanvas *c_belt = new TCanvas("c_belt","");
+c_belt->cd();
+g_lower_belt->SetMarkerStyle(7);
+g_lower_belt->SetMarkerSize(2);
+g_upper_belt->SetMarkerStyle(7);
+g_upper_belt->SetMarkerSize(2);
+s_lower_belt->SetLineColor(kBlue);
+s_upper_belt->SetLineColor(kBlue);
+s_lower_belt->SetLineWidth(2);
+s_upper_belt->SetLineWidth(2);
+g_upper_belt->Draw("AP");
+g_lower_belt->Draw("SAME");
+s_lower_belt->Draw("SAME");
+s_upper_belt->Draw("SAME");
+
+c_belt->Write();
+outfile->Close();
+dummy->Close();
 
 }
