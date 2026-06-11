@@ -33,7 +33,6 @@ Double_t f_D_PhiPi = 0.0215021;
 Double_t f_Ds_PhiMuNu = 0.653769;
 Double_t f_Ds_PhiPi = 0.0431105;
 
-Double_t fSigTrue = 0.01;
 
 #define analysis_cxx
 #include "fit_unbinned_TotalSpectrum_pseudo.h"
@@ -46,8 +45,11 @@ Double_t fSigTrue = 0.01;
 #include <iostream>
 
 using namespace std;
-std::vector<double> fsig;
-std::vector<double> fdiffsig;
+std::vector<double> fsigTrues;
+std::vector<double> mins_band;
+std::vector<double> maxs_band;
+std::vector<double> x_band;
+std::vector<double> y_band;
 
 
 void toy() 
@@ -61,13 +63,25 @@ void toy()
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 10000;
+  const int nToys = 500;
 
   const double nTotTrue = 10000.0;
+  double fsigStart = 0.001;
+  int bandpoints = 4;
 
   // Known model used to generate the pseudo - experiments .
   // TF1 :: GetRandom uses only the shape of the function.
   TF1 generatorModel("generatorModel", total_mass_spectrum_pdf , mMin , mMax, 4);
+
+  for (int i=0; i<bandpoints; i++){
+    fsigTrues.push_back(fsigStart+i*0.001);
+  }
+  for (int j = 0; j<bandpoints; j++)
+  {
+    std::vector<double> fsig;
+    std::vector<double> fdiffsig;
+
+  double fSigTrue = fsigTrues[j];
   generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
   TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo -experiments", 200, 0.0, 5*fSigTrue);
   TH1D hdifffSigFit("hdifffSigFit", "Fitted signal yield - Simulated signal yield;#hat{f}_{sig}-f_{sig};Pseudo -experiments", 200, -0.02, 0.02);
@@ -107,13 +121,10 @@ void toy()
 
     hfSigFit.Fill(fSigfromFIT);
     fsig.push_back(fSigfromFIT);
-    hdifffSigFit.Fill(fSigfromFIT-fSigTrue);
-    fdiffsig.push_back(fSigfromFIT-fSigTrue);
+
 
   }
-    outfile -> cd();
-
-  fit_unbinned_InvariantMass(fsig, 
+    std::tuple<Double_t, Double_t> fit_pars =  fit_unbinned_InvariantMass_results(fsig, 
                             {1, fSigTrue, fSigTrue, 0.005, 0}, 
                             {0, 0.001, 0, 0.0001, 0}, 
                             {0., 0., 0., 0., 0.}, 
@@ -125,21 +136,34 @@ void toy()
                             0, 
                             1
                           );
-  
-  fit_unbinned_InvariantMass(fdiffsig, 
-                            {1, 0, 0, 0.005, 0}, 
-                            {0, 0.001, 0, 0.0001, 0}, 
-                            {0., 0., 0., 0., 0.}, 
-                            {1., 1., 1., 1., 1.}, 
-                            {"fraction","mu1","mu2","sigma1","sigma2"}, 
-                            &hdifffSigFit, 
-                            outfile, 
-                            "fsig-fsigtrue", 
-                            -2, 
-                            2
-                          );
+  Double_t mean  = std::get<0>(fit_pars);
+  Double_t sigma = std::get<1>(fit_pars);
+  Double_t min_band = mean-2*sigma;
+  Double_t max_band = mean+2*sigma;
+  mins_band.push_back(min_band);
+  maxs_band.push_back(max_band);
+  //push back twice because there are two points for each fSigTrue
+  x_band.push_back(fSigTrue);
+  x_band.push_back(fSigTrue);
 
-  hfSigFit.Write();
+  y_band.push_back(min_band);
+  y_band.push_back(max_band);
+  }
+
+  TGraph *gr = new TGraph(y_band.size(), x_band.data(), y_band.data());
+
+    TCanvas *c = new TCanvas("c", "Band points", 800, 600);
+
+    gr->SetTitle("Band points;fsig;min -/- max");
+    gr->SetMarkerStyle(20);
+    gr->Draw("AP");
+
+
+
+    outfile -> cd();
+
+    gr->Write();
+  // hfSigFit.Write();
   outfile->Close();
   dummy->Close();
 
