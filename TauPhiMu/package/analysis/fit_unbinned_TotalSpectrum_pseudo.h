@@ -125,11 +125,11 @@ void fcn_total_mass_spectrum(Int_t &, Double_t *, Double_t &f, Double_t *par, In
 
 }
 
-Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<double> vstart, std::vector<double> step, std::vector<double> low, std::vector<double> high,  std::vector<std::string> par_names, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
+std::tuple<Double_t,Double_t,Double_t,Double_t> fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<double> vstart, std::vector<double> step, std::vector<double> low, std::vector<double> high,  std::vector<std::string> par_names, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
 {
      x_var = input_xvar;
 
-    const int nparam = 4;
+     const int nparam = 4;
 
 
      const int n_fit = x_var.size();
@@ -329,5 +329,6 @@ Double_t fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<
       //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
       */
 
-      return pars[3];
+      std::tuple<Double_t,Double_t,Double_t,Double_t> returned_vals = {pars[3],pars_errors[3],pars[1],pars_errors[1]};
+      return returned_vals;
 }
