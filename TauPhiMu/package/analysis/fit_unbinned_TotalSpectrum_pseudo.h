@@ -112,7 +112,6 @@ Double_t pdf_proj_total_mass_spectrum(Double_t *x, Double_t *par, Int_t max, Dou
 void fcn_total_mass_spectrum(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )
 {
   Double_t Like=0;
-  Int_t i=0;
 
   for(size_t i=0; i<x_var.size(); ++i)
   {
@@ -158,6 +157,8 @@ std::tuple<Double_t,Double_t,Double_t,Double_t> fit_unbinned_TotalSpectrum(std::
       Int_t nvpar,nparx,icstat;
       my_gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);     
 
+      if(!(icstat == 3 && edm < 1e-3)){ cout << "FIT NOT CONVERGED" << endl; }
+
       for (int par = 0; par < nparam; par++)
       {
           TString pname;
@@ -180,6 +181,7 @@ std::tuple<Double_t,Double_t,Double_t,Double_t> fit_unbinned_TotalSpectrum(std::
       }
 
       /*
+      
       std::vector<double> x_points;
       std::vector<double> y_points;
 

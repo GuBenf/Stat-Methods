@@ -68,6 +68,11 @@ Double_t Gauss_pdf(Double_t *x, Double_t *par)
   return TMath::Gaus(x[0],par[0],par[1],1);
 }
 
+Double_t Gauss_pdf_bin(Double_t *x, Double_t *par)
+{
+  return par[2] * par[3] * TMath::Gaus(x[0],par[0],par[1],1);
+}
+
 Double_t sample_val(Double_t mu, Double_t sigma)
 {
   Double_t par[2] = {mu,sigma};
@@ -80,6 +85,15 @@ Double_t sample_val(Double_t mu, Double_t sigma)
 
   return extracted_val;
 }
+
+Double_t Likelihood_ratio(Double_t *x, Double_t *par)
+{
+  Double_t val;
+  if(x >= 0) val = TMath::Exp(-1./2 * std::pow((x - par[0]),2));
+  else val = TMath::Exp(x * par[0] - par[0] * par[0] / 2);
+}
+
+Double_t 
 
 #define analysis_cxx
 #include "fit_unbinned_TotalSpectrum_pseudo.h"
@@ -99,6 +113,7 @@ std::vector<double> fsig_over_fphiMuNu;
 
 std::vector<double> BR_Sig;
 std::vector<double> R_tau;
+std::vector<double> sigma_f_sig;
 
 
 void toy() 
@@ -112,7 +127,7 @@ void toy()
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 10000;
+  const int nToys = 5000;
 
   const double nTotTrue = 1000.0;
 
@@ -122,10 +137,11 @@ void toy()
   generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
   TH1D hfSigFit("hfSigFit", "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, fSigTrue - 5*fSigTrue, fSigTrue + 5*fSigTrue);
   TH1D hdifffSigFit("hdifffSigFit", "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, -0.04, 0.04);
-  TH1D hpullSigFit("hpullSigFit", "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 100, -7., 7.);
+  TH1D hpullSigFit("hpullSigFit", "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, -10., 10.);
   TH1D hfSig_over_fPhiMuNu("hfSig_over_fPhiMuNu","Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, -0.04, 0.065);
   TH1D hfBRSig("hfBRSig","BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, -0.025, 0.035);
-  TH1D hfR_tau("hfR_tau","R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, 0., 0.);
+  TH1D hfR_tau("hfR_tau","R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, -0.006, 0.02);
+  TH1D *h_sigma_f_Sig = new TH1D("h_sigma_f_Sig","",100,6e-3,10.5e-3); 
 
   for (int iToy = 0; iToy < nToys; ++iToy) 
   {
@@ -149,7 +165,7 @@ void toy()
     std::tuple<Double_t,Double_t,Double_t,Double_t> tuple_fSigfromFIT = fit_unbinned_TotalSpectrum(
                             vec_generated, 
                             {0.02, 0.65, 0.04, 0.01}, 
-                            {0.01, 0.01, 0.01, 0.0001}, 
+                            {0.0001, 0.0001, 0.0001, 0.0001}, 
                             {0., 0., 0., 0.}, 
                             {0., 0., 0., 0.}, 
                             {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
@@ -178,10 +194,14 @@ void toy()
     hfR_tau.Fill( (fSigfromFIT * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu)) / (fPhiMuNufromFIT * sample_val(EFF_Sig,SIGMA_EFF_Sig)) );
     R_tau.push_back( (fSigfromFIT * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu)) / (fPhiMuNufromFIT * sample_val(EFF_Sig,SIGMA_EFF_Sig)) );
 
+    sigma_f_sig.push_back(err_fSigfromFIT);
+    h_sigma_f_Sig -> Fill(err_fSigfromFIT);
+
     delete hToy;
 
   }
     outfile -> cd();
+
 
   std::tuple <Double_t,Double_t> results_fit_fsig = fit_unbinned_Gauss( fsig, 
                                                                   {fSigTrue, 0.005}, 
@@ -192,9 +212,11 @@ void toy()
                                                                   &hfSigFit, 
                                                                   outfile, 
                                                                   "fsig", 
-                                                                  0.01 - 1, 
-                                                                  0.01 + 1
+                                                                  -1, 
+                                                                  1
                                                                   );
+
+  cout << "\n\n **** FIT f_Sig : MU = " << std::get<0>(results_fit_fsig) << " SIGMA : " <<  std::get<1>(results_fit_fsig) << " ****\n\n" << endl;
   
   std::tuple <Double_t,Double_t> results_fit_residuals = fit_unbinned_Gauss(  fdiffsig, 
                                                                         {0, 0.005}, 
@@ -205,22 +227,26 @@ void toy()
                                                                         &hdifffSigFit, 
                                                                         outfile, 
                                                                         "residuals", 
-                                                                        -0.04, 
-                                                                        0.04
+                                                                        -1, 
+                                                                        1
                                                                       );
 
+  cout << "\n\n **** FIT RESIDUALS : MU = " << std::get<0>(results_fit_residuals) << " SIGMA : " <<  std::get<1>(results_fit_residuals) << " ****\n\n" << endl;
+
   std::tuple <Double_t,Double_t> results_fit_pulls = fit_unbinned_Gauss(  fpullsig, 
-                                                                    {0., 1.}, 
-                                                                    {0.001, 0.001}, 
+                                                                    {0.05, 1.}, 
+                                                                    {0.0001, 0.0001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
                                                                     {"mu", "sigma"},
                                                                     &hpullSigFit, 
                                                                     outfile, 
                                                                     "pulls", 
-                                                                    -7, 
-                                                                    7
+                                                                    -10, 
+                                                                    10
                                                                   );  
+
+  cout << "\n\n **** FIT PULLS : MU = " << std::get<0>(results_fit_pulls) << " SIGMA : " <<  std::get<1>(results_fit_pulls) << " ****\n\n" << endl;                                                             
 
   std::tuple <Double_t,Double_t> results_fit_fSig_over_fPhiMuNu = fit_unbinned_Gauss(  fsig_over_fphiMuNu, 
                                                                     {0.01, 0.01}, 
@@ -231,9 +257,10 @@ void toy()
                                                                     &hfSig_over_fPhiMuNu, 
                                                                     outfile, 
                                                                     "fSig_over_fPhiMuNu", 
-                                                                    -0.04, 
-                                                                    0.065
+                                                                    -1, 
+                                                                    1
                                                                   ); 
+  cout << "\n\n **** FIT fSig over fPhiMuNu : MU = " << std::get<0>(results_fit_fSig_over_fPhiMuNu) << " SIGMA : " <<  std::get<1>(results_fit_fSig_over_fPhiMuNu) << " ****\n\n" << endl;                                                                
   
   std::tuple <Double_t,Double_t> results_fit_BRSig = fit_unbinned_Gauss(  BR_Sig, 
                                                                     {0.006, 0.005}, 
@@ -244,9 +271,11 @@ void toy()
                                                                     &hfBRSig, 
                                                                     outfile, 
                                                                     "BRSig", 
-                                                                    -0.025, 
-                                                                    0.035
+                                                                    -1, 
+                                                                    1
                                                                   );  
+
+  cout << "\n\n **** FIT BR : MU = " << std::get<0>(results_fit_BRSig) << " SIGMA : " <<  std::get<1>(results_fit_BRSig) << " ****\n\n" << endl;                                                                  
                                                                   
   std::tuple <Double_t,Double_t> results_fit_R_tau = fit_unbinned_Gauss(  R_tau, 
                                                                     {0.006, 0.005}, 
@@ -257,10 +286,34 @@ void toy()
                                                                     &hfR_tau, 
                                                                     outfile, 
                                                                     "R_tau", 
-                                                                    -0.025, 
-                                                                    0.035
-                                                                  );   
+                                                                    -1, 
+                                                                    1
+                                                                  );  
+                                                                  
+  cout << "\n\n **** FIT R_TAU : MU = " << std::get<0>(results_fit_R_tau) << " SIGMA : " <<  std::get<1>(results_fit_R_tau) << " ****\n\n" << endl; 
 
+
+  std::tuple <Double_t,Double_t> results_fit_sigma_f_sigma = fit_unbinned_Gauss(  sigma_f_sig, 
+                                                                    {0.008, 0.00055}, 
+                                                                    {0.00001, 0.00001}, 
+                                                                    {0., 0.}, 
+                                                                    {0., 0.}, 
+                                                                    {"mu", "sigma"},
+                                                                    h_sigma_f_Sig, 
+                                                                    outfile, 
+                                                                    "sigma_fsig", 
+                                                                    -1, 
+                                                                    1
+                                                                  );  
+                                                                  
+  cout << "\n\n **** FIT SIGMA f_Sig : MU = " << std::get<0>(results_fit_sigma_f_sigma) << " SIGMA : " <<  std::get<1>(results_fit_sigma_f_sigma) << " ****\n\n" << endl; 
+
+  TF1 *fit_gaus_binned = new TF1("fit_gaus_binned",Gauss_pdf_bin,-10,10,4);
+  fit_gaus_binned -> SetParameters(0.05, 1., hpullSigFit.Integral(), hpullSigFit.GetBinWidth(1));
+  fit_gaus_binned -> FixParameter(3,hpullSigFit.GetBinWidth(1));
+  hpullSigFit.Fit(fit_gaus_binned,"L");
+
+  hpullSigFit.Write();
   outfile->Close();
   dummy->Close();
 
