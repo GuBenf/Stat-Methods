@@ -1,3 +1,5 @@
+std::vector<double> x_var;
+
 Double_t MU1_FIT_D_PLUS_PHI_PI = 1.86969e+00;
 Double_t MU2_FIT_D_PLUS_PHI_PI = 1.87035e+00;
 Double_t SIGMA1_FIT_D_PLUS_PHI_PI = 5.79484e-03;
@@ -63,8 +65,8 @@ Double_t SIGMA_CS_pp_D = 2;
 Double_t SIGMA_CS_pp_Ds = 9;
 
 Double_t R_STEP = 0.01;
-Double_t INTEGRATION_STEP = 0.01;
-Double_t f_Sig_STEP = 0.001;
+//Double_t INTEGRATION_STEP = 0.01;
+Double_t f_Sig_STEP = 0.002;
 
 Double_t Gauss_pdf(Double_t *x, Double_t *par)
 {
@@ -92,19 +94,19 @@ Double_t sample_val(Double_t mu, Double_t sigma)
 Double_t Likelihood_ratio(Double_t *x, Double_t *par)
 {
   Double_t val;
-  if(x[0] >= 0) val = TMath::Exp(-1./2 * std::pow((x[0] - par[0]),2));
-  else val = TMath::Exp(x[0] * par[0] - par[0] * par[0] / 2);
+  if(x[0] >= 0) val = TMath::Exp(-1./2 * std::pow((x[0] - par[0]),2) / std::pow(par[1],2) );
+  else val = TMath::Exp((x[0] * par[0] - par[0] * par[0] / 2) / std::pow(par[1],2));
 
   return val;
 }
 
 std::pair<Double_t,Double_t> get_x1_x2_at_R(Double_t R, Double_t mu, Double_t sigma)
 {
-  Double_t x_right = mu + std::sqrt(-2 * std::log(R));
+  Double_t x_right = mu + std::sqrt(-2 * sigma * sigma * std::log(R));
   
-  Double_t x_left_1 = mu - std::sqrt(-2 * std::log(R));
+  Double_t x_left_1 = mu - std::sqrt(-2 * sigma * sigma * std::log(R));
 
-  Double_t x_left_2 = std::log(R)/mu + mu/2.;
+  Double_t x_left_2 = sigma * sigma * std::log(R)/mu + mu/2.;
 
   Double_t x_left;
   if(x_left_1 > 0){x_left = x_left_1;}
@@ -113,6 +115,7 @@ std::pair<Double_t,Double_t> get_x1_x2_at_R(Double_t R, Double_t mu, Double_t si
   return {x_left,x_right};
 }
 
+/*
 Double_t numeric_gaus_integral(Double_t x1, Double_t x2, Double_t mu, Double_t sigma)
 {
   Double_t sum = 0;
@@ -125,6 +128,7 @@ Double_t numeric_gaus_integral(Double_t x1, Double_t x2, Double_t mu, Double_t s
 
   return sum * INTEGRATION_STEP;
 }
+*/
 
 std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigma)
 {
@@ -132,7 +136,9 @@ std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigm
   {
     std::pair<Double_t,Double_t> x_interval = get_x1_x2_at_R(R,mu,sigma);
 
-    Double_t integral = numeric_gaus_integral(x_interval.first, x_interval.second, mu, sigma);
+    //Double_t integral = numeric_gaus_integral(x_interval.first, x_interval.second, mu, sigma);
+
+    Double_t integral = ROOT::Math::normal_cdf(x_interval.second,sigma,mu) - ROOT::Math::normal_cdf(x_interval.first,sigma,mu);
 
     if(integral >= 0.9){return x_interval;} 
   }
@@ -151,14 +157,6 @@ std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigm
 #include <iostream>
 
 using namespace std;
-std::vector<double> fsig;
-std::vector<double> fdiffsig;
-std::vector<double> fpullsig;
-std::vector<double> fsig_over_fphiMuNu;
-
-std::vector<double> BR_Sig;
-std::vector<double> R_tau;
-std::vector<double> sigma_f_sig;
 
 
 void toy() 
@@ -172,7 +170,7 @@ void toy()
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 1000;
+  const int nToys = 500;
 
   const double nTotTrue = 1000.0;
 
@@ -184,6 +182,15 @@ int point = -1;
 for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
 {
 
+  std::vector<double> fsig;
+  std::vector<double> fdiffsig;
+  std::vector<double> fpullsig;
+  std::vector<double> fsig_over_fphiMuNu;
+
+  std::vector<double> BR_Sig;
+  std::vector<double> R_tau;
+  std::vector<double> sigma_f_sig;
+
   f_sig_belt.push_back(fSigTrue);
 
   cout << "PROCESSING f_Sig = " << fSigTrue << endl;
@@ -193,13 +200,13 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
   // TF1 :: GetRandom uses only the shape of the function.
   TF1 generatorModel(Form("generatorModel_%d",point), total_mass_spectrum_pdf , mMin , mMax, 4);
   generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
-  TH1D hfSigFit(Form("hfSigFit_%d",point), "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, fSigTrue - 5*fSigTrue, fSigTrue + 5*fSigTrue);
-  TH1D hdifffSigFit(Form("hdifffSigFit_%d",point), "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, -0.04, 0.04);
-  TH1D hpullSigFit(Form("hpullSigFit_%d",point), "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, -10., 10.);
-  TH1D hfSig_over_fPhiMuNu(Form("hfSig_over_fPhiMuNu_%d",point),"Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, -0.04, 0.065);
-  TH1D hfBRSig(Form("hfBRSig_%d",point),"BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, -0.025, 0.035);
-  TH1D hfR_tau(Form("hfR_tau_%d",point),"R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, -0.006, 0.02);
-  TH1D *h_sigma_f_Sig = new TH1D(Form("h_sigma_f_Sig_%d",point),"",100,6e-3,10.5e-3); 
+  TH1D hfSigFit(Form("hfSigFit_%d",point), "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, 0., 0.);
+  TH1D hdifffSigFit(Form("hdifffSigFit_%d",point), "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, 0., 0.);
+  TH1D hpullSigFit(Form("hpullSigFit_%d",point), "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, 0., 0.);
+  TH1D hfSig_over_fPhiMuNu(Form("hfSig_over_fPhiMuNu_%d",point),"Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, 0., 0.);
+  TH1D hfBRSig(Form("hfBRSig_%d",point),"BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, 0., 0.);
+  TH1D hfR_tau(Form("hfR_tau_%d",point),"R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, 0., 0.);
+  TH1D *h_sigma_f_Sig = new TH1D(Form("h_sigma_f_Sig_%d",point),"",100,0.,0.); 
 
   for (int iToy = 0; iToy < nToys; ++iToy) 
   {
@@ -262,16 +269,16 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
 
 
   std::tuple <Double_t,Double_t> results_fit_fsig = fit_unbinned_Gauss( fsig, 
-                                                                  {fSigTrue, 0.005}, 
-                                                                  {0.001, 0.0001}, 
+                                                                  {hfSigFit.GetMean() , hfSigFit.GetStdDev()}, 
+                                                                  {0.00001, 0.00001}, 
                                                                   {0., 0.}, 
                                                                   {0., 0.}, 
                                                                   {"mu", "sigma"}, 
                                                                   &hfSigFit, 
                                                                   outfile, 
                                                                   Form("fsig_%d",point), 
-                                                                  -1, 
-                                                                  1
+                                                                  hfSigFit.GetXaxis()->GetXmin(), 
+                                                                  hfSigFit.GetXaxis()->GetXmax()
                                                                   );
 
   cout << "\n\n **** FIT f_Sig : MU = " << std::get<0>(results_fit_fsig) << " SIGMA : " <<  std::get<1>(results_fit_fsig) << " ****\n\n" << endl;
@@ -285,82 +292,87 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
   upper_belt.push_back(acceptance_interval.second);
 
   std::tuple <Double_t,Double_t> results_fit_residuals = fit_unbinned_Gauss(  fdiffsig, 
-                                                                        {0, 0.005}, 
-                                                                        {0.001, 0.0001}, 
+                                                                        {hdifffSigFit.GetMean(), hdifffSigFit.GetStdDev()}, 
+                                                                        {0.00001, 0.00001}, 
                                                                         {0., 0.}, 
                                                                         {0., 0.}, 
                                                                         {"mu", "sigma"}, 
                                                                         &hdifffSigFit, 
                                                                         outfile, 
                                                                         Form("residuals_%d",point), 
-                                                                        -1, 
-                                                                        1
+                                                                        hdifffSigFit.GetXaxis()->GetXmin(), 
+                                                                        hdifffSigFit.GetXaxis()->GetXmax()
                                                                       );
 
   cout << "\n\n **** FIT RESIDUALS : MU = " << std::get<0>(results_fit_residuals) << " SIGMA : " <<  std::get<1>(results_fit_residuals) << " ****\n\n" << endl;
 
   std::tuple <Double_t,Double_t> results_fit_pulls = fit_unbinned_Gauss(  fpullsig, 
-                                                                    {0.05, 1.}, 
-                                                                    {0.0001, 0.0001}, 
+                                                                    {hpullSigFit.GetMean(), hpullSigFit.GetStdDev()}, 
+                                                                    {0.00001, 0.00001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
                                                                     {"mu", "sigma"},
                                                                     &hpullSigFit, 
                                                                     outfile, 
                                                                     Form("pulls_%d",point), 
-                                                                    -10, 
-                                                                    10
+                                                                    hpullSigFit.GetXaxis()->GetXmin(), 
+                                                                    hpullSigFit.GetXaxis()->GetXmax()
                                                                   );  
 
   cout << "\n\n **** FIT PULLS : MU = " << std::get<0>(results_fit_pulls) << " SIGMA : " <<  std::get<1>(results_fit_pulls) << " ****\n\n" << endl;                                                             
 
+  /*
   std::tuple <Double_t,Double_t> results_fit_fSig_over_fPhiMuNu = fit_unbinned_Gauss(  fsig_over_fphiMuNu, 
-                                                                    {0.01, 0.01}, 
-                                                                    {0.0001, 0.0001}, 
+                                                                    {hfSig_over_fPhiMuNu.GetMean(), hfSig_over_fPhiMuNu.GetStdDev()}, 
+                                                                    {0.00001, 0.00001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
                                                                     {"mu", "sigma"},
                                                                     &hfSig_over_fPhiMuNu, 
                                                                     outfile, 
                                                                     Form("fSig_over_fPhiMuNu_%d",point), 
-                                                                    -1, 
-                                                                    1
+                                                                    hfSig_over_fPhiMuNu.GetXaxis()->GetXmin(), 
+                                                                    hfSig_over_fPhiMuNu.GetXaxis()->GetXmax()
                                                                   ); 
   cout << "\n\n **** FIT fSig over fPhiMuNu : MU = " << std::get<0>(results_fit_fSig_over_fPhiMuNu) << " SIGMA : " <<  std::get<1>(results_fit_fSig_over_fPhiMuNu) << " ****\n\n" << endl;                                                                
-  
+  */
+
+  /*
   std::tuple <Double_t,Double_t> results_fit_BRSig = fit_unbinned_Gauss(  BR_Sig, 
-                                                                    {0.006, 0.005}, 
-                                                                    {0.0001, 0.0001}, 
+                                                                    {hfBRSig.GetMean(), hfBRSig.GetStdDev()}, 
+                                                                    {0.00001, 0.00001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
                                                                     {"mu", "sigma"},
                                                                     &hfBRSig, 
                                                                     outfile, 
                                                                     Form("BRSig_%d",point), 
-                                                                    -1, 
-                                                                    1
+                                                                    hfBRSig.GetXaxis()->GetXmin(), 
+                                                                    hfBRSig.GetXaxis()->GetXmax()
                                                                   );  
 
   cout << "\n\n **** FIT BR : MU = " << std::get<0>(results_fit_BRSig) << " SIGMA : " <<  std::get<1>(results_fit_BRSig) << " ****\n\n" << endl;                                                                  
-                                                                  
+  */                      
+  
+  /*
   std::tuple <Double_t,Double_t> results_fit_R_tau = fit_unbinned_Gauss(  R_tau, 
-                                                                    {0.006, 0.005}, 
-                                                                    {0.0001, 0.0001}, 
+                                                                    {hfR_tau.GetMean(), hfR_tau.GetStdDev()}, 
+                                                                    {0.00001, 0.00001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
                                                                     {"mu", "sigma"},
                                                                     &hfR_tau, 
                                                                     outfile, 
                                                                     Form("R_tau_%d",point), 
-                                                                    -1, 
-                                                                    1
+                                                                    hfR_tau.GetXaxis()->GetXmin(), 
+                                                                    hfR_tau.GetXaxis()->GetXmax()
                                                                   );  
                                                                   
   cout << "\n\n **** FIT R_TAU : MU = " << std::get<0>(results_fit_R_tau) << " SIGMA : " <<  std::get<1>(results_fit_R_tau) << " ****\n\n" << endl; 
-
+  */
 
   std::tuple <Double_t,Double_t> results_fit_sigma_f_sigma = fit_unbinned_Gauss(  sigma_f_sig, 
-                                                                    {0.008, 0.00055}, 
+                                                                    {h_sigma_f_Sig->GetMean(), h_sigma_f_Sig->GetStdDev()}, 
                                                                     {0.00001, 0.00001}, 
                                                                     {0., 0.}, 
                                                                     {0., 0.}, 
@@ -368,18 +380,20 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
                                                                     h_sigma_f_Sig, 
                                                                     outfile, 
                                                                     Form("sigma_fsig_%d",point), 
-                                                                    -1, 
-                                                                    1
+                                                                    h_sigma_f_Sig->GetXaxis()->GetXmin(), 
+                                                                    h_sigma_f_Sig->GetXaxis()->GetXmax()
                                                                   );  
                                                                   
   cout << "\n\n **** FIT SIGMA f_Sig : MU = " << std::get<0>(results_fit_sigma_f_sigma) << " SIGMA : " <<  std::get<1>(results_fit_sigma_f_sigma) << " ****\n\n" << endl; 
 
+  /*
   TF1 *fit_gaus_binned = new TF1(Form("fit_gaus_binned_%d",point),Gauss_pdf_bin,-10,10,4);
   fit_gaus_binned -> SetParameters(0.05, 1., hpullSigFit.Integral(), hpullSigFit.GetBinWidth(1));
   fit_gaus_binned -> FixParameter(3,hpullSigFit.GetBinWidth(1));
   hpullSigFit.Fit(fit_gaus_binned,"L");
 
   hpullSigFit.Write();
+  */
 
 }
 

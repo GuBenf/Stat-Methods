@@ -1,5 +1,3 @@
-std::vector<double> x_var;
-
 Double_t _invariant_mass_pdf(Double_t x, Double_t *par)
 {
   Double_t frac = par[0];
