@@ -162,7 +162,7 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile_121001_10k.root","RECREATE");
+  TFile * outfile = TFile::Open("outfile_121001_1k.root","RECREATE");
   TFile * dummy = TFile::Open("dummy.root","RECREATE");
   // TFile * data = TFile::Open("data.root","RECREATE");
 
@@ -174,21 +174,29 @@ void toy()
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 10000;
+  const int nToys = 100;
 
   const double nTotTrue = 74439; // 1000.0;
 
   std::vector<double> lower_belt;
   std::vector<double> upper_belt;
   std::vector<double> f_sig_belt;
+  std::vector<double> lower_belt_BR;
+  std::vector<double> upper_belt_BR;
+  std::vector<double> f_sig_belt_BR;
+
+  std::vector<double> lower_belt_RTau;
+  std::vector<double> upper_belt_RTau;
+  std::vector<double> f_sig_belt_RTau;
 
   double m;
   // tree->Branch("m", &m);
 
 int point = -1;
-Double_t fSigTrue = 0.01;
-//for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
-//{
+// Double_t fSigTrue = 0.01;
+// for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
+for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
+{
 
   std::vector<double> fsig;
   std::vector<double> fdiffsig;
@@ -334,7 +342,7 @@ Double_t fSigTrue = 0.01;
 
   cout << "\n\n **** FIT PULLS : MU = " << std::get<0>(results_fit_pulls) << " SIGMA : " <<  std::get<1>(results_fit_pulls) << " ****\n\n" << endl;                                                             
 
-  /*
+  
   std::tuple <Double_t,Double_t> results_fit_fSig_over_fPhiMuNu = fit_unbinned_Gauss(  fsig_over_fphiMuNu, 
                                                                     {hfSig_over_fPhiMuNu.GetMean(), hfSig_over_fPhiMuNu.GetStdDev()}, 
                                                                     {0.00001, 0.00001}, 
@@ -348,9 +356,9 @@ Double_t fSigTrue = 0.01;
                                                                     hfSig_over_fPhiMuNu.GetXaxis()->GetXmax()
                                                                   ); 
   cout << "\n\n **** FIT fSig over fPhiMuNu : MU = " << std::get<0>(results_fit_fSig_over_fPhiMuNu) << " SIGMA : " <<  std::get<1>(results_fit_fSig_over_fPhiMuNu) << " ****\n\n" << endl;                                                                
-  */
+  
 
-  /*
+  
   std::tuple <Double_t,Double_t> results_fit_BRSig = fit_unbinned_Gauss(  BR_Sig, 
                                                                     {hfBRSig.GetMean(), hfBRSig.GetStdDev()}, 
                                                                     {0.00001, 0.00001}, 
@@ -365,9 +373,18 @@ Double_t fSigTrue = 0.01;
                                                                   );  
 
   cout << "\n\n **** FIT BR : MU = " << std::get<0>(results_fit_BRSig) << " SIGMA : " <<  std::get<1>(results_fit_BRSig) << " ****\n\n" << endl;                                                                  
-  */                      
+                  
+  Double_t mu_BRSig = std::get<0>(results_fit_BRSig);
+  Double_t sigma_mu_BRSig = std::get<1>(results_fit_BRSig);
   
-  /*
+  std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(mu_BRSig,sigma_mu_BRSig);
+
+  lower_belt_BR.push_back(acceptance_interval_BR.first);
+  upper_belt_BR.push_back(acceptance_interval_BR.second);
+  f_sig_belt_BR.push_back(mu_BRSig);
+
+  
+  
   std::tuple <Double_t,Double_t> results_fit_R_tau = fit_unbinned_Gauss(  R_tau, 
                                                                     {hfR_tau.GetMean(), hfR_tau.GetStdDev()}, 
                                                                     {0.00001, 0.00001}, 
@@ -382,7 +399,15 @@ Double_t fSigTrue = 0.01;
                                                                   );  
                                                                   
   cout << "\n\n **** FIT R_TAU : MU = " << std::get<0>(results_fit_R_tau) << " SIGMA : " <<  std::get<1>(results_fit_R_tau) << " ****\n\n" << endl; 
-  */
+  
+  Double_t mu_RTauSig = std::get<0>(results_fit_R_tau);
+  Double_t sigma_mu_RTauSig = std::get<1>(results_fit_R_tau);
+  
+  std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(mu_RTauSig,sigma_mu_RTauSig);
+
+  lower_belt_RTau.push_back(acceptance_interval_RTau.first);
+  upper_belt_RTau.push_back(acceptance_interval_RTau.second);
+  f_sig_belt_RTau.push_back(mu_RTauSig);
 
   std::tuple <Double_t,Double_t> results_fit_sigma_f_sigma = fit_unbinned_Gauss(  sigma_f_sig, 
                                                                     {h_sigma_f_Sig->GetMean(), h_sigma_f_Sig->GetStdDev()}, 
@@ -408,7 +433,7 @@ Double_t fSigTrue = 0.01;
   hpullSigFit.Write();
   */
 
-//}
+}
 // data->cd();
 // tree->Write();
 // data->Close();
@@ -432,8 +457,60 @@ g_upper_belt->Draw("AP");
 g_lower_belt->Draw("SAME");
 s_lower_belt->Draw("SAME");
 s_upper_belt->Draw("SAME");
+g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
+
 
 c_belt->Write();
+
+TGraph * g_lower_belt_BR = new TGraph(lower_belt_BR.size(),f_sig_belt_BR.data(),lower_belt_BR.data());
+TGraph * g_upper_belt_BR = new TGraph(upper_belt_BR.size(),f_sig_belt_BR.data(),upper_belt_BR.data());
+
+TSpline3 *s_lower_belt_BR = new TSpline3("spline_lower_belt_BR",g_lower_belt_BR);
+TSpline3 *s_upper_belt_BR = new TSpline3("spline_upper_belt_BR",g_upper_belt_BR);
+
+TCanvas *c_belt_BR = new TCanvas("c_belt_BR","");
+c_belt_BR->cd();
+g_lower_belt_BR->SetMarkerStyle(7);
+g_lower_belt_BR->SetMarkerSize(2);
+g_upper_belt_BR->SetMarkerStyle(7);
+g_upper_belt_BR->SetMarkerSize(2);
+s_lower_belt_BR->SetLineColor(kBlue);
+s_upper_belt_BR->SetLineColor(kBlue);
+s_lower_belt_BR->SetLineWidth(2);
+s_upper_belt_BR->SetLineWidth(2);
+g_upper_belt_BR->Draw("AP");
+g_lower_belt_BR->Draw("SAME");
+s_lower_belt_BR->Draw("SAME");
+s_upper_belt_BR->Draw("SAME");
+g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
+
+
+c_belt_BR->Write();
+
+TGraph * g_lower_belt_RTau = new TGraph(lower_belt_RTau.size(),f_sig_belt_RTau.data(),lower_belt_RTau.data());
+TGraph * g_upper_belt_RTau = new TGraph(upper_belt_RTau.size(),f_sig_belt_RTau.data(),upper_belt_RTau.data());
+
+TSpline3 *s_lower_belt_RTau = new TSpline3("spline_lower_belt_RTau",g_lower_belt_RTau);
+TSpline3 *s_upper_belt_RTau = new TSpline3("spline_upper_belt_RTau",g_upper_belt_RTau);
+
+TCanvas *c_belt_RTau = new TCanvas("c_belt_RTau","");
+c_belt_RTau->cd();
+g_lower_belt_RTau->SetMarkerStyle(7);
+g_lower_belt_RTau->SetMarkerSize(2);
+g_upper_belt_RTau->SetMarkerStyle(7);
+g_upper_belt_RTau->SetMarkerSize(2);
+s_lower_belt_RTau->SetLineColor(kBlue);
+s_upper_belt_RTau->SetLineColor(kBlue);
+s_lower_belt_RTau->SetLineWidth(2);
+s_upper_belt_RTau->SetLineWidth(2);
+g_upper_belt_RTau->Draw("AP");
+g_lower_belt_RTau->Draw("SAME");
+s_lower_belt_RTau->Draw("SAME");
+s_upper_belt_RTau->Draw("SAME");
+g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+c_belt_RTau->Write();
+
+
 outfile->Close();
 dummy->Close();
 
