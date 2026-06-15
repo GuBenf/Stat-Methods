@@ -71,7 +71,7 @@ Double_t SIGMA1_FIT_MASS_DS_PLUS_TAU_NU = 5.42707e-03;
 Double_t SIGMA2_FIT_MASS_DS_PLUS_TAU_NU = 7.16697e-03;
 Double_t FRACTION_FIT_MASS_DS_PLUS_TAU_NU = 7.88093e-01;
 
-Double_t TAU_FIT_COMBINATORIAL = 10; //=10 TEMPORARY!!
+Double_t TAU_FIT_COMBINATORIAL = 1.0;
 
 
 #define analysis_cxx
@@ -130,9 +130,9 @@ void analysis::Loop ()
   const double fSigTrue = 0.05;
   const double meanTrue = 1.78;
   const double sigmaTrue = 0.02;
-  const double fDsPhiPi = 0.1203;
-  const double fDPhiPi = 0.201;
-  const double fDsPhiMuNu = 0.358;
+  const double fDsPhiPi = 0.04;
+  const double fDPhiPi = 0.0215;
+  const double fDsPhiMuNu = 0.653;
 
   // const char* modelFormula = "[0]*[5]*([1]* TMath ::Gaus(x,[2] ,[3] ,1) + (1.0 -[1]) *([4]* TMath::Exp([4]*(x -1.60))/(TMath::Exp ([4]*(2.10 -1.60)) -1.0)))";
 

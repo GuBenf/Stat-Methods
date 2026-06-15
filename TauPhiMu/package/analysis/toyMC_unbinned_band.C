@@ -67,7 +67,7 @@ void toy()
 
   const double nTotTrue = 10000.0;
   double fsigStart = 0.001;
-  int bandpoints = 4;
+  int bandpoints = 25;
 
   // Known model used to generate the pseudo - experiments .
   // TF1 :: GetRandom uses only the shape of the function.
@@ -121,7 +121,7 @@ void toy()
 
     hfSigFit.Fill(fSigfromFIT);
     fsig.push_back(fSigfromFIT);
-
+    delete(hToy);
 
   }
     std::tuple<Double_t, Double_t> fit_pars =  fit_unbinned_InvariantMass_results(fsig, 
@@ -156,9 +156,8 @@ void toy()
 
     gr->SetTitle("Band points;fsig;min -/- max");
     gr->SetMarkerStyle(20);
-    gr->Draw("AP");
-
-
+    gr->Draw("AF");
+    gr->SetDrawOption("AF");
 
     outfile -> cd();
 

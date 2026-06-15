@@ -162,25 +162,33 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile.root","RECREATE");
+  TFile * outfile = TFile::Open("outfile_121001_10k.root","RECREATE");
   TFile * dummy = TFile::Open("dummy.root","RECREATE");
+  // TFile * data = TFile::Open("data.root","RECREATE");
 
-  gRandom ->SetSeed (12345);
+  // TTree *tree = new TTree("sim_tree", "Simulation Tree");
+
+
+  gRandom ->SetSeed (121001);
   const double mMin = 1.60;
   const double mMax = 2.10;
   const int nBins = 100;
   const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 500;
+  const int nToys = 10000;
 
-  const double nTotTrue = 1000.0;
+  const double nTotTrue = 74439; // 1000.0;
 
   std::vector<double> lower_belt;
   std::vector<double> upper_belt;
   std::vector<double> f_sig_belt;
 
+  double m;
+  // tree->Branch("m", &m);
+
 int point = -1;
-for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
-{
+Double_t fSigTrue = 0.01;
+//for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
+//{
 
   std::vector<double> fsig;
   std::vector<double> fdiffsig;
@@ -222,16 +230,19 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
     std::vector<double> vec_generated;
     for (int i = 0; i < nObs; ++i) 
     {
-      const double m = generatorModel.GetRandom(mMin , mMax);
+      m = generatorModel.GetRandom(mMin , mMax);
       hToy -> Fill(m);
       vec_generated.push_back(m);
+      // tree -> Fill();
     }
+
 
     std::tuple<Double_t,Double_t,Double_t,Double_t> tuple_fSigfromFIT = fit_unbinned_TotalSpectrum(
                             vec_generated, 
-                            {0.02, 0.65, 0.04, 0.01}, 
-                            {0.0001, 0.0001, 0.0001, 0.0001}, 
-                            {0., 0., 0., 0.}, 
+                            {0.021, 0.654, 0.043, 0.01}, 
+                            {0.0001, 0.0002, 0.0001, 0.0001}, 
+//                            {0., 0., 0., 0.0001},
+			    {0., 0., 0., 0.}, 
                             {0., 0., 0., 0.}, 
                             {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
                             hToy, 
@@ -240,6 +251,7 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
                             mMin, 
                             mMax
                           );
+
 
     Double_t fSigfromFIT     = std::get<0>(tuple_fSigfromFIT);
     Double_t err_fSigfromFIT = std::get<1>(tuple_fSigfromFIT);
@@ -265,6 +277,7 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
     delete hToy;
 
   }
+
     outfile -> cd();
 
 
@@ -395,8 +408,10 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
   hpullSigFit.Write();
   */
 
-}
-
+//}
+// data->cd();
+// tree->Write();
+// data->Close();
 TGraph * g_lower_belt = new TGraph(lower_belt.size(),f_sig_belt.data(),lower_belt.data());
 TGraph * g_upper_belt = new TGraph(upper_belt.size(),f_sig_belt.data(),upper_belt.data());
 

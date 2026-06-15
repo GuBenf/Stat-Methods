@@ -1,13 +1,50 @@
-Double_t _invariant_mass_pdf(Double_t x, Double_t *par)
+Double_t _invariant_mass_pdf_no_norm(Double_t x, Double_t *par)
 {
-  Double_t frac = par[0];
-  Double_t mu1 = par[1];
-  Double_t mu2 = par[2];
-  Double_t sigma1 = par[3];
-  Double_t sigma2 = par[4];
+    Double_t frac   = par[0];
+    Double_t mu1    = par[1];
+    Double_t mu2    = par[2];
+    Double_t sigma1 = par[3];
+    Double_t sigma2 = par[4];
 
-  return frac * TMath::Gaus(x,mu1,sigma1,1) + (1-frac) * TMath::Gaus(x,mu2,sigma2,1);
+    return frac * TMath::Gaus(x, mu1, sigma1, kTRUE)
+         + (1.0 - frac) * TMath::Gaus(x, mu2, sigma2, kTRUE);
 }
+
+Double_t _invariant_mass_pdf_norm(Double_t *par,
+                                  Double_t xmin,
+                                  Double_t xmax)
+{
+    Double_t frac   = par[0];
+    Double_t mu1    = par[1];
+    Double_t mu2    = par[2];
+    Double_t sigma1 = par[3];
+    Double_t sigma2 = par[4];
+
+    const Double_t sqrt2 = TMath::Sqrt(2.0);
+
+    auto gaussIntegral = [&](Double_t mu, Double_t sigma)
+    {
+        return 0.5 * (
+            TMath::Erf((xmax - mu)/(sqrt2*sigma))
+          - TMath::Erf((xmin - mu)/(sqrt2*sigma))
+        );
+    };
+
+    return frac * gaussIntegral(mu1, sigma1)
+         + (1.0 - frac) * gaussIntegral(mu2, sigma2);
+}
+
+Double_t _invariant_mass_pdf(Double_t x,
+                             Double_t *par)
+{
+    Double_t norm = _invariant_mass_pdf_norm(par, TOT_MASS_LOW, TOT_MASS_HIGH);
+
+    if (norm <= 0.0)
+        return 0.0;
+
+    return _invariant_mass_pdf_no_norm(x, par) / norm;
+}
+
 
 double _pdf_Argus ( double *x , double * par )
 {
@@ -149,6 +186,7 @@ std::tuple<Double_t,Double_t,Double_t,Double_t> fit_unbinned_TotalSpectrum(std::
       arglist[1] = 0.1;
 
       my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+      my_gMinuit->mnexcm("HESSE", arglist ,0, ierflg);
 
       // Print results
       Double_t amin,edm,errdef;
