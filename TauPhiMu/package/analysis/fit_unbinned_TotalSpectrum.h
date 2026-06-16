@@ -339,9 +339,9 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
 
       TLegend *l = new TLegend(0.15,0.2,0.4,0.45);
       l->AddEntry(fit_function_plot,"total fit");
-      l->AddEntry(fit_D_PhiPi,"D#rightarrow#var_phi#pi");
-      l->AddEntry(fit_DS_PhiPi,"D_S#rightarrow#var_phi#pi");
-      l->AddEntry(fit_DS_PhiMuNu,"D_S#rightarrow#var_phi#mu#nu_{#mu}");
+      l->AddEntry(fit_D_PhiPi,"D#rightarrow#phi#pi");
+      l->AddEntry(fit_DS_PhiPi,"D_S#rightarrow#phi#pi");
+      l->AddEntry(fit_DS_PhiMuNu,"D_S#rightarrow#phi#mu#nu_{#mu}");
       l->AddEntry(fit_combinatorial,"exponential bkg.");
       l-> SetTextSize(0.04);
       l->Draw("SAME");

@@ -73,13 +73,46 @@ Double_t FRACTION_FIT_MASS_DS_PLUS_TAU_NU = 7.88093e-01;
 
 Double_t TAU_FIT_COMBINATORIAL = 1.03132e+00;
 
-//Double_t f_D_PhiPi = 0.0214727;
-//Double_t f_Ds_PhiNuMu = 0.652866;
-//Double_t f_Ds_PhiPi = 0.04305;
-
 Double_t f_D_PhiPi = 0.02;
 Double_t f_Ds_PhiNuMu = 0.65;
 Double_t f_Ds_PhiPi = 0.04;
+
+Double_t f_D_PhiPi_FIT = 0.0215021;
+Double_t f_Ds_PhiMuNu_FIT = 0.653769;
+Double_t f_Ds_PhiPi_FIT = 0.0431105;
+
+Double_t sigma_f_D_PhiPi_FIT = 0.000960993;
+Double_t sigma_f_Ds_PhiMuNu_FIT = 0.0134033;
+Double_t sigma_f_Ds_PhiPi_FIT = 0.000912701;
+
+Double_t EFF_D_PhiPi = 53699./50e6;
+Double_t EFF_Ds_PhiMuNu = 95217./5e6;
+Double_t EFF_Ds_PhiPi = 32106./50e6;
+Double_t EFF_Sig = 86069./1e6;
+
+Double_t SIGMA_EFF_D_PhiPi = std::sqrt((EFF_D_PhiPi*(1-EFF_D_PhiPi))/50e6);
+Double_t SIGMA_EFF_Ds_PhiMuNu = std::sqrt((EFF_Ds_PhiMuNu*(1-EFF_Ds_PhiMuNu))/5e6);
+Double_t SIGMA_EFF_Ds_PhiPi = std::sqrt((EFF_Ds_PhiPi*(1-EFF_Ds_PhiPi))/50e6);
+Double_t SIGMA_EFF_Sig = std::sqrt((EFF_Sig*(1-EFF_Sig))/1e6);
+
+Double_t BR_D_PhiPi = 2.69e-3;
+Double_t BR_Ds_PhiMuNu = 2.24e-2;
+Double_t BR_Ds_PhiPi = 2.25e-2;
+Double_t BR_Ds_TauNu = 5.39e-2;
+Double_t BR_Phi_KK = 49.9e-2;
+
+Double_t SIGMA_BR_D_PhiPi = 0.08e-3;
+Double_t SIGMA_BR_Ds_PhiMuNu = 0.11e-2;
+Double_t SIGMA_BR_Ds_PhiPi = 0.05e-2;
+Double_t SIGMA_BR_Ds_TauNu = 0.09e-2;
+Double_t SIGMA_BR_Phi_KK = 0.5e-2;
+
+Double_t CS_pp_D = 834;
+Double_t CS_pp_Ds = 353;
+
+Double_t SIGMA_CS_pp_D = 2;
+Double_t SIGMA_CS_pp_Ds = 9;
+
 
 #define analysis_cxx
 #include "analysis.h"
@@ -274,6 +307,19 @@ void analysis::Loop()
                             TOT_MASS_LOW, 
                             TOT_MASS_HIGH
                           );
+
+    double r_phipi = (f_D_PhiPi_FIT / f_Ds_PhiPi_FIT) * (EFF_Ds_PhiPi / EFF_D_PhiPi);
+
+    double err_r_phipi = r_phipi * sqrt(
+      pow(sigma_f_D_PhiPi_FIT  / f_D_PhiPi_FIT,  2)
+    + pow(sigma_f_Ds_PhiPi_FIT / f_Ds_PhiPi_FIT, 2)
+    + pow(SIGMA_EFF_Ds_PhiPi   / EFF_Ds_PhiPi,   2)
+    + pow(SIGMA_EFF_D_PhiPi    / EFF_D_PhiPi,    2)
+    );
+
+    cout << f_D_PhiPi_FIT << " " << f_Ds_PhiPi_FIT << " " << EFF_Ds_PhiPi << " " << EFF_D_PhiPi << endl;
+    cout << r_phipi << " " << err_r_phipi << endl;
+
   }
 
   // fit_unbinned_TotalSpectrum(vec_tot_mass_MC, 
