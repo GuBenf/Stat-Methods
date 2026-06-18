@@ -263,7 +263,7 @@ int point = -1;
 
 TH1D *h_likelihood_ratio_sensitivity = new TH1D("h_likelihood_ratio_sensitivity","",80,0.,10.);
 
-for(Double_t fSigTrue = 0.0; fSigTrue < 0.01; fSigTrue += f_Sig_STEP)
+for(Double_t fSigTrue = 0.0; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
 //for(Double_t fSigTrue = 0.0001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
 {
 
