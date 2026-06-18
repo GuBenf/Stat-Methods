@@ -18,10 +18,11 @@ Double_t MASS_DS_PLUS_TAU_NU_HIGH = 1.81;
 int MASS_DS_PLUS_TAU_NU_BINS = 120;
 
 Double_t TOT_MASS_LOW = 1.6;
-// Double_t TOT_MASS_HIGH = 2.6;
 Double_t TOT_MASS_HIGH = 2.1;
 
 int TOT_MASS_BINS = 200;
+
+Double_t TOT_MASS_BIN_WIDTH = (TOT_MASS_HIGH - TOT_MASS_LOW)/TOT_MASS_BINS;
 
 //Double_t MASS_COMBINATORIA_LOW = 2.;
 //Double_t MASS_COMBINATORIAL_HIGH = 3.;
@@ -71,19 +72,47 @@ Double_t SIGMA1_FIT_MASS_DS_PLUS_TAU_NU = 5.42707e-03;
 Double_t SIGMA2_FIT_MASS_DS_PLUS_TAU_NU = 7.16697e-03;
 Double_t FRACTION_FIT_MASS_DS_PLUS_TAU_NU = 7.88093e-01;
 
-Double_t TAU_FIT_COMBINATORIAL = 1.03132e+00;
+// --> UNBINNED Double_t TAU_FIT_COMBINATORIAL = 1.03132e+00;
+// --> UNBINNED 
+// --> UNBINNED Double_t f_D_PhiPi = 0.02;
+// --> UNBINNED Double_t f_Ds_PhiNuMu = 0.65;
+// --> UNBINNED Double_t f_Ds_PhiPi = 0.04;
+// --> UNBINNED 
+// --> UNBINNED Double_t f_D_PhiPi_FIT = 0.0215021;
+// --> UNBINNED Double_t f_Ds_PhiMuNu_FIT = 0.653769;
+// --> UNBINNED Double_t f_Ds_PhiPi_FIT = 0.0431105;
+// --> UNBINNED 
+// --> UNBINNED Double_t sigma_f_D_PhiPi_FIT = 0.000960993;
+// --> UNBINNED Double_t sigma_f_Ds_PhiMuNu_FIT = 0.0134033;
+// --> UNBINNED Double_t sigma_f_Ds_PhiPi_FIT = 0.000912701;
+
+// --> BINNED 100 BIN Double_t TAU_FIT_COMBINATORIAL = 0.966229;
+// --> BINNED 100 BIN 
+// --> BINNED 100 BIN Double_t f_D_PhiPi = 0.02;
+// --> BINNED 100 BIN Double_t f_Ds_PhiNuMu = 0.65;
+// --> BINNED 100 BIN Double_t f_Ds_PhiPi = 0.04;
+// --> BINNED 100 BIN 
+// --> BINNED 100 BIN Double_t f_D_PhiPi_FIT = 0.0212275;
+// --> BINNED 100 BIN Double_t f_Ds_PhiMuNu_FIT = 0.649015;
+// --> BINNED 100 BIN Double_t f_Ds_PhiPi_FIT = 0.0426402;
+// --> BINNED 100 BIN 
+// --> BINNED 100 BIN Double_t sigma_f_D_PhiPi_FIT = 0.000968707;
+// --> BINNED 100 BIN Double_t sigma_f_Ds_PhiMuNu_FIT = 0.0150055;
+// --> BINNED 100 BIN Double_t sigma_f_Ds_PhiPi_FIT = 0.000907028;
+
+Double_t TAU_FIT_COMBINATORIAL = 1.02535;
 
 Double_t f_D_PhiPi = 0.02;
 Double_t f_Ds_PhiNuMu = 0.65;
 Double_t f_Ds_PhiPi = 0.04;
 
-Double_t f_D_PhiPi_FIT = 0.0215021;
-Double_t f_Ds_PhiMuNu_FIT = 0.653769;
-Double_t f_Ds_PhiPi_FIT = 0.0431105;
+Double_t f_D_PhiPi_FIT = 0.0214183;
+Double_t f_Ds_PhiMuNu_FIT = 0.65332;
+Double_t f_Ds_PhiPi_FIT = 0.0429899;
 
-Double_t sigma_f_D_PhiPi_FIT = 0.000960993;
-Double_t sigma_f_Ds_PhiMuNu_FIT = 0.0134033;
-Double_t sigma_f_Ds_PhiPi_FIT = 0.000912701;
+Double_t sigma_f_D_PhiPi_FIT = 0.000961335;
+Double_t sigma_f_Ds_PhiMuNu_FIT = 0.0152777;
+Double_t sigma_f_Ds_PhiPi_FIT = 0.00091669;
 
 Double_t EFF_D_PhiPi = 53699./50e6;
 Double_t EFF_Ds_PhiMuNu = 95217./5e6;
@@ -113,6 +142,11 @@ Double_t CS_pp_Ds = 353;
 Double_t SIGMA_CS_pp_D = 2;
 Double_t SIGMA_CS_pp_Ds = 9;
 
+inline Double_t sample_val(Double_t mu, Double_t sigma)
+{
+    return gRandom->Gaus(mu,sigma);
+}
+
 
 #define analysis_cxx
 #include "analysis.h"
@@ -132,7 +166,7 @@ using namespace std;
 void analysis::Loop()
 {
 
-  TFile * outfile = new TFile("outfile_n.root","RECREATE");
+  TFile * outfile = new TFile("outfile_n1.root","RECREATE");
 
   TH1D * mass_Dplus_PhiPi_MC = new TH1D("mass_Dplus_PhiPi_MC","",MASS_D_PLUS_PHI_PI_BINS,MASS_D_PLUS_PHI_PI_LOW,MASS_D_PLUS_PHI_PI_HIGH);
   TH1D * mass_DSplus_PhiMuNu_MC = new TH1D("mass_DSplus_PhiMuNu_MC","",MASS_DS_PLUS_PHI_MU_NU_BINS,MASS_DS_PLUS_PHI_MU_NU_LOW,MASS_DS_PLUS_PHI_MU_NU_HIGH);
@@ -187,12 +221,13 @@ void analysis::Loop()
     if(id == 0 && D_M >= TOT_MASS_LOW && D_M <= TOT_MASS_HIGH)
     {
       vec_tot_mass_DATA.push_back(D_M);
+      tot_mass_DATA->Fill(D_M);
     }
 
-    if(id == 0 && TMath::Abs(D_M-m_tau_mc)>3*m_sigma_tau_mc && D_M >= TOT_MASS_LOW && D_M <= TOT_MASS_HIGH) //DON'T LOOK IN THE HISTO!!
-    {
-      tot_mass_DATA->Fill(D_M);
-    }; //Mass blinding
+    //if(id == 0 && TMath::Abs(D_M-m_tau_mc)>3*m_sigma_tau_mc && D_M >= TOT_MASS_LOW && D_M <= TOT_MASS_HIGH) //DON'T LOOK IN THE HISTO!!
+    //{
+    //  tot_mass_DATA->Fill(D_M);
+    //}; //Mass blinding
 
     //if(id == 0 && TMath::Abs(D_M-m_tau_mc)>3*m_sigma_tau_mc && D_M >= MASS_COMBINATORIA_LOW && D_M <= MASS_COMBINATORIAL_HIGH) 
     //{
@@ -291,34 +326,86 @@ void analysis::Loop()
 
   if(!USE_MC)
   {
-    cout << endl << "FIT INVARIANT MASS TOTAL SPECTRUM -- " /*<< rnd_offset*/ << endl << endl;
-    fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
-                            //{0.15, 0.3, 0.25, 0.01 - rnd_offset, 2.}, 
-                            {f_D_PhiPi, f_Ds_PhiNuMu, f_Ds_PhiPi, 0.01, 1.03},
-                            {0.01, 0.01, 0.01, 0.0001, 0.01}, 
-                            //{0., 0., 0., 0. - rnd_offset, 0.01}, 
-                            //{1., 1., 1., 1. - rnd_offset, 10.}, 
-                            {0., 0., 0., 0., 0.}, 
-                            {0., 0., 0., 0., 0.},
-                            {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu","tau"}, 
+    cout << endl << "FIT INVARIANT MASS TOTAL SPECTRUM" /*<< rnd_offset*/ << endl << endl;
+    //fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
+    //                        //{0.15, 0.3, 0.25, 0.01 - rnd_offset, 2.}, 
+    //                        {f_D_PhiPi, f_Ds_PhiNuMu, f_Ds_PhiPi, 0.01, 1.03},
+    //                        {0.01, 0.01, 0.01, 0.0001, 0.01}, 
+    //                        //{0., 0., 0., 0. - rnd_offset, 0.01}, 
+    //                        //{1., 1., 1., 1. - rnd_offset, 10.}, 
+    //                        {0., 0., 0., 0., 0.}, 
+    //                        {0., 0., 0., 0., 0.},
+    //                        {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu","tau"}, 
+    //                        tot_mass_DATA, 
+    //                        outfile, 
+    //                        "Total_Invariant_Mass_Spectrum", 
+    //                        TOT_MASS_LOW, 
+    //                        TOT_MASS_HIGH
+    //                      );
+
+
+    std::pair<std::vector<double>,std::vector<double>> FITres = fit_binned_TotalSpectrum(
+                            {0.021, 0.654, 0.043, 0.001, 1., tot_mass_DATA->GetEntries()}, 
                             tot_mass_DATA, 
                             outfile, 
-                            "Total_Invariant_Mass_Spectrum", 
+                            "DATA_Invariant_Mass_Spectrum", 
                             TOT_MASS_LOW, 
                             TOT_MASS_HIGH
-                          );
+                            );
 
-    double r_phipi = (f_D_PhiPi_FIT / f_Ds_PhiPi_FIT) * (EFF_Ds_PhiPi / EFF_D_PhiPi);
+    std::vector<double> pars_fit_res = FITres.first;
+    std::vector<double> pars_err_fit_res = FITres.second;
 
-    double err_r_phipi = r_phipi * sqrt(
-      pow(sigma_f_D_PhiPi_FIT  / f_D_PhiPi_FIT,  2)
-    + pow(sigma_f_Ds_PhiPi_FIT / f_Ds_PhiPi_FIT, 2)
-    + pow(SIGMA_EFF_Ds_PhiPi   / EFF_Ds_PhiPi,   2)
-    + pow(SIGMA_EFF_D_PhiPi    / EFF_D_PhiPi,    2)
-    );
+    Double_t f_D_PhiPi_fromFIT = pars_fit_res[0];
+    Double_t err_f_D_PhiPi_fromFIT = pars_err_fit_res[0];
 
-    cout << f_D_PhiPi_FIT << " " << f_Ds_PhiPi_FIT << " " << EFF_Ds_PhiPi << " " << EFF_D_PhiPi << endl;
-    cout << r_phipi << " " << err_r_phipi << endl;
+    Double_t f_Ds_PhiMuNu_fromFIT = pars_fit_res[1];
+    Double_t err_f_Ds_PhiMuNu_fromFIT = pars_err_fit_res[1];
+
+    Double_t f_Ds_PhiPi_fromFIT = pars_fit_res[2];
+    Double_t err_f_Ds_PhiPi_fromFIT = pars_err_fit_res[2];
+
+    Double_t f_Sig_fromFIT = pars_fit_res[3];
+    Double_t err_f_Sig_fromFIT = pars_err_fit_res[3];
+
+    Double_t f_comb_fromFIT = pars_fit_res[4];
+    Double_t err_f_comb_fromFIT = pars_err_fit_res[4];
+
+
+    cout << "f_D_PhiPi_fromFIT : " << f_D_PhiPi_fromFIT << " pm " << err_f_D_PhiPi_fromFIT << endl;
+    cout << "f_Ds_PhiMuNu_fromFIT : " << f_Ds_PhiMuNu_fromFIT << " pm " << err_f_Ds_PhiMuNu_fromFIT << endl;
+    cout << "f_Ds_PhiPi_fromFIT : " << f_Ds_PhiPi_fromFIT << " pm " << err_f_Ds_PhiPi_fromFIT << endl;
+    cout << "f_comb_fromFIT : " << f_comb_fromFIT << " pm " << err_f_comb_fromFIT << endl;
+
+    cout << "chi2 / ndof = " <<  pars_fit_res[6] << " / " << pars_fit_res[7] << " = " <<  pars_fit_res[6] / pars_fit_res[7] << " | p value = " << pars_fit_res[8] << endl; 
+
+    double r_phipi = (f_D_PhiPi_fromFIT / f_Ds_PhiPi_fromFIT) * (EFF_Ds_PhiPi / EFF_D_PhiPi);
+
+    //double BR = ..;
+
+    //double rtau = ..;
+
+    Double_t LR;
+
+    /* // --> BLINDING
+
+    double BR = ( f_Sig_fromFIT / ((1 - f_Sig_fromFIT) * f_Ds_PhiMuNu_fromFIT) ) * ( ( sample_val(BR_Ds_PhiMuNu,SIGMA_BR_Ds_PhiMuNu) * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu) ) / ( sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) * sample_val(EFF_Sig,SIGMA_EFF_Sig) ) );
+    Double_t logL = TMath::Log(TMath::Gaus(BR,BR,0.000890334,1));
+
+    Double_t logL_null = TMath::Log(TMath::Gaus(BR,0.,0.000890334,1));
+
+    
+    if(BR >= 0)
+    { 
+      LR = -2*(logL_null - logL);
+      cout << "LR for sensitivity is: " << LR << endl;
+    }
+    else
+    {
+      cout << "fSig is negative, there is not sensitivity" << endl;
+    }
+    */
+  
 
   }
 

@@ -128,6 +128,26 @@ Double_t total_mass_spectrum_pdf(Double_t *xx, Double_t *par)
 
 }
 
+Double_t total_mass_spectrum_pdf_binned(Double_t *xx, Double_t *par)
+{
+  Double_t x = xx[0];
+  Double_t f_D_PhiPi = par[0]; 
+  Double_t f_DS_PhiMuNu = par[1];
+  Double_t f_DS_PhiPi = par[2];
+  Double_t f_DS_TauNu = par[3];
+  Double_t tau = par[4];
+
+  Double_t val = f_DS_TauNu * _invariant_mass_pdf(x,par_DS_TauNu) + (1-f_DS_TauNu) *
+                 (
+                    f_D_PhiPi * _invariant_mass_pdf(x,par_D_PhiPi) +
+                    f_DS_PhiMuNu * _pdf_Argus(&x,par_DS_PhiMuNu) +
+                    f_DS_PhiPi * _invariant_mass_pdf(x,par_DS_PhiPi) +
+                    (1 - f_D_PhiPi - f_DS_PhiMuNu - f_DS_PhiPi) * _combinatorial_pdf(x,&tau)
+                 );
+  return par[5] * TOT_MASS_BIN_WIDTH * val;
+
+}
+
 Double_t pdf_proj_total_mass_spectrum(Double_t *x, Double_t *par, Int_t max, Double_t bin_width)
 {
   return (max*bin_width)*total_mass_spectrum_pdf(x,par);
@@ -255,7 +275,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
             y_DS_PhiMuNu.push_back(_pdf_proj_argus(&x,par_DS_PhiMuNu,int(n_fit*pars[1]),h_time->GetBinWidth(1)));
             y_Combinatorial.push_back(_pdf_proj_combinatorial(&x,&pars[4],int(n_fit*(1 - pars[0] - pars[1] - pars[2] - pars[3])),h_time->GetBinWidth(1)));
 
-            if(TMath::Abs(x - 1.77699) <= 3 * 0.00581298)continue; //BLINDING
+            if(TMath::Abs(x - 1.77699) <= 5 * 0.00581298)continue; //BLINDING
 
             x_points.push_back(x);
             y_points.push_back(pdf_proj_total_mass_spectrum(&x,pars,n_fit,h_time->GetBinWidth(1)));
@@ -298,7 +318,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       {
           double x = h_plot->GetBinCenter(i);
 
-          if (fabs(x - 1.77699) <= 3 * 0.00581298)
+          if (fabs(x - 1.77699) <= 5 * 0.00581298)
           {
               h_plot->SetBinContent(i, 0);
               h_plot->SetBinError(i, 0);
@@ -373,7 +393,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       {
           double x  = h_time->GetBinCenter(i+1);
 
-          if (fabs(x - 1.77699) <= 3 * 0.00581298) continue; //BLINDING ALSO ON PULLS
+          if (fabs(x - 1.77699) <= 5 * 0.00581298) continue; //BLINDING ALSO ON PULLS
 
           double y  = h_time->GetBinContent(i+1);
           double ey = h_time->GetBinError(i+1);
@@ -428,4 +448,179 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       file -> cd();
       c_fit -> Write();
       //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+}
+
+
+std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std::vector<double> vstart, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
+{
+    TF1 *fit_tf1 = new TF1(Form("fit_tf1_%s",name.c_str()),total_mass_spectrum_pdf_binned,xmin,xmax,6);
+    for(int ipar = 0; ipar < vstart.size(); ipar++)
+    {
+      fit_tf1->SetParameter(ipar,vstart[ipar]);
+    }
+
+    h_time->Fit(fit_tf1,"LQN");
+
+    double chi2 = fit_tf1->GetChisquare();
+    int ndf     = fit_tf1->GetNDF();
+    double prob = fit_tf1->GetProb();
+
+    Double_t pars[6];
+    std::vector<double> pars_fit_res;
+    std::vector<double> pars_err_fit_res;
+      
+    for(int par = 0; par < vstart.size(); par++)
+    {
+        pars[par] = fit_tf1->GetParameter(par);
+        pars_fit_res.push_back(fit_tf1->GetParameter(par));
+        pars_err_fit_res.push_back(fit_tf1->GetParError(par));
+    }
+
+    pars_fit_res.push_back(chi2);
+    pars_fit_res.push_back(ndf);
+    pars_fit_res.push_back(prob);
+
+    std::pair<std::vector<double>,std::vector<double>> fit_res = {pars_fit_res,pars_err_fit_res};
+
+      std::vector<double> x_points;
+      std::vector<double> y_points;
+
+      for(int xi=0; xi<10000; xi++)
+      { 
+            double x = xmin + xi * (xmax-xmin)/10000;
+
+            if(TMath::Abs(x - 1.77699) <= 5 * 0.00581298)continue; //BLINDING
+
+            x_points.push_back(x);
+            y_points.push_back(total_mass_spectrum_pdf_binned(&x,pars));
+      }
+
+      TGraph * fit_function_plot = new TGraph(x_points.size(),x_points.data(),y_points.data());
+
+      TCanvas *c_fit = new TCanvas(Form("fit_%s",name.c_str()), "");
+      c_fit->cd();
+
+      const float split = 0.3;
+
+      // -------------------- TOP PAD --------------------
+      TPad *pad_fit = new TPad("pad_fit", "", 0., split, 1., 1.);
+      pad_fit->SetBottomMargin(0.0);
+      pad_fit->Draw();
+      pad_fit->cd();
+
+      gStyle->SetOptStat(0);
+      gPad->SetTicks(1,1);
+
+      TH1D *h_plot = (TH1D*)h_time->Clone("h_plot");
+
+      for (int i = 1; i <= h_plot->GetNbinsX(); i++)
+      {
+          double x = h_plot->GetBinCenter(i);
+
+          if (fabs(x - 1.77699) <= 5 * 0.00581298)
+          {
+              h_plot->SetBinContent(i, 0);
+              h_plot->SetBinError(i, 0);
+          }
+      }
+      h_plot->SetLineColor(kBlack);
+      h_plot->SetMarkerStyle(8);
+      h_plot->SetMarkerSize(0.5);
+      h_plot ->GetYaxis() -> SetTitleOffset(0.85);
+      h_plot->GetYaxis()->SetTitleSize(0.06);
+      h_plot->GetYaxis()->SetLabelSize(0.05);
+      h_plot->Draw("PE");
+      
+      // overlay fit
+
+      fit_function_plot->SetLineColor(kRed);
+      fit_function_plot->SetMarkerColor(kRed);
+      fit_function_plot->SetLineWidth(2);
+      fit_function_plot->Draw("L SAME");
+
+      // IMPORTANT: go back to canvas
+      c_fit->cd();
+
+      // -------------------- BOTTOM PAD (PULLS) --------------------
+      TPad *pad_pull = new TPad("pad_pull", "", 0., 0., 1., split);
+      pad_pull->SetTopMargin(0.0);
+      pad_pull->SetBottomMargin(0.3);
+      pad_pull->Draw();
+      pad_pull->cd();
+        
+      int n = h_time->GetNbinsX();
+
+      TH1D *h_pull = new TH1D(Form("h_pull_%s",name.c_str()), "", 20, -5, 5);      
+        
+      TGraphErrors *pulls = new TGraphErrors(n);
+      pulls->SetMarkerStyle(7);
+        
+      //pulls->GetXaxis()->SetTitle("t / 410.3 fs");
+      pulls->GetYaxis()->SetTitle("Pull");
+        
+      int ip = 0;
+
+      for (int i = 0; i < n; i++)
+      {
+          double x  = h_time->GetBinCenter(i+1);
+
+          if (fabs(x - 1.77699) <= 5 * 0.00581298) continue;
+
+          double y  = h_time->GetBinContent(i+1);
+          double ey = h_time->GetBinError(i+1);
+      
+          double y_fit = total_mass_spectrum_pdf_binned(&x,pars);
+      
+          // avoid division by zero
+          double pull = 0;
+          if (ey > 0) pull = (y - y_fit) / ey;
+      
+          pulls->SetPoint(ip, x, pull);
+          pulls->SetPointError(ip, 0., 1.0);
+          ip++;
+          h_pull->Fill(pull);
+
+      }
+      pulls->Set(ip);
+
+      double xmin_pull = h_time->GetXaxis()->GetXmin();
+      double xmax_pull = h_time->GetXaxis()->GetXmax();
+
+      
+      pulls -> SetMarkerStyle(8);
+      pulls -> SetTitle("");
+      pulls -> SetMarkerSize(0.4);
+      pulls -> GetYaxis() -> SetTitleOffset(0.3);
+      //pulls -> GetXaxis()-> SetTitle("t [fs / 410.3]");
+      pulls -> GetYaxis()-> SetTitle("pulls");
+      pulls -> GetYaxis()-> SetTitleSize(0.13);
+      pulls -> GetXaxis()-> SetTitleSize(0.13);
+      pulls -> GetYaxis()-> SetLabelSize(0.11);
+      pulls -> GetXaxis()-> SetLabelSize(0.11);
+      pulls->Draw("APE");
+            
+      // optional: axis range for visibility
+      pulls->SetMinimum(-5);
+      pulls->SetMaximum(5);
+      pulls->GetXaxis()->SetLimits(xmin_pull, xmax_pull);
+
+
+
+      // baseline at 0
+      TLine *line_zero = new TLine(xmin_pull, 0., xmax_pull, 0.);
+      
+      line_zero->SetLineStyle(2);
+      line_zero->Draw("same");
+      // final update
+
+      c_fit -> Update();
+
+
+      file -> cd();
+      c_fit -> Write();
+      //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+
+
+      return fit_res;
+  
 }

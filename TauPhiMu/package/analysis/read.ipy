@@ -1,0 +1,85 @@
+import re
+
+input_file = "res.txt"
+output_file = "summary_band.txt"
+
+# regex
+re_fsig = re.compile(r"PROCESSING f_Sig = ([\deE\+\-\.]+)")
+re_fit = re.compile(
+    r"\*\*\*\* FIT (.+?) : MU = ([\deE\+\-\.]+) SIGMA : ([\deE\+\-\.]+) \*\*\*\*"
+)
+
+results = []
+current = None
+
+with open(input_file, "r") as f:
+    for line in f:
+
+        # nuovo blocco f_Sig
+        m = re_fsig.search(line)
+        if m:
+            if current is not None:
+                results.append(current)
+
+            current = {
+                "f_Sig": float(m.group(1)),
+                "mu_fSig": None,
+                "sigma_fSig": None,
+                "mu_ratio": None,
+                "sigma_ratio": None,
+                "mu_BR": None,
+                "sigma_BR": None,
+                "mu_RTAU": None,
+                "sigma_RTAU": None,
+            }
+            continue
+
+        # risultati dei fit
+        m = re_fit.search(line)
+        if m and current is not None:
+
+            fit_name = m.group(1).strip()
+            mu = float(m.group(2))
+            sigma = float(m.group(3))
+
+            if fit_name == "f_Sig":
+                current["mu_fSig"] = mu
+                current["sigma_fSig"] = sigma
+
+            elif fit_name == "fSig over fPhiMuNu":
+                current["mu_ratio"] = mu
+                current["sigma_ratio"] = sigma
+
+            elif fit_name == "BR":
+                current["mu_BR"] = mu
+                current["sigma_BR"] = sigma
+
+            elif fit_name == "R_TAU":
+                current["mu_RTAU"] = mu
+                current["sigma_RTAU"] = sigma
+
+# salva ultimo blocco
+if current is not None:
+    results.append(current)
+
+# scrittura output
+with open(output_file, "w") as f:
+
+    f.write(
+        "f_Sig "
+        "mu_fSig sigma_fSig "
+        "mu_ratio sigma_ratio "
+        "mu_BR sigma_BR "
+        "mu_RTAU sigma_RTAU\n"
+    )
+
+    for r in results:
+        f.write(
+            f"{r['f_Sig']} "
+            f"{r['mu_fSig']} {r['sigma_fSig']} "
+            f"{r['mu_ratio']} {r['sigma_ratio']} "
+            f"{r['mu_BR']} {r['sigma_BR']} "
+            f"{r['mu_RTAU']} {r['sigma_RTAU']}\n"
+        )
+
+print(f"Scritti {len(results)} blocchi in {output_file}")

@@ -70,15 +70,15 @@ std::tuple<Double_t,Double_t> fit_unbinned_Gauss(std::vector<double> input_xvar,
       std::vector<double> x_points;
       std::vector<double> y_points;
 
-      for(int xi=0; xi<10000; xi++)
+      for(int xi=0; xi<1000; xi++)
       { 
-            double x = xmin + xi * (xmax-xmin)/10000;
+            double x = xmin + xi * (xmax-xmin)/1000;
 
             x_points.push_back(x);
             y_points.push_back(pdf_proj_gauss(&x,pars,n_fit,h_time->GetBinWidth(1)));
       }
 
-      TGraph * fit_function_plot = new TGraph(10000,x_points.data(),y_points.data());
+      TGraph * fit_function_plot = new TGraph(1000,x_points.data(),y_points.data());
 
       TCanvas *c_fit = new TCanvas(Form("fit_%s",name.c_str()), "");
       c_fit->cd();

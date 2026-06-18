@@ -27,13 +27,9 @@ Double_t TAU_FIT_COMBINATORIAL = 1.03105;
 Double_t TOT_MASS_LOW = 1.6;
 Double_t TOT_MASS_HIGH = 2.1;
 
-//Double_t f_D_PhiPi = 0.0214727;
-//Double_t f_Ds_PhiNuMu = 0.652866;
-//Double_t f_Ds_PhiPi = 0.04305;
-
-Double_t f_D_PhiPi = 0.0215021;
-Double_t f_Ds_PhiMuNu = 0.653769;
-Double_t f_Ds_PhiPi = 0.0431105;
+Double_t f_D_PhiPi = 0.0214183;
+Double_t f_Ds_PhiMuNu = 0.65332;
+Double_t f_Ds_PhiPi = 0.0429899;
 
 
 Double_t EFF_D_PhiPi = 53699./50e6;
@@ -64,9 +60,15 @@ Double_t CS_pp_Ds = 353;
 Double_t SIGMA_CS_pp_D = 2;
 Double_t SIGMA_CS_pp_Ds = 9;
 
-Double_t R_STEP = 0.01;
+Double_t R_STEP = 1e-5;
 //Double_t INTEGRATION_STEP = 0.01;
-Double_t f_Sig_STEP = 0.002;
+Double_t f_Sig_STEP = 0.00001;
+
+Double_t N_BINS_TOY = 200;
+Double_t BIN_WIDTH_TOY = (TOT_MASS_HIGH - TOT_MASS_LOW)/N_BINS_TOY;
+
+
+int LR_OBSERVED_AFTER_UNBLINDING; // --> BLINDING
 
 Double_t Gauss_pdf(Double_t *x, Double_t *par)
 {
@@ -78,17 +80,22 @@ Double_t Gauss_pdf_bin(Double_t *x, Double_t *par)
   return par[2] * par[3] * TMath::Gaus(x[0],par[0],par[1],1);
 }
 
-Double_t sample_val(Double_t mu, Double_t sigma)
+//Double_t sample_val(Double_t mu, Double_t sigma)
+//{
+//  Double_t par[2] = {mu,sigma};
+//
+//  TF1 *f = new TF1("f",Gauss_pdf,mu - 5 * sigma, mu + 5 * sigma, 2);
+//  f->SetParameters(mu,sigma);
+//  Double_t extracted_val = f->GetRandom(mu - 5 * sigma,mu + 5 * sigma);
+//
+//  delete f;
+//
+//  return extracted_val;
+//}
+
+inline Double_t sample_val(Double_t mu, Double_t sigma)
 {
-  Double_t par[2] = {mu,sigma};
-
-  TF1 *f = new TF1("f",Gauss_pdf,mu - 5 * sigma, mu + 5 * sigma, 2);
-  f->SetParameters(mu,sigma);
-  Double_t extracted_val = f->GetRandom(mu - 5 * sigma,mu + 5 * sigma);
-
-  delete f;
-
-  return extracted_val;
+    return gRandom->Gaus(mu,sigma);
 }
 
 Double_t Likelihood_ratio(Double_t *x, Double_t *par)
@@ -112,6 +119,8 @@ std::pair<Double_t,Double_t> get_x1_x2_at_R(Double_t R, Double_t mu, Double_t si
   if(x_left_1 > 0){x_left = x_left_1;}
   else{x_left = x_left_2;}
 
+  if(mu == 0){x_left = -1e3;}
+
   return {x_left,x_right};
 }
 
@@ -132,18 +141,36 @@ Double_t numeric_gaus_integral(Double_t x1, Double_t x2, Double_t mu, Double_t s
 
 std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigma)
 {
-  for(Double_t R = 0.99; R > 0; R -= R_STEP )
+  for(Double_t R = 1.; R > 0; R -= R_STEP )
   {
     std::pair<Double_t,Double_t> x_interval = get_x1_x2_at_R(R,mu,sigma);
 
     //Double_t integral = numeric_gaus_integral(x_interval.first, x_interval.second, mu, sigma);
 
-    Double_t integral = ROOT::Math::normal_cdf(x_interval.second,sigma,mu) - ROOT::Math::normal_cdf(x_interval.first,sigma,mu);
+    Double_t integral = 0;
+    if(x_interval.first == -1e3)
+    {
+      integral = ROOT::Math::normal_cdf(x_interval.second,sigma,mu);
+    }
+    else
+    {
+      integral = ROOT::Math::normal_cdf(x_interval.second,sigma,mu) - ROOT::Math::normal_cdf(x_interval.first,sigma,mu);
+    }
+
+    //cout << "R: " << R << " x:[ " << x_interval.first << " , " << x_interval.second << " ] int: " << integral << endl;
 
     if(integral >= 0.9){return x_interval;} 
   }
 
   return {-1,-1};
+}
+
+
+Double_t chi2_1dof(Double_t *x, Double_t *par)
+{
+  Double_t xx = x[0];
+  Double_t binWidth = 10./80.;
+  return binWidth * par[0] * 1./(2*TMath::Pi()*TMath::Sqrt(xx))*TMath::Exp(-1./2.*xx); 
 }
 
 #define analysis_cxx
@@ -153,7 +180,7 @@ std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigm
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <iostream>
 
 using namespace std;
@@ -162,7 +189,7 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile_121001_1k.root","RECREATE");
+  TFile * outfile = TFile::Open("outfile.root","RECREATE");
   TFile * dummy = TFile::Open("dummy.root","RECREATE");
   // TFile * data = TFile::Open("data.root","RECREATE");
 
@@ -170,17 +197,24 @@ void toy()
 
 
   gRandom ->SetSeed (121001);
-  const double mMin = 1.60;
-  const double mMax = 2.10;
-  const int nBins = 100;
-  const double binWidth = (mMax - mMin) / nBins;
-  const int nToys = 100;
+  //const double mMin = 1.60;
+  //const double mMax = 2.10;
+  //const int nBins = 100;
+  //const double binWidth = (mMax - mMin) / nBins;
+
+  const double mMin = TOT_MASS_LOW;
+  const double mMax = TOT_MASS_HIGH;
+  const int nBins = N_BINS_TOY;
+  const double binWidth = BIN_WIDTH_TOY;
+
+  const int nToys = 10000;
 
   const double nTotTrue = 74439; // 1000.0;
 
   std::vector<double> lower_belt;
   std::vector<double> upper_belt;
   std::vector<double> f_sig_belt;
+
   std::vector<double> lower_belt_BR;
   std::vector<double> upper_belt_BR;
   std::vector<double> f_sig_belt_BR;
@@ -189,13 +223,48 @@ void toy()
   std::vector<double> upper_belt_RTau;
   std::vector<double> f_sig_belt_RTau;
 
+/*
+  ifstream summary_band("summary_band.txt");
+  std::string line;
+  while(std::getline(summary_band,line))
+  {
+    double fsig_sim, mu_fsig, sigma_fsig, mu_ratio, sigma_ratio, mu_br, sigma_br, mu_rtau, sigma_rtau;
+    std::stringstream ss(line);
+    ss >> fsig_sim >> mu_fsig >> sigma_fsig >> mu_ratio >> sigma_ratio >> mu_br >> sigma_br >> mu_rtau >> sigma_rtau;
+
+    std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(mu_fsig,sigma_fsig);
+
+    lower_belt.push_back(acceptance_interval.first);
+    upper_belt.push_back(acceptance_interval.second);
+    f_sig_belt.push_back(mu_fsig);
+
+
+    std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(mu_br,sigma_br);
+
+    lower_belt_BR.push_back(acceptance_interval_BR.first);
+    upper_belt_BR.push_back(acceptance_interval_BR.second);
+    f_sig_belt_BR.push_back(mu_br);
+
+
+    std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(mu_rtau,sigma_rtau);
+
+    lower_belt_RTau.push_back(acceptance_interval_RTau.first);
+    upper_belt_RTau.push_back(acceptance_interval_RTau.second);
+    f_sig_belt_RTau.push_back(mu_rtau);
+
+  }
+*/
+
   double m;
   // tree->Branch("m", &m);
 
+
 int point = -1;
-// Double_t fSigTrue = 0.01;
-// for(Double_t fSigTrue = 0.001; fSigTrue <= 0.1; fSigTrue += f_Sig_STEP)
-for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
+
+TH1D *h_likelihood_ratio_sensitivity = new TH1D("h_likelihood_ratio_sensitivity","",80,0.,10.);
+
+for(Double_t fSigTrue = 0.0; fSigTrue < 0.01; fSigTrue += f_Sig_STEP)
+//for(Double_t fSigTrue = 0.0001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
 {
 
   std::vector<double> fsig;
@@ -206,8 +275,8 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
   std::vector<double> BR_Sig;
   std::vector<double> R_tau;
   std::vector<double> sigma_f_sig;
-
-  f_sig_belt.push_back(fSigTrue);
+ 
+  //f_sig_belt.push_back(fSigTrue); --> ci va quello del fit, questo credo sia sbagliato
 
   cout << "PROCESSING f_Sig = " << fSigTrue << endl;
   point ++;
@@ -218,23 +287,28 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
   generatorModel.SetParameters(f_D_PhiPi, f_Ds_PhiMuNu, f_Ds_PhiPi, fSigTrue);
   TH1D hfSigFit(Form("hfSigFit_%d",point), "Fitted signal yield;#hat{f}_{sig};Pseudo experiments", 50, 0., 0.);
   TH1D hdifffSigFit(Form("hdifffSigFit_%d",point), "Fitted signal yield - Simulated signal yield ; #hat{f_{sig}}-f_{sig} ; Pseudo experiments", 50, 0., 0.);
-  TH1D hpullSigFit(Form("hpullSigFit_%d",point), "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 200, 0., 0.);
-  TH1D hfSig_over_fPhiMuNu(Form("hfSig_over_fPhiMuNu_%d",point),"Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 100, 0., 0.);
-  TH1D hfBRSig(Form("hfBRSig_%d",point),"BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 100, 0., 0.);
-  TH1D hfR_tau(Form("hfR_tau_%d",point),"R_{#tau} ; R_{#tau} ; Pseudo experiments", 100, 0., 0.);
-  TH1D *h_sigma_f_Sig = new TH1D(Form("h_sigma_f_Sig_%d",point),"",100,0.,0.); 
+  TH1D hpullSigFit(Form("hpullSigFit_%d",point), "(Fitted signal yield - Simulated signal yield)/Sigma fitted signal yield ; (#hat{f_{sig}}-f_{sig})/#sigma_{#hat{f_{sig}}} ; Pseudo experiments", 50, 0., 0.);
+  TH1D hfSig_over_fPhiMuNu(Form("hfSig_over_fPhiMuNu_%d",point),"Fitted signal yield / Fitted #var_phi#rightarrow#mu#nu yield ; hat{f_{sig}}/#hat{f_{#var_phi#rightarrow#mu#nu}} ; Pseudo experiments", 50, 0., 0.);
+  TH1D hfBRSig(Form("hfBRSig_%d",point),"BR(#tau^+#rightarrow#var_phi#mu^+) ; BR(#tau^+#rightarrow#var_phi#mu^+) ; Pseudo experiments", 50, 0., 0.);
+  TH1D hfR_tau(Form("hfR_tau_%d",point),"R_{#tau} ; R_{#tau} ; Pseudo experiments", 50, 0., 0.);
+  TH1D *h_sigma_f_Sig = new TH1D(Form("h_sigma_f_Sig_%d",point),"",50,0.,0.); 
+  
+  int N_EVT_LR_ABOVE_OBS = 0;
 
   for (int iToy = 0; iToy < nToys; ++iToy) 
   {
-    if (iToy % 100 == 0){
+    if (iToy % 1000 == 0){
       cout << "PROCESSING " << iToy << " TOY" << endl;
 
     }
+
+    //cout << "PROCESSING TOY " << iToy << endl;
 
     TH1D *hToy = new TH1D(Form("hToy_%d_%d",point,iToy), "", nBins, mMin, mMax);
     // const int nObs = gRandom ->Poisson(nTotTrue); // Extended toy generation .
     const int nObs = nTotTrue;
 
+    //cout << "START GENERATION" << endl;
     std::vector<double> vec_generated;
     for (int i = 0; i < nObs; ++i) 
     {
@@ -243,28 +317,82 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
       vec_generated.push_back(m);
       // tree -> Fill();
     }
+    //cout << "END GENERATION" << endl;
 
+    //cout << "START FIT" << endl;
+    //std::tuple<Double_t,Double_t,Double_t,Double_t> tuple_fSigfromFIT = fit_unbinned_TotalSpectrum(
+    //                        vec_generated, 
+    //                        {0.021, 0.654, 0.043, fSigTrue}, 
+    //                        {0.0001, 0.0002, 0.0001, 0.0001}, 
+		//	                      {0., 0., 0., 0.}, 
+    //                        {0., 0., 0., 0.}, 
+    //                        {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
+    //                        hToy, 
+    //                        dummy, 
+    //                        Form("Generated_Invariant_Mass_Spectrum_%d_%d",point,iToy), 
+    //                        mMin, 
+    //                        mMax,
+    //                        iToy
+    //                      );
 
-    std::tuple<Double_t,Double_t,Double_t,Double_t> tuple_fSigfromFIT = fit_unbinned_TotalSpectrum(
-                            vec_generated, 
-                            {0.021, 0.654, 0.043, 0.01}, 
-                            {0.0001, 0.0002, 0.0001, 0.0001}, 
-//                            {0., 0., 0., 0.0001},
-			    {0., 0., 0., 0.}, 
-                            {0., 0., 0., 0.}, 
-                            {"f_D_PhiPi","f_DS_PhiMuNu","f_DS_PhiPi","f_DS_TauNu"}, 
+    std::pair<std::vector<double>,std::vector<double>> FITres = fit_binned_TotalSpectrum(
+                            {0.021, 0.654, 0.043, fSigTrue, hToy->GetEntries()}, 
                             hToy, 
                             dummy, 
                             Form("Generated_Invariant_Mass_Spectrum_%d_%d",point,iToy), 
                             mMin, 
-                            mMax
-                          );
+                            mMax,
+                            iToy
+                            );
+                      
+    std::vector<double> pars_fit_res = FITres.first;
+    std::vector<double> pars_err_fit_res = FITres.second;
 
+    Double_t fSigfromFIT     = pars_fit_res[3];
+    Double_t err_fSigfromFIT = pars_err_fit_res[3];
 
-    Double_t fSigfromFIT     = std::get<0>(tuple_fSigfromFIT);
-    Double_t err_fSigfromFIT = std::get<1>(tuple_fSigfromFIT);
-    Double_t fPhiMuNufromFIT = std::get<2>(tuple_fSigfromFIT);
-    Double_t err_fPhiMuNufromFIT = std::get<3>(tuple_fSigfromFIT);
+    Double_t fDsPhiPifromFIT = pars_fit_res[2];
+    Double_t err_fDsPhifromFIT = pars_err_fit_res[2];
+
+    Double_t fPhiMuNufromFIT = pars_fit_res[1];
+    Double_t err_fPhiMuNufromFIT = pars_err_fit_res[1];
+
+    Double_t fDPhiPifromFIT = pars_fit_res[0];
+    Double_t err_fDPhifromFIT = pars_err_fit_res[0];
+
+    //Double_t par_fit_sens[4] = {fDPhiPifromFIT,fPhiMuNufromFIT,fDsPhiPifromFIT,fSigfromFIT};
+
+    //Double_t Like=0;
+
+    //for(size_t i=0; i<vec_generated.size(); ++i)
+    //{
+      //Double_t p = total_mass_spectrum_pdf(&vec_generated[i],par_fit_sens);
+      //Like += TMath::Log(p);
+    //};
+
+    if(fSigTrue == 0)
+    {
+      double BR = ( fSigfromFIT / ((1 - fSigfromFIT) * fPhiMuNufromFIT) ) * ( ( sample_val(BR_Ds_PhiMuNu,SIGMA_BR_Ds_PhiMuNu) * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu) ) / ( sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) * sample_val(EFF_Sig,SIGMA_EFF_Sig) ) );
+
+      Double_t logL = TMath::Log(TMath::Gaus(BR,BR,0.00012541,1));
+
+      Double_t logL_null = TMath::Log(TMath::Gaus(BR,0.,0.00012541,1));
+
+      Double_t LR;
+
+      if(BR >= 0)
+      {
+        h_likelihood_ratio_sensitivity -> Fill(-2*(logL_null - logL));
+        LR = -2*(logL_null - logL);
+      }
+      else{
+        h_likelihood_ratio_sensitivity -> Fill(0);
+        LR = 0;
+      }
+
+      if(LR > LR_OBSERVED_AFTER_UNBLINDING){N_EVT_LR_ABOVE_OBS++;}
+
+    }    
 
     hfSigFit.Fill(fSigfromFIT);
     fsig.push_back(fSigfromFIT);
@@ -274,8 +402,11 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
     fpullsig.push_back((fSigfromFIT-fSigTrue)/err_fSigfromFIT);
     hfSig_over_fPhiMuNu.Fill(fSigfromFIT/fPhiMuNufromFIT);
     fsig_over_fphiMuNu.push_back(fSigfromFIT/fPhiMuNufromFIT);
-    hfBRSig.Fill( (fSigfromFIT) / ( sample_val(EFF_Sig,SIGMA_EFF_Sig) * sample_val(CS_pp_Ds,SIGMA_CS_pp_Ds) * sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) ) );
-    BR_Sig.push_back( (fSigfromFIT) / ( sample_val(EFF_Sig,SIGMA_EFF_Sig) * sample_val(CS_pp_Ds,SIGMA_CS_pp_Ds) * sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) ) );
+
+    double BR = ( fSigfromFIT / ((1 - fSigfromFIT) * fPhiMuNufromFIT) ) * ( ( sample_val(BR_Ds_PhiMuNu,SIGMA_BR_Ds_PhiMuNu) * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu) ) / ( sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) * sample_val(EFF_Sig,SIGMA_EFF_Sig) ) );
+
+    hfBRSig.Fill(BR);
+    BR_Sig.push_back(BR);
     hfR_tau.Fill( (fSigfromFIT * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu)) / (fPhiMuNufromFIT * sample_val(EFF_Sig,SIGMA_EFF_Sig)) );
     R_tau.push_back( (fSigfromFIT * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu)) / (fPhiMuNufromFIT * sample_val(EFF_Sig,SIGMA_EFF_Sig)) );
 
@@ -286,7 +417,11 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
 
   }
 
-    outfile -> cd();
+  cout << "THE P VALUE IS: " << (double)N_EVT_LR_ABOVE_OBS/(double)nToys << endl; //--> controllare con le tabelle del chi2, h_likelihood_ratio_sensitivity è distribuito come un chi2 ad un grado di libertà! 
+  cout << "THE SENSITIVITY IN NUMBER IF SIGMA IS: " << ROOT::Math::normal_quantile_c((double)N_EVT_LR_ABOVE_OBS/(double)nToys,1.0) << endl;
+  cout << "THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: " << TMath::Sqrt((double)LR_OBSERVED_AFTER_UNBLINDING) << endl;
+
+  outfile -> cd();
 
 
   std::tuple <Double_t,Double_t> results_fit_fsig = fit_unbinned_Gauss( fsig, 
@@ -307,10 +442,14 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
   Double_t mu_f_sig = std::get<0>(results_fit_fsig);
   Double_t sigma_mu_f_sig = std::get<1>(results_fit_fsig);
   
-  std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(mu_f_sig,sigma_mu_f_sig);
+  
+  std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(fSigTrue,sigma_mu_f_sig);
 
   lower_belt.push_back(acceptance_interval.first);
   upper_belt.push_back(acceptance_interval.second);
+  f_sig_belt.push_back(fSigTrue);
+
+  cout << "\n *** BAND INTERVAL : [ " << acceptance_interval.first << " , " << acceptance_interval.second << " ] << \n" << endl;
 
   std::tuple <Double_t,Double_t> results_fit_residuals = fit_unbinned_Gauss(  fdiffsig, 
                                                                         {hdifffSigFit.GetMean(), hdifffSigFit.GetStdDev()}, 
@@ -377,13 +516,16 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
   Double_t mu_BRSig = std::get<0>(results_fit_BRSig);
   Double_t sigma_mu_BRSig = std::get<1>(results_fit_BRSig);
   
-  std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(mu_BRSig,sigma_mu_BRSig);
+  double BR_true = ( fSigTrue / ((1 - fSigTrue) * f_Ds_PhiMuNu) ) * ( ( BR_Ds_PhiMuNu * EFF_Ds_PhiMuNu ) / ( BR_Ds_TauNu * EFF_Sig ) ); 
+
+  std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(BR_true,sigma_mu_BRSig);
 
   lower_belt_BR.push_back(acceptance_interval_BR.first);
   upper_belt_BR.push_back(acceptance_interval_BR.second);
-  f_sig_belt_BR.push_back(mu_BRSig);
+                              
+  f_sig_belt_BR.push_back(BR_true);
 
-  
+  cout << "\n *** BAND INTERVAL : [ " << acceptance_interval_BR.first << " , " << acceptance_interval_BR.second << " ] << \n" << endl;
   
   std::tuple <Double_t,Double_t> results_fit_R_tau = fit_unbinned_Gauss(  R_tau, 
                                                                     {hfR_tau.GetMean(), hfR_tau.GetStdDev()}, 
@@ -402,12 +544,17 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
   
   Double_t mu_RTauSig = std::get<0>(results_fit_R_tau);
   Double_t sigma_mu_RTauSig = std::get<1>(results_fit_R_tau);
+
+  double r_tau_true = (fSigTrue * EFF_Ds_PhiMuNu) / (f_Ds_PhiMuNu * EFF_Sig);
   
-  std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(mu_RTauSig,sigma_mu_RTauSig);
+  std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(r_tau_true,sigma_mu_RTauSig);
 
   lower_belt_RTau.push_back(acceptance_interval_RTau.first);
   upper_belt_RTau.push_back(acceptance_interval_RTau.second);
-  f_sig_belt_RTau.push_back(mu_RTauSig);
+
+  f_sig_belt_RTau.push_back(r_tau_true);
+
+  cout << "\n *** BAND INTERVAL : [ " << acceptance_interval_RTau.first << " , " << acceptance_interval_RTau.second << " ] << \n" << endl;
 
   std::tuple <Double_t,Double_t> results_fit_sigma_f_sigma = fit_unbinned_Gauss(  sigma_f_sig, 
                                                                     {h_sigma_f_Sig->GetMean(), h_sigma_f_Sig->GetStdDev()}, 
@@ -424,16 +571,18 @@ for(Double_t fSigTrue = 0.001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
                                                                   
   cout << "\n\n **** FIT SIGMA f_Sig : MU = " << std::get<0>(results_fit_sigma_f_sigma) << " SIGMA : " <<  std::get<1>(results_fit_sigma_f_sigma) << " ****\n\n" << endl; 
 
-  /*
-  TF1 *fit_gaus_binned = new TF1(Form("fit_gaus_binned_%d",point),Gauss_pdf_bin,-10,10,4);
-  fit_gaus_binned -> SetParameters(0.05, 1., hpullSigFit.Integral(), hpullSigFit.GetBinWidth(1));
-  fit_gaus_binned -> FixParameter(3,hpullSigFit.GetBinWidth(1));
-  hpullSigFit.Fit(fit_gaus_binned,"L");
+  
+  //TF1 *fit_gaus_binned = new TF1(Form("fit_gaus_binned_%d",point),Gauss_pdf_bin,-10,10,4);
+  //fit_gaus_binned -> SetParameters(0.05, 1., hpullSigFit.Integral(), hpullSigFit.GetBinWidth(1));
+  //fit_gaus_binned -> FixParameter(3,hpullSigFit.GetBinWidth(1));
+  //hpullSigFit.Fit(fit_gaus_binned,"L");
 
-  hpullSigFit.Write();
-  */
+  //hpullSigFit.Write();
+  
 
 }
+
+
 // data->cd();
 // tree->Write();
 // data->Close();
@@ -450,16 +599,19 @@ g_lower_belt->SetMarkerSize(2);
 g_upper_belt->SetMarkerStyle(7);
 g_upper_belt->SetMarkerSize(2);
 s_lower_belt->SetLineColor(kBlue);
-s_upper_belt->SetLineColor(kBlue);
+s_upper_belt->SetLineColor(kOrange);
 s_lower_belt->SetLineWidth(2);
 s_upper_belt->SetLineWidth(2);
 g_upper_belt->Draw("AP");
 g_lower_belt->Draw("SAME");
 s_lower_belt->Draw("SAME");
 s_upper_belt->Draw("SAME");
-g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
+//g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
 
-
+g_lower_belt->Write("f_sig_g_lower_belt");
+g_upper_belt->Write("f_sig_g_upper_belt");
+s_lower_belt->Write("f_sig_s_lower_belt");
+s_upper_belt->Write("f_sig_s_upper_belt");
 c_belt->Write();
 
 TGraph * g_lower_belt_BR = new TGraph(lower_belt_BR.size(),f_sig_belt_BR.data(),lower_belt_BR.data());
@@ -475,16 +627,19 @@ g_lower_belt_BR->SetMarkerSize(2);
 g_upper_belt_BR->SetMarkerStyle(7);
 g_upper_belt_BR->SetMarkerSize(2);
 s_lower_belt_BR->SetLineColor(kBlue);
-s_upper_belt_BR->SetLineColor(kBlue);
+s_upper_belt_BR->SetLineColor(kOrange);
 s_lower_belt_BR->SetLineWidth(2);
 s_upper_belt_BR->SetLineWidth(2);
 g_upper_belt_BR->Draw("AP");
 g_lower_belt_BR->Draw("SAME");
 s_lower_belt_BR->Draw("SAME");
 s_upper_belt_BR->Draw("SAME");
-g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
+//g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
 
-
+g_lower_belt_BR->Write("g_lower_belt_BR");
+g_upper_belt_BR->Write("g_upper_belt_BR");
+s_lower_belt_BR->Write("s_lower_belt_BR");
+s_upper_belt_BR->Write("s_upper_belt_BR");
 c_belt_BR->Write();
 
 TGraph * g_lower_belt_RTau = new TGraph(lower_belt_RTau.size(),f_sig_belt_RTau.data(),lower_belt_RTau.data());
@@ -500,16 +655,27 @@ g_lower_belt_RTau->SetMarkerSize(2);
 g_upper_belt_RTau->SetMarkerStyle(7);
 g_upper_belt_RTau->SetMarkerSize(2);
 s_lower_belt_RTau->SetLineColor(kBlue);
-s_upper_belt_RTau->SetLineColor(kBlue);
+s_upper_belt_RTau->SetLineColor(kOrange);
 s_lower_belt_RTau->SetLineWidth(2);
 s_upper_belt_RTau->SetLineWidth(2);
 g_upper_belt_RTau->Draw("AP");
 g_lower_belt_RTau->Draw("SAME");
 s_lower_belt_RTau->Draw("SAME");
 s_upper_belt_RTau->Draw("SAME");
-g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+//g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+
 c_belt_RTau->Write();
 
+
+g_lower_belt_RTau->Write("g_lower_belt_RTau");
+g_upper_belt_RTau->Write("g_upper_belt_RTau");
+s_lower_belt_RTau->Write("s_lower_belt_RTau");
+s_upper_belt_RTau->Write("s_upper_belt_RTau");
+
+TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.,10.,1);
+chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());
+h_likelihood_ratio_sensitivity->Write();
+chi2_1dof_tf1->Write();
 
 outfile->Close();
 dummy->Close();
