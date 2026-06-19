@@ -228,7 +228,7 @@ void toy()
   std::vector<double> upper_belt_RTau;
   std::vector<double> f_sig_belt_RTau;
 
-/**/
+
   ifstream summary_band("summary_band.txt");
   std::string line;
   std::getline(summary_band, line);
@@ -261,7 +261,7 @@ void toy()
     f_sig_belt_RTau.push_back(r_tau_true);
 
   }
-/**/
+
 
 /*
 double m;
@@ -271,7 +271,7 @@ int point = -1;
 
 TH1D *h_likelihood_ratio_sensitivity = new TH1D("h_likelihood_ratio_sensitivity","",80,0.,10.);
 
-for(Double_t fSigTrue = 0.0006; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
+for(Double_t fSigTrue = 0.0019; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
 //for(Double_t fSigTrue = 0.0001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
 {
 
@@ -589,7 +589,9 @@ for(Double_t fSigTrue = 0.0006; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
   
 
 }
+
 */
+
 
 // data->cd();
 // tree->Write();
@@ -598,8 +600,8 @@ outfile -> cd();
 TGraph * g_lower_belt = new TGraph(lower_belt.size(),f_sig_belt.data(),lower_belt.data());
 TGraph * g_upper_belt = new TGraph(upper_belt.size(),f_sig_belt.data(),upper_belt.data());
 
-TSpline3 *s_lower_belt = new TSpline3("spline_lower_belt",g_lower_belt);
-TSpline3 *s_upper_belt = new TSpline3("spline_upper_belt",g_upper_belt);
+//TSpline3 *s_lower_belt = new TSpline3("spline_lower_belt",g_lower_belt);
+//TSpline3 *s_upper_belt = new TSpline3("spline_upper_belt",g_upper_belt);
 
 TCanvas *c_belt = new TCanvas("c_belt","");
 c_belt->cd();
@@ -607,27 +609,27 @@ g_lower_belt->SetMarkerStyle(7);
 g_lower_belt->SetMarkerSize(2);
 g_upper_belt->SetMarkerStyle(7);
 g_upper_belt->SetMarkerSize(2);
-s_lower_belt->SetLineColor(kBlue);
-s_upper_belt->SetLineColor(kOrange);
-s_lower_belt->SetLineWidth(2);
-s_upper_belt->SetLineWidth(2);
+//s_lower_belt->SetLineColor(kBlue);
+//s_upper_belt->SetLineColor(kOrange);
+//s_lower_belt->SetLineWidth(2);
+//s_upper_belt->SetLineWidth(2);
 g_upper_belt->Draw("AP");
 g_lower_belt->Draw("SAME");
-s_lower_belt->Draw("SAME");
-s_upper_belt->Draw("SAME");
-//g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
+//s_lower_belt->Draw("SAME");
+//s_upper_belt->Draw("SAME");
+g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
 
 g_lower_belt->Write("f_sig_g_lower_belt");
 g_upper_belt->Write("f_sig_g_upper_belt");
-s_lower_belt->Write("f_sig_s_lower_belt");
-s_upper_belt->Write("f_sig_s_upper_belt");
+//s_lower_belt->Write("f_sig_s_lower_belt");
+//s_upper_belt->Write("f_sig_s_upper_belt");
 c_belt->Write();
 
 TGraph * g_lower_belt_BR = new TGraph(lower_belt_BR.size(),f_sig_belt_BR.data(),lower_belt_BR.data());
 TGraph * g_upper_belt_BR = new TGraph(upper_belt_BR.size(),f_sig_belt_BR.data(),upper_belt_BR.data());
 
-TSpline3 *s_lower_belt_BR = new TSpline3("spline_lower_belt_BR",g_lower_belt_BR);
-TSpline3 *s_upper_belt_BR = new TSpline3("spline_upper_belt_BR",g_upper_belt_BR);
+//TSpline3 *s_lower_belt_BR = new TSpline3("spline_lower_belt_BR",g_lower_belt_BR);
+//TSpline3 *s_upper_belt_BR = new TSpline3("spline_upper_belt_BR",g_upper_belt_BR);
 
 TCanvas *c_belt_BR = new TCanvas("c_belt_BR","");
 c_belt_BR->cd();
@@ -635,20 +637,20 @@ g_lower_belt_BR->SetMarkerStyle(7);
 g_lower_belt_BR->SetMarkerSize(2);
 g_upper_belt_BR->SetMarkerStyle(7);
 g_upper_belt_BR->SetMarkerSize(2);
-s_lower_belt_BR->SetLineColor(kBlue);
-s_upper_belt_BR->SetLineColor(kOrange);
-s_lower_belt_BR->SetLineWidth(2);
-s_upper_belt_BR->SetLineWidth(2);
+//s_lower_belt_BR->SetLineColor(kBlue);
+//s_upper_belt_BR->SetLineColor(kOrange);
+//s_lower_belt_BR->SetLineWidth(2);
+//s_upper_belt_BR->SetLineWidth(2);
 g_upper_belt_BR->Draw("AP");
 g_lower_belt_BR->Draw("SAME");
-s_lower_belt_BR->Draw("SAME");
-s_upper_belt_BR->Draw("SAME");
-//g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
+//s_lower_belt_BR->Draw("SAME");
+//s_upper_belt_BR->Draw("SAME");
+g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
 
 g_lower_belt_BR->Write("g_lower_belt_BR");
 g_upper_belt_BR->Write("g_upper_belt_BR");
-s_lower_belt_BR->Write("s_lower_belt_BR");
-s_upper_belt_BR->Write("s_upper_belt_BR");
+//s_lower_belt_BR->Write("s_lower_belt_BR");
+//s_upper_belt_BR->Write("s_upper_belt_BR");
 c_belt_BR->Write();
 
 TGraph * g_lower_belt_RTau = new TGraph(lower_belt_RTau.size(),f_sig_belt_RTau.data(),lower_belt_RTau.data());
@@ -663,23 +665,23 @@ g_lower_belt_RTau->SetMarkerStyle(7);
 g_lower_belt_RTau->SetMarkerSize(2);
 g_upper_belt_RTau->SetMarkerStyle(7);
 g_upper_belt_RTau->SetMarkerSize(2);
-s_lower_belt_RTau->SetLineColor(kBlue);
-s_upper_belt_RTau->SetLineColor(kOrange);
-s_lower_belt_RTau->SetLineWidth(2);
-s_upper_belt_RTau->SetLineWidth(2);
+//s_lower_belt_RTau->SetLineColor(kBlue);
+//s_upper_belt_RTau->SetLineColor(kOrange);
+//s_lower_belt_RTau->SetLineWidth(2);
+//s_upper_belt_RTau->SetLineWidth(2);
 g_upper_belt_RTau->Draw("AP");
 g_lower_belt_RTau->Draw("SAME");
-s_lower_belt_RTau->Draw("SAME");
-s_upper_belt_RTau->Draw("SAME");
-//g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+//s_lower_belt_RTau->Draw("SAME");
+//s_upper_belt_RTau->Draw("SAME");
+g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
 
 c_belt_RTau->Write();
 
 
 g_lower_belt_RTau->Write("g_lower_belt_RTau");
 g_upper_belt_RTau->Write("g_upper_belt_RTau");
-s_lower_belt_RTau->Write("s_lower_belt_RTau");
-s_upper_belt_RTau->Write("s_upper_belt_RTau");
+//s_lower_belt_RTau->Write("s_lower_belt_RTau");
+//s_upper_belt_RTau->Write("s_upper_belt_RTau");
 
 //TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.,10.,1);
 //chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());

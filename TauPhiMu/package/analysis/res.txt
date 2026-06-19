@@ -8600,4 +8600,2201 @@ THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
 
  **** FIT SIGMA f_Sig : MU = 0.000913112 SIGMA : 7.71489e-06 ****
 
+PROCESSING f_Sig = 0.0019
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111724 FROM HESSE     STATUS=OK             12 CALLS          42 TOTAL
+                     EDM=3.24541e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           1.87940e-03   9.07216e-06   2.96126e-07   3.68557e-03
+   2  sigma        9.07216e-04   6.41505e-06   4.18773e-08  -3.97146e+01
 
+
+ **** FIT f_Sig : MU = 0.0018794 SIGMA : 0.000907216 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000407757 , 0.00339224 ] << 
+
+ FCN=-111724 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=3.26979e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.06048e-05   9.07216e-06   2.96126e-07  -5.65120e-04
+   2  sigma        9.07216e-04   6.41497e-06   4.18773e-08  -3.98640e+01
+
+
+ **** FIT RESIDUALS : MU = -2.06048e-05 SIGMA : 0.000907216 ****
+
+
+ FCN=28258.9 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=5.97796e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.05691e-02   9.94024e-03   1.63182e-04   2.45233e-06
+   2  sigma        9.94025e-01   7.02880e-03   2.30767e-05   4.91938e-03
+
+
+ **** FIT PULLS : MU = -0.0305691 SIGMA : 0.994025 ****
+
+
+ FCN=-103179 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.86713e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.87803e-03   1.39077e-05   4.36260e-07  -1.08407e-03
+   2  sigma        1.39077e-03   9.83418e-06   6.16946e-08  -2.43501e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00287803 SIGMA : 0.00139077 ****
+
+
+ FCN=-150713 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=9.12509e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.65361e-04   1.29145e-06   4.88821e-08   1.78616e-02
+   2  sigma        1.29145e-04   9.13180e-07   6.89616e-09  -1.47937e+03
+
+
+ **** FIT BR : MU = 0.000265361 SIGMA : 0.000129145 ****
+
+
+
+ *** BAND INTERVAL : [ 5.54983e-05 , 0.000480348 ] << 
+
+ FCN=-133345 FROM HESSE     STATUS=OK             10 CALLS          44 TOTAL
+                     EDM=4.52219e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           6.36805e-04   3.07759e-06   2.19496e-08   6.29822e-02
+   2  sigma        3.07762e-04   2.17619e-06   1.55201e-08  -1.38195e+02
+
+
+ **** FIT R_TAU : MU = 0.000636805 SIGMA : 0.000307762 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00013724 , 0.00114969 ] << 
+
+ FCN=-207118 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=1.26437e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.13088e-04   7.69576e-08   3.42021e-09  -6.29694e+00
+   2  sigma        7.69576e-06   5.44170e-08   4.83674e-10  -2.78298e+01
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000913088 SIGMA : 7.69576e-06 ****
+
+
+PROCESSING f_Sig = 0.00195
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111614 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.28437e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           1.94703e-03   9.12204e-06   2.97386e-07  -6.36126e-03
+   2  sigma        9.12204e-04   6.45027e-06   4.20083e-08  -1.25650e+01
+
+
+ **** FIT f_Sig : MU = 0.00194703 SIGMA : 0.000912204 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000449552 , 0.00345045 ] << 
+
+ FCN=-111614 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.27981e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.96927e-06   9.12204e-06   2.97386e-07   4.40395e-03
+   2  sigma        9.12204e-04   6.45025e-06   4.20083e-08  -1.25563e+01
+
+
+ **** FIT RESIDUALS : MU = -2.96927e-06 SIGMA : 0.000912204 ****
+
+
+ FCN=28353.3 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=6.0552e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.13605e-02   9.98713e-03   1.64441e-05   2.88156e-04
+   2  sigma        9.98726e-01   7.06203e-03   2.32258e-05  -4.92759e-02
+
+
+ **** FIT PULLS : MU = -0.0113605 SIGMA : 0.998726 ****
+
+
+ FCN=-103071 FROM HESSE     STATUS=OK             12 CALLS          34 TOTAL
+                     EDM=6.03162e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.98156e-03   1.39834e-05   4.38071e-07   2.49136e-03
+   2  sigma        1.39834e-03   9.88779e-06   6.18801e-08  -1.11079e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00298156 SIGMA : 0.00139834 ****
+
+
+ FCN=-150559 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=3.83649e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.74995e-04   1.30144e-06   4.93140e-08   1.02248e+00
+   2  sigma        1.30144e-04   9.20256e-07   6.97387e-09   2.63959e+00
+
+
+ **** FIT BR : MU = 0.000274995 SIGMA : 0.000130144 ****
+
+
+
+ *** BAND INTERVAL : [ 6.09197e-05 , 0.000489056 ] << 
+
+ FCN=-133242 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=9.01019e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           6.59657e-04   3.09347e-06   2.20413e-08   3.63116e-02
+   2  sigma        3.09345e-04   2.18741e-06   1.55716e-08   6.13695e+01
+
+
+ **** FIT R_TAU : MU = 0.000659657 SIGMA : 0.000309345 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00015157 , 0.00116923 ] << 
+
+ FCN=-206953 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=2.87373e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.13675e-04   7.75942e-08   4.44260e-09  -1.47399e+00
+   2  sigma        7.75942e-06   5.48675e-08   4.85936e-10   1.38173e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000913675 SIGMA : 7.75942e-06 ****
+
+
+PROCESSING f_Sig = 0.002
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111700 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.44108e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           1.97936e-03   9.08306e-06   2.96447e-07   4.32340e-01
+   2  sigma        9.08306e-04   6.42269e-06   4.19220e-08   3.43969e+01
+
+
+ **** FIT f_Sig : MU = 0.00197936 SIGMA : 0.000908306 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000505964 , 0.00349404 ] << 
+
+ FCN=-111700 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.43405e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.06431e-05   9.08306e-06   2.96447e-07   4.38476e-01
+   2  sigma        9.08306e-04   6.42263e-06   4.19220e-08   3.43474e+01
+
+
+ **** FIT RESIDUALS : MU = -2.06431e-05 SIGMA : 0.000908306 ****
+
+
+ FCN=28258.9 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=2.27059e-11    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.05857e-02   9.94026e-03   1.63182e-04   3.71363e-04
+   2  sigma        9.94026e-01   7.02882e-03   2.30764e-05   8.02041e-04
+
+
+ **** FIT PULLS : MU = -0.0305857 SIGMA : 0.994026 ****
+
+
+ FCN=-103145 FROM HESSE     STATUS=OK             12 CALLS          41 TOTAL
+                     EDM=7.94083e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.03140e-03   1.39312e-05   4.36929e-07   8.13475e-02
+   2  sigma        1.39312e-03   9.85087e-06   3.08949e-07   5.59329e-02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.0030314 SIGMA : 0.00139312 ****
+
+
+ FCN=-150609 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=4.48593e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.79414e-04   1.29816e-06   4.91972e-08   3.57459e+00
+   2  sigma        1.29816e-04   9.17943e-07   6.95715e-09   3.26266e+02
+
+
+ **** FIT BR : MU = 0.000279414 SIGMA : 0.000129816 ****
+
+
+
+ *** BAND INTERVAL : [ 6.8523e-05 , 0.000495583 ] << 
+
+ FCN=-133312 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=3.9085e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           6.70725e-04   3.08263e-06   1.09912e-07   1.28292e+00
+   2  sigma        3.08263e-04   2.17975e-06   1.55432e-08   1.28253e+02
+
+
+ **** FIT R_TAU : MU = 0.000670725 SIGMA : 0.000308263 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000170282 , 0.00118438 ] << 
+
+ FCN=-207095 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=1.98553e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.13930e-04   7.70466e-08   3.42370e-09  -4.88790e-01
+   2  sigma        7.70466e-06   5.44806e-08   4.84110e-10   1.15668e+03
+
+
+ **** FIT SIGMA f_Sig : MU = 0.00091393 SIGMA : 7.70466e-06 ****
+
+
+PROCESSING f_Sig = 0.00205
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111601 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=1.18951e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.04854e-03   9.12796e-06   6.52479e-08  -8.36344e-03
+   2  sigma        9.12795e-04   6.45444e-06   2.10568e-07  -7.46364e-02
+
+
+ **** FIT f_Sig : MU = 0.00204854 SIGMA : 0.000912795 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00054858 , 0.00355142 ] << 
+
+ FCN=-111601 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=1.18414e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.46490e-06   9.12796e-06   6.52479e-08  -8.36344e-03
+   2  sigma        9.12795e-04   6.45444e-06   2.10568e-07  -7.44636e-02
+
+
+ **** FIT RESIDUALS : MU = -1.4649e-06 SIGMA : 0.000912795 ****
+
+
+ FCN=28347.2 FROM HESSE     STATUS=OK             12 CALLS          48 TOTAL
+                     EDM=2.5536e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -9.66647e-03   9.98403e-03   1.64423e-05  -1.93600e-05
+   2  sigma        9.98423e-01   7.05746e-03   3.28846e-06   1.65943e-05
+
+
+ **** FIT PULLS : MU = -0.00966647 SIGMA : 0.998423 ****
+
+
+ FCN=-103049 FROM HESSE     STATUS=OK             10 CALLS          39 TOTAL
+                     EDM=1.78354e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.13736e-03   1.39986e-05   4.38841e-07   9.11897e-04
+   2  sigma        1.39986e-03   9.89843e-06   6.20614e-08   1.90805e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00313736 SIGMA : 0.00139986 ****
+
+
+ FCN=-150593 FROM HESSE     STATUS=OK             14 CALLS          42 TOTAL
+                     EDM=1.74375e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.89082e-04   1.29923e-06   9.84738e-09  -4.06380e-01
+   2  sigma        1.29923e-04   9.18692e-07   7.57937e-09   2.87991e-01
+
+
+ **** FIT BR : MU = 0.000289082 SIGMA : 0.000129923 ****
+
+
+
+ *** BAND INTERVAL : [ 7.54128e-05 , 0.000502824 ] << 
+
+ FCN=-133218 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=7.32919e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           6.94102e-04   3.09721e-06   1.10403e-07  -4.94278e-02
+   2  sigma        3.09721e-04   2.19007e-06   1.56147e-08   1.74817e+02
+
+
+ **** FIT R_TAU : MU = 0.000694102 SIGMA : 0.000309721 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000184818 , 0.00120371 ] << 
+
+ FCN=-207027 FROM HESSE     STATUS=OK             14 CALLS          45 TOTAL
+                     EDM=3.62087e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.14481e-04   7.73084e-08   1.21450e-08  -2.21664e-01
+   2  sigma        7.73083e-06   5.46653e-08   4.44339e-09  -4.91243e+00
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000914481 SIGMA : 7.73083e-06 ****
+
+
+PROCESSING f_Sig = 0.0021
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111351 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=2.35832e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.09033e-03   9.24272e-06   3.01013e-07  -4.10917e-03
+   2  sigma        9.24271e-04   6.53558e-06   4.25308e-08   1.05083e+01
+
+
+ **** FIT f_Sig : MU = 0.00209033 SIGMA : 0.000924271 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000579703 , 0.0036203 ] << 
+
+ FCN=-111351 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=2.39492e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -9.66703e-06   9.24265e-06   6.01674e-08   2.17671e-02
+   2  sigma        9.24269e-04   6.53553e-06   4.24688e-08  -1.05896e+02
+
+
+ **** FIT RESIDUALS : MU = -9.66703e-06 SIGMA : 0.000924269 ****
+
+
+ FCN=28583.8 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=3.72806e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.88308e-02   1.01030e-02   1.65108e-04   5.45505e-04
+   2  sigma        1.01030e+00   7.14394e-03   2.35902e-05  -1.20868e-01
+
+
+ **** FIT PULLS : MU = -0.0188308 SIGMA : 1.0103 ****
+
+
+ FCN=-102795 FROM HESSE     STATUS=OK             12 CALLS          41 TOTAL
+                     EDM=3.51384e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.20145e-03   1.41776e-05   4.43900e-07   1.04902e-02
+   2  sigma        1.41776e-03   1.00251e-05   3.13879e-07   8.22918e-02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00320145 SIGMA : 0.00141776 ****
+
+
+ FCN=-150254 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=3.60846e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.95237e-04   1.32143e-06   4.99930e-08   1.30986e-02
+   2  sigma        1.32143e-04   9.34392e-07   7.06399e-09   2.87506e+02
+
+
+ **** FIT BR : MU = 0.000295237 SIGMA : 0.000132143 ****
+
+
+
+ *** BAND INTERVAL : [ 7.88285e-05 , 0.000513542 ] << 
+
+ FCN=-132961 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=4.23139e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.08363e-04   3.13734e-06   1.11646e-07   1.04272e-02
+   2  sigma        3.13734e-04   2.21842e-06   1.57739e-08   4.14679e+01
+
+
+ **** FIT R_TAU : MU = 0.000708363 SIGMA : 0.000313734 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00019515 , 0.00122725 ] << 
+
+ FCN=-206785 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.16293e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.14832e-04   7.82489e-08   4.44080e-09   3.27687e-02
+   2  sigma        7.82489e-06   5.53306e-08   4.89793e-10   1.18870e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000914832 SIGMA : 7.82489e-06 ****
+
+
+PROCESSING f_Sig = 0.00215
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111606 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=1.77396e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.14428e-03   9.12582e-06   2.97202e-07  -8.56854e-04
+   2  sigma        9.12582e-04   6.45288e-06   4.19193e-08  -2.91899e+02
+
+
+ **** FIT f_Sig : MU = 0.00214428 SIGMA : 0.000912582 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00064893 , 0.00365107 ] << 
+
+ FCN=-111606 FROM HESSE     STATUS=OK             10 CALLS          39 TOTAL
+                     EDM=1.15338e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -5.72165e-06   9.12589e-06   2.97715e-07  -5.05895e-01
+   2  sigma        9.12589e-04   6.45297e-06   4.21003e-08   2.35257e+01
+
+
+ **** FIT RESIDUALS : MU = -5.72165e-06 SIGMA : 0.000912589 ****
+
+
+ FCN=28327.7 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=1.10401e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.42846e-02   9.97447e-03   1.63940e-04  -3.36026e-04
+   2  sigma        9.97447e-01   7.05304e-03   2.31832e-05  -6.64530e-03
+
+
+ **** FIT PULLS : MU = -0.0142846 SIGMA : 0.997447 ****
+
+
+ FCN=-103058 FROM HESSE     STATUS=OK             12 CALLS          34 TOTAL
+                     EDM=1.73205e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.28384e-03   1.39920e-05   4.37889e-07  -3.40628e-03
+   2  sigma        1.39920e-03   9.89373e-06   6.17641e-08  -1.88120e+02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00328384 SIGMA : 0.0013992 ****
+
+
+ FCN=-150548 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=4.5447e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.02753e-04   1.30211e-06   4.93367e-08  -2.14135e+00
+   2  sigma        1.30211e-04   9.20730e-07   6.97687e-09   3.27430e+02
+
+
+ **** FIT BR : MU = 0.000302753 SIGMA : 0.000130211 ****
+
+
+
+ *** BAND INTERVAL : [ 8.90739e-05 , 0.000517431 ] << 
+
+ FCN=-133225 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=1.09989e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.26657e-04   3.09610e-06   1.10358e-07  -3.16465e-02
+   2  sigma        3.09610e-04   2.18928e-06   1.56067e-08   6.75998e-01
+
+
+ **** FIT R_TAU : MU = 0.000726657 SIGMA : 0.00030961 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000218867 , 0.0012374 ] << 
+
+ FCN=-207082 FROM HESSE     STATUS=OK             10 CALLS          43 TOTAL
+                     EDM=1.88881e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.15267e-04   7.70975e-08   3.42579e-09  -5.36789e+02
+   2  sigma        7.70975e-06   5.45165e-08   4.84391e-10  -3.48318e+03
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000915267 SIGMA : 7.70975e-06 ****
+
+
+PROCESSING f_Sig = 0.0022
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111456 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=9.95284e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.19350e-03   9.19452e-06   2.99450e-07   2.30829e-03
+   2  sigma        9.19452e-04   6.50152e-06   4.22815e-08  -6.86236e+01
+
+
+ **** FIT f_Sig : MU = 0.0021935 SIGMA : 0.000919452 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000687631 , 0.00371237 ] << 
+
+ FCN=-111456 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=9.94127e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -6.50040e-06   9.19452e-06   2.99450e-07   1.21489e-03
+   2  sigma        9.19452e-04   6.50149e-06   4.22815e-08  -6.85840e+01
+
+
+ **** FIT RESIDUALS : MU = -6.5004e-06 SIGMA : 0.000919452 ****
+
+
+ FCN=28467.4 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.10193e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.52579e-02   1.00444e-02   1.64771e-04  -7.07685e-04
+   2  sigma        1.00444e+00   7.10242e-03   2.34056e-05  -9.12833e-02
+
+
+ **** FIT PULLS : MU = -0.0152579 SIGMA : 1.00444 ****
+
+
+ FCN=-102905 FROM HESSE     STATUS=OK             10 CALLS          32 TOTAL
+                     EDM=9.56469e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.35913e-03   1.40995e-05   4.41240e-07  -1.64898e-03
+   2  sigma        1.40995e-03   9.96977e-06   6.23038e-08  -4.38697e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00335913 SIGMA : 0.00140995 ****
+
+
+ FCN=-150390 FROM HESSE     STATUS=OK             12 CALLS          48 TOTAL
+                     EDM=1.79062e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.09611e-04   1.31244e-06   2.48519e-07   2.51784e-02
+   2  sigma        1.31244e-04   9.28032e-07   1.75729e-07   2.03917e+01
+
+
+ **** FIT BR : MU = 0.000309611 SIGMA : 0.000131244 ****
+
+
+
+ *** BAND INTERVAL : [ 9.44428e-05 , 0.000526198 ] << 
+
+ FCN=-133075 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=1.4591e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.43236e-04   3.11946e-06   1.11031e-07   3.27655e-03
+   2  sigma        3.11946e-04   2.20578e-06   1.56811e-08  -7.74453e+01
+
+
+ **** FIT R_TAU : MU = 0.000743236 SIGMA : 0.000311946 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000231958 , 0.00125817 ] << 
+
+ FCN=-206902 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=4.71429e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.15676e-04   7.77949e-08   3.45565e-09  -1.20436e+01
+   2  sigma        7.77949e-06   5.50093e-08   4.88693e-10  -5.31523e+01
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000915676 SIGMA : 7.77949e-06 ****
+
+
+PROCESSING f_Sig = 0.00225
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111403 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.39224e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.24085e-03   9.21865e-06   3.00472e-07  -2.17936e-03
+   2  sigma        9.21865e-04   6.51863e-06   4.24910e-08   3.35553e+01
+
+
+ **** FIT f_Sig : MU = 0.00224085 SIGMA : 0.000921865 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000733662 , 0.00376634 ] << 
+
+ FCN=-111403 FROM HESSE     STATUS=OK             12 CALLS          43 TOTAL
+                     EDM=1.93236e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -9.14952e-06   9.21860e-06   6.00924e-08  -3.32968e-02
+   2  sigma        9.21864e-04   6.51850e-06   4.24875e-08   9.53687e+00
+
+
+ **** FIT RESIDUALS : MU = -9.14952e-06 SIGMA : 0.000921864 ****
+
+
+ FCN=28506.2 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=1.13104e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.81519e-02   1.00639e-02   1.64885e-04   6.61914e-06
+   2  sigma        1.00639e+00   7.11628e-03   2.34646e-05  -6.68344e-03
+
+
+ **** FIT PULLS : MU = -0.0181519 SIGMA : 1.00639 ****
+
+
+ FCN=-102851 FROM HESSE     STATUS=OK             12 CALLS          39 TOTAL
+                     EDM=1.90876e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.43182e-03   1.41381e-05   4.42775e-07  -4.92979e-03
+   2  sigma        1.41381e-03   9.99717e-06   6.26147e-08   1.95440e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00343182 SIGMA : 0.00141381 ****
+
+
+ FCN=-150293 FROM HESSE     STATUS=OK             10 CALLS          41 TOTAL
+                     EDM=5.58399e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.16681e-04   1.31885e-06   4.99268e-08   6.74742e-01
+   2  sigma        1.31885e-04   9.32576e-07   7.05991e-09   1.13315e+02
+
+
+ **** FIT BR : MU = 0.000316681 SIGMA : 0.000131885 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000100456 , 0.000534322 ] << 
+
+ FCN=-133015 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=3.87856e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.59324e-04   3.12876e-06   1.11432e-07  -1.03166e-01
+   2  sigma        3.12876e-04   2.21237e-06   1.57581e-08   1.25890e+02
+
+
+ **** FIT R_TAU : MU = 0.000759324 SIGMA : 0.000312876 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000247362 , 0.00127664 ] << 
+
+ FCN=-206919 FROM HESSE     STATUS=OK             10 CALLS          43 TOTAL
+                     EDM=1.66235e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.16042e-04   7.77267e-08   3.45244e-09  -2.52687e+01
+   2  sigma        7.77267e-06   5.49610e-08   4.88169e-10   3.29838e+02
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000916042 SIGMA : 7.77267e-06 ****
+
+
+PROCESSING f_Sig = 0.0023
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111568 FROM HESSE     STATUS=OK             12 CALLS          42 TOTAL
+                     EDM=3.17433e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.27676e-03   9.14321e-06   2.98236e-07  -5.73322e-03
+   2  sigma        9.14321e-04   6.46522e-06   4.21753e-08   3.89725e+01
+
+
+ **** FIT f_Sig : MU = 0.00227676 SIGMA : 0.000914321 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000796069 , 0.00380393 ] << 
+
+ FCN=-111568 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.98612e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.32443e-05   9.14320e-06   2.98238e-07  -2.80560e-03
+   2  sigma        9.14320e-04   6.46521e-06   4.21761e-08  -3.77995e+01
+
+
+ **** FIT RESIDUALS : MU = -2.32443e-05 SIGMA : 0.00091432 ****
+
+
+ FCN=28343 FROM HESSE     STATUS=OK             10 CALLS          43 TOTAL
+                     EDM=1.09934e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.33822e-02   9.98213e-03   1.64114e-04   9.42113e-07
+   2  sigma        9.98213e-01   7.05845e-03   2.32086e-05   6.64311e-03
+
+
+ **** FIT PULLS : MU = -0.0333822 SIGMA : 0.998213 ****
+
+
+ FCN=-103006 FROM HESSE     STATUS=OK             12 CALLS          39 TOTAL
+                     EDM=5.6859e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.48718e-03   1.40287e-05   4.39672e-07  -8.36533e-02
+   2  sigma        1.40287e-03   9.91986e-06   6.21740e-08   1.07494e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00348718 SIGMA : 0.00140287 ****
+
+
+ FCN=-150445 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=5.62739e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.21410e-04   1.30884e-06   4.95757e-08   5.57706e-01
+   2  sigma        1.30884e-04   9.25488e-07   7.01079e-09  -3.62491e+02
+
+
+ **** FIT BR : MU = 0.00032141 SIGMA : 0.000130884 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000109172 , 0.000539745 ] << 
+
+ FCN=-133169 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=2.87784e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.71611e-04   3.10482e-06   1.10645e-07   5.26076e-03
+   2  sigma        3.10482e-04   2.19541e-06   1.56471e-08  -1.09276e+00
+
+
+ **** FIT R_TAU : MU = 0.000771611 SIGMA : 0.000310482 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000268233 , 0.00128963 ] << 
+
+ FCN=-207116 FROM HESSE     STATUS=OK             14 CALLS          49 TOTAL
+                     EDM=6.86133e-15    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.16336e-04   7.69650e-08   3.42051e-09   8.29590e-01
+   2  sigma        7.69650e-06   5.44225e-08   2.41858e-09  -1.80502e+00
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000916336 SIGMA : 7.6965e-06 ****
+
+
+PROCESSING f_Sig = 0.00235
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111384 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=7.03056e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.32674e-03   9.22760e-06   3.00554e-07   2.42085e-03
+   2  sigma        9.22760e-04   6.52489e-06   4.24636e-08   5.74694e+00
+
+
+ **** FIT f_Sig : MU = 0.00232674 SIGMA : 0.00092276 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000832188 , 0.00386781 ] << 
+
+ FCN=-111384 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=2.10548e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.32593e-05   9.22758e-06   3.00384e-07  -2.05889e-03
+   2  sigma        9.22758e-04   6.52486e-06   4.24036e-08  -9.94533e+01
+
+
+ **** FIT RESIDUALS : MU = -2.32593e-05 SIGMA : 0.000922758 ****
+
+
+ FCN=28515.1 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=3.5137e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.35047e-02   1.00684e-02   1.64909e-04  -1.85584e-04
+   2  sigma        1.00684e+00   7.11940e-03   2.34811e-05  -1.17748e-01
+
+
+ **** FIT PULLS : MU = -0.0335047 SIGMA : 1.00684 ****
+
+
+ FCN=-102830 FROM HESSE     STATUS=OK             12 CALLS          34 TOTAL
+                     EDM=2.11648e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.56317e-03   1.41526e-05   4.42668e-07   1.52039e-02
+   2  sigma        1.41525e-03   1.00073e-05   6.24903e-08  -6.50135e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00356317 SIGMA : 0.00141525 ****
+
+
+ FCN=-150323 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=8.2835e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.28495e-04   1.31686e-06   4.98596e-08   9.17893e-01
+   2  sigma        1.31686e-04   9.31163e-07   3.52552e-08   4.74673e-01
+
+
+ **** FIT BR : MU = 0.000328495 SIGMA : 0.000131686 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000114923 , 0.000548134 ] << 
+
+ FCN=-132997 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=4.25893e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           7.88368e-04   3.13164e-06   1.11451e-07   2.61136e-03
+   2  sigma        3.13164e-04   2.21441e-06   1.57446e-08   1.31797e+01
+
+
+ **** FIT R_TAU : MU = 0.000788368 SIGMA : 0.000313164 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000280755 , 0.00131098 ] << 
+
+ FCN=-206983 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=1.46073e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.16793e-04   7.74786e-08   4.44292e-09  -2.62024e-01
+   2  sigma        7.74785e-06   5.47864e-08   4.86094e-10   3.11981e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000916793 SIGMA : 7.74785e-06 ****
+
+
+PROCESSING f_Sig = 0.0024
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111509 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=7.58371e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.38273e-03   9.17008e-06   2.98600e-07  -5.11705e-03
+   2  sigma        9.17008e-04   6.48416e-06   4.21348e-08  -1.89934e+02
+
+
+ **** FIT f_Sig : MU = 0.00238273 SIGMA : 0.000917008 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00089165 , 0.00390835 ] << 
+
+ FCN=-111509 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=7.58028e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.72734e-05   9.17008e-06   2.98600e-07   4.87338e-04
+   2  sigma        9.17008e-04   6.48419e-06   4.21348e-08  -1.89890e+02
+
+
+ **** FIT RESIDUALS : MU = -1.72734e-05 SIGMA : 0.000917008 ****
+
+
+ FCN=28373.6 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=1.17371e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.69276e-02   9.99710e-03   1.64500e-05  -5.80529e-05
+   2  sigma        9.99738e-01   7.06916e-03   1.16287e-04  -2.16734e-01
+
+
+ **** FIT PULLS : MU = -0.0269276 SIGMA : 0.999738 ****
+
+
+ FCN=-102955 FROM HESSE     STATUS=OK             12 CALLS          34 TOTAL
+                     EDM=3.06955e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.64872e-03   1.40646e-05   4.39840e-07   4.54913e-03
+   2  sigma        1.40646e-03   9.94507e-06   6.20177e-08  -2.49140e+02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00364872 SIGMA : 0.00140646 ****
+
+
+ FCN=-150407 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=4.16157e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.36351e-04   1.31135e-06   9.93289e-09   1.02552e-01
+   2  sigma        1.31135e-04   9.27269e-07   7.02339e-09   3.10788e+00
+
+
+ **** FIT BR : MU = 0.000336351 SIGMA : 0.000131135 ****
+
+
+
+ *** BAND INTERVAL : [ 0.0001229 , 0.000554298 ] << 
+
+ FCN=-133123 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=3.64933e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.07281e-04   3.11192e-06   1.10836e-07   9.84694e-03
+   2  sigma        3.11192e-04   2.20046e-06   1.56649e-08   1.22774e+02
+
+
+ **** FIT R_TAU : MU = 0.000807281 SIGMA : 0.000311192 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000300931 , 0.00132467 ] << 
+
+ FCN=-206939 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=1.36789e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.17253e-04   7.76500e-08   4.44245e-09   2.29296e+00
+   2  sigma        7.76500e-06   5.49077e-08   4.87051e-10   3.01236e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000917253 SIGMA : 7.765e-06 ****
+
+
+PROCESSING f_Sig = 0.00245
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111569 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=2.47437e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.42154e-03   9.14259e-06   2.97642e-07   3.17789e-02
+   2  sigma        9.14259e-04   6.46468e-06   4.19692e-08  -3.44112e+02
+
+
+ **** FIT f_Sig : MU = 0.00242154 SIGMA : 0.000914259 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000946172 , 0.00395383 ] << 
+
+ FCN=-111569 FROM HESSE     STATUS=OK             12 CALLS          43 TOTAL
+                     EDM=6.73592e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.84557e-05   9.14267e-06   2.98223e-07  -1.26624e-01
+   2  sigma        9.14266e-04   6.46484e-06   2.10871e-07   1.29391e-02
+
+
+ **** FIT RESIDUALS : MU = -2.84557e-05 SIGMA : 0.000914266 ****
+
+
+ FCN=28320.4 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=4.18961e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.89763e-02   9.97076e-03   1.63865e-04   9.54424e-04
+   2  sigma        9.97076e-01   7.05029e-03   1.15868e-04  -4.10575e-01
+
+
+ **** FIT PULLS : MU = -0.0389763 SIGMA : 0.997076 ****
+
+
+ FCN=-103010 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.09122e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.70816e-03   1.40259e-05   4.39602e-07  -2.66723e-01
+   2  sigma        1.40259e-03   9.91778e-06   6.21664e-08   2.06172e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00370816 SIGMA : 0.00140259 ****
+
+
+ FCN=-150415 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=6.64796e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.42338e-04   1.31084e-06   4.96469e-08  -7.48892e-01
+   2  sigma        1.31084e-04   9.26905e-07   3.51049e-08   6.52879e-01
+
+
+ **** FIT BR : MU = 0.000342338 SIGMA : 0.000131084 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000130055 , 0.000561286 ] << 
+
+ FCN=-133179 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=2.96206e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.20496e-04   3.10320e-06   1.10359e-07   3.95578e-03
+   2  sigma        3.10320e-04   2.19428e-06   1.55575e-08  -1.10923e+03
+
+
+ **** FIT R_TAU : MU = 0.000820496 SIGMA : 0.00031032 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000319299 , 0.00134017 ] << 
+
+ FCN=-207182 FROM HESSE     STATUS=OK             10 CALLS          46 TOTAL
+                     EDM=7.58991e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.17517e-04   7.67111e-08   3.40969e-09  -3.31822e+01
+   2  sigma        7.67111e-06   5.42432e-08   4.82169e-10   7.18257e+03
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000917517 SIGMA : 7.67111e-06 ****
+
+
+PROCESSING f_Sig = 0.0025
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111439 FROM HESSE     STATUS=OK             14 CALLS          38 TOTAL
+                     EDM=1.65128e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.50372e-03   9.20215e-06   3.26003e-07   3.68259e-03
+   2  sigma        9.20215e-04   6.50691e-06   2.12126e-07  -2.74401e-02
+
+
+ **** FIT f_Sig : MU = 0.00250372 SIGMA : 0.000920215 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000986374 , 0.00401363 ] << 
+
+ FCN=-111439 FROM HESSE     STATUS=OK             14 CALLS          38 TOTAL
+                     EDM=1.55321e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.71599e-06   9.20215e-06   3.26003e-07   3.68259e-03
+   2  sigma        9.20215e-04   6.50691e-06   2.12126e-07  -2.65826e-02
+
+
+ **** FIT RESIDUALS : MU = 3.71599e-06 SIGMA : 0.000920215 ****
+
+
+ FCN=28421.7 FROM HESSE     STATUS=OK             12 CALLS          41 TOTAL
+                     EDM=4.08832e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -4.03289e-03   1.00213e-02   1.64639e-05   6.79474e-05
+   2  sigma        1.00215e+00   7.08623e-03   1.64639e-05  -8.39675e-05
+
+
+ **** FIT PULLS : MU = -0.00403289 SIGMA : 1.00215 ****
+
+
+ FCN=-102884 FROM HESSE     STATUS=OK             14 CALLS          42 TOTAL
+                     EDM=6.96637e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.83422e-03   1.41148e-05   6.26477e-07  -2.96159e-03
+   2  sigma        1.41148e-03   9.98064e-06   6.26477e-07   3.71651e-02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00383422 SIGMA : 0.00141148 ****
+
+
+ FCN=-150304 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=5.47746e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.53282e-04   1.31809e-06   4.98659e-08  -1.45911e-03
+   2  sigma        1.31809e-04   9.32031e-07   7.04409e-09   1.12299e+02
+
+
+ **** FIT BR : MU = 0.000353282 SIGMA : 0.000131809 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000135936 , 0.00056955 ] << 
+
+ FCN=-133052 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=8.10671e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.48246e-04   3.12306e-06   1.11251e-07  -1.30803e-03
+   2  sigma        3.12306e-04   2.20834e-06   1.57338e-08   1.82336e+02
+
+
+ **** FIT R_TAU : MU = 0.000848246 SIGMA : 0.000312306 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000332965 , 0.00136037 ] << 
+
+ FCN=-207004 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=3.27882e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.18189e-04   7.73988e-08   4.44314e-09  -1.22818e+00
+   2  sigma        7.73988e-06   5.47296e-08   4.84746e-10   1.47962e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000918189 SIGMA : 7.73988e-06 ****
+
+
+PROCESSING f_Sig = 0.00255
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111367 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.20358e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.51380e-03   9.23557e-06   3.00363e-07   5.81373e-03
+   2  sigma        9.23557e-04   6.53049e-06   4.23459e-08  -3.87602e+02
+
+
+ **** FIT f_Sig : MU = 0.0025138 SIGMA : 0.000923557 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00103088 , 0.00406912 ] << 
+
+ FCN=-111367 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.20425e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.62046e-05   9.23557e-06   3.00363e-07  -4.72366e-03
+   2  sigma        9.23557e-04   6.53043e-06   4.23459e-08  -3.87647e+02
+
+
+ **** FIT RESIDUALS : MU = -3.62046e-05 SIGMA : 0.000923557 ****
+
+
+ FCN=28508.5 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=1.87035e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -4.76071e-02   1.00651e-02   1.65961e-04  -6.89953e-05
+   2  sigma        1.00651e+00   7.11704e-03   2.34700e-05   8.59310e-03
+
+
+ **** FIT PULLS : MU = -0.0476071 SIGMA : 1.00651 ****
+
+
+ FCN=-102813 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.15325e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.84965e-03   1.41648e-05   8.85268e-08  -1.15065e-02
+   2  sigma        1.41648e-03   1.00159e-05   6.24049e-08  -2.50729e+02
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00384965 SIGMA : 0.00141648 ****
+
+
+ FCN=-150214 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.39528e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.54892e-04   1.32404e-06   5.00134e-08  -7.27401e-03
+   2  sigma        1.32404e-04   9.36219e-07   7.05164e-09  -2.33784e+03
+
+
+ **** FIT BR : MU = 0.000354892 SIGMA : 0.000132404 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00014203 , 0.000577601 ] << 
+
+ FCN=-132979 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=3.89516e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.51807e-04   3.13449e-06   2.22768e-08   3.26616e-02
+   2  sigma        3.13447e-04   2.21639e-06   1.57011e-08  -1.25931e+03
+
+
+ **** FIT R_TAU : MU = 0.000851807 SIGMA : 0.000313447 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000348022 , 0.00137918 ] << 
+
+ FCN=-206866 FROM HESSE     STATUS=OK             12 CALLS          42 TOTAL
+                     EDM=3.37186e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.18294e-04   7.79310e-08   8.88333e-10   4.65261e+00
+   2  sigma        7.79309e-06   5.51048e-08   4.86330e-10  -4.71259e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000918294 SIGMA : 7.79309e-06 ****
+
+
+PROCESSING f_Sig = 0.0026
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111485 FROM HESSE     STATUS=OK             14 CALLS          45 TOTAL
+                     EDM=4.12737e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.58132e-03   9.18118e-06   2.99367e-07  -7.98402e-02
+   2  sigma        9.18118e-04   6.49208e-06   4.23361e-08   4.27936e-01
+
+
+ **** FIT f_Sig : MU = 0.00258132 SIGMA : 0.000918118 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00108982 , 0.00411018 ] << 
+
+ FCN=-111485 FROM HESSE     STATUS=OK             12 CALLS          43 TOTAL
+                     EDM=2.78742e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.86757e-05   9.18118e-06   2.99367e-07  -7.47363e-02
+   2  sigma        9.18118e-04   6.49205e-06   4.23361e-08   3.48020e-01
+
+
+ **** FIT RESIDUALS : MU = -1.86757e-05 SIGMA : 0.000918118 ****
+
+
+ FCN=28368.8 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=1.56574e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.83266e-02   9.99503e-03   1.64402e-04  -8.60248e-05
+   2  sigma        9.99503e-01   7.06757e-03   2.32495e-05   7.91689e-03
+
+
+ **** FIT PULLS : MU = -0.0283266 SIGMA : 0.999503 ****
+
+
+ FCN=-102930 FROM HESSE     STATUS=OK             14 CALLS          43 TOTAL
+                     EDM=4.91569e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.95257e-03   1.40822e-05   4.41203e-07  -4.47735e-02
+   2  sigma        1.40822e-03   9.95759e-06   6.23944e-08  -3.08440e-01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00395257 SIGMA : 0.00140822 ****
+
+
+ FCN=-150253 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=3.3145e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.64667e-04   1.32148e-06   4.99165e-08  -1.45763e-02
+   2  sigma        1.32148e-04   9.34412e-07   7.03654e-09  -2.75541e+03
+
+
+ **** FIT BR : MU = 0.000364667 SIGMA : 0.000132148 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000149524 , 0.000584254 ] << 
+
+ FCN=-133093 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=8.24341e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.74558e-04   3.11665e-06   1.11036e-07  -2.69976e-01
+   2  sigma        3.11665e-04   2.20381e-06   7.85125e-08   4.40195e-01
+
+
+ **** FIT R_TAU : MU = 0.000874558 SIGMA : 0.000311665 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000367886 , 0.00139318 ] << 
+
+ FCN=-207115 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=4.28675e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.18863e-04   7.69674e-08   3.42060e-09  -3.76709e+01
+   2  sigma        7.69674e-06   5.44242e-08   2.41862e-09   7.52076e+00
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000918863 SIGMA : 7.69674e-06 ****
+
+
+PROCESSING f_Sig = 0.00265
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111187 FROM HESSE     STATUS=OK             12 CALLS          43 TOTAL
+                     EDM=2.28078e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.63540e-03   9.31882e-06   3.03448e-07  -1.40509e-01
+   2  sigma        9.31882e-04   6.58938e-06   4.29129e-08  -2.56023e-01
+
+
+ **** FIT f_Sig : MU = 0.0026354 SIGMA : 0.000931882 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00111718 , 0.00418282 ] << 
+
+ FCN=-111187 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=3.05549e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.46023e-05   9.31883e-06   3.03445e-07  -8.91976e-02
+   2  sigma        9.31883e-04   6.58943e-06   4.29119e-08   3.75150e+01
+
+
+ **** FIT RESIDUALS : MU = -1.46023e-05 SIGMA : 0.000931883 ****
+
+
+ FCN=28662.5 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=5.34496e-11    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.41462e-02   1.01429e-02   1.67692e-04  -9.63774e-05
+   2  sigma        1.01429e+00   7.17211e-03   2.37142e-05   1.43514e-03
+
+
+ **** FIT PULLS : MU = -0.0241462 SIGMA : 1.01429 ****
+
+
+ FCN=-102629 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.54755e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.03556e-03   1.42954e-05   4.47221e-07  -5.71051e-02
+   2  sigma        1.42954e-03   1.01083e-05   6.32442e-08   2.23303e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00403556 SIGMA : 0.00142954 ****
+
+
+ FCN=-149992 FROM HESSE     STATUS=OK             10 CALLS          42 TOTAL
+                     EDM=5.39644e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.72377e-04   1.33884e-06   5.06356e-08  -5.11546e-01
+   2  sigma        1.33884e-04   9.46709e-07   7.16070e-09  -3.47017e+02
+
+
+ **** FIT BR : MU = 0.000372377 SIGMA : 0.000133884 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000153743 , 0.000594184 ] << 
+
+ FCN=-132795 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=5.45426e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           8.92910e-04   3.16336e-06   1.12573e-07  -3.15410e-01
+   2  sigma        3.16336e-04   2.23683e-06   1.59198e-08   1.40768e+00
+
+
+ **** FIT R_TAU : MU = 0.00089291 SIGMA : 0.000316336 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000377137 , 0.00141779 ] << 
+
+ FCN=-206785 FROM HESSE     STATUS=OK             12 CALLS          42 TOTAL
+                     EDM=8.78652e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.19243e-04   7.82498e-08   4.44079e-09   1.27798e+00
+   2  sigma        7.82498e-06   5.53312e-08   4.90293e-10   2.39582e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000919243 SIGMA : 7.82498e-06 ****
+
+
+PROCESSING f_Sig = 0.0027
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111388 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=8.34087e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.68685e-03   9.22590e-06   3.00478e-07  -4.84291e-04
+   2  sigma        9.22590e-04   6.52370e-06   4.24476e-08  -6.26076e+00
+
+
+ **** FIT f_Sig : MU = 0.00268685 SIGMA : 0.00092259 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00118247 , 0.00421753 ] << 
+
+ FCN=-111388 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=4.2503e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.31463e-05   9.22587e-06   3.00287e-07   1.21150e-04
+   2  sigma        9.22587e-04   6.52362e-06   4.23801e-08  -1.41331e+02
+
+
+ **** FIT RESIDUALS : MU = -1.31463e-05 SIGMA : 0.000922587 ****
+
+
+ FCN=28444.4 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=5.104e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.23724e-02   1.00327e-02   1.64705e-05   4.05312e-04
+   2  sigma        1.00329e+00   7.09430e-03   2.33693e-05  -4.50324e-02
+
+
+ **** FIT PULLS : MU = -0.0223724 SIGMA : 1.00329 ****
+
+
+ FCN=-102828 FROM HESSE     STATUS=OK             10 CALLS          32 TOTAL
+                     EDM=4.0248e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.11440e-03   1.41541e-05   4.42908e-07   7.39247e-04
+   2  sigma        1.41541e-03   1.00084e-05   6.25658e-08  -8.96443e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.0041144 SIGMA : 0.00141541 ****
+
+
+ FCN=-150256 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=3.75863e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.79299e-04   1.32125e-06   4.99464e-08   7.28377e-03
+   2  sigma        1.32125e-04   9.34261e-07   7.04884e-09  -9.28029e+02
+
+
+ **** FIT BR : MU = 0.000379299 SIGMA : 0.000132125 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000163711 , 0.000598366 ] << 
+
+ FCN=-132993 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=3.37561e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.10362e-04   3.13218e-06   1.11469e-07  -6.52732e-02
+   2  sigma        3.13218e-04   2.21479e-06   1.57474e-08   1.17313e+01
+
+
+ **** FIT R_TAU : MU = 0.000910362 SIGMA : 0.000313218 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000399199 , 0.0014296 ] << 
+
+ FCN=-206996 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=2.27072e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.19737e-04   7.74271e-08   4.44306e-09  -3.11144e-01
+   2  sigma        7.74271e-06   5.47486e-08   4.84093e-10  -1.23090e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000919737 SIGMA : 7.74271e-06 ****
+
+
+PROCESSING f_Sig = 0.00275
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111377 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.44403e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.74635e-03   9.23084e-06   3.25912e-07  -8.92998e-04
+   2  sigma        9.23084e-04   6.52720e-06   4.25456e-08  -4.01887e-02
+
+
+ **** FIT f_Sig : MU = 0.00274635 SIGMA : 0.000923084 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00123166 , 0.00426834 ] << 
+
+ FCN=-111377 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=3.4579e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.64614e-06   9.23084e-06   3.25912e-07  -2.00924e-03
+   2  sigma        9.23084e-04   6.52721e-06   4.25456e-08  -4.01887e-02
+
+
+ **** FIT RESIDUALS : MU = -3.64614e-06 SIGMA : 0.000923084 ****
+
+
+ FCN=28455.4 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=3.93947e-11    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.20343e-02   1.00287e-02   1.64737e-06   1.10418e-04
+   2  sigma        1.00384e+00   7.08995e-03   1.64737e-06   1.24220e-03
+
+
+ **** FIT PULLS : MU = -0.0120343 SIGMA : 1.00384 ****
+
+
+ FCN=-102810 FROM HESSE     STATUS=OK             10 CALLS          35 TOTAL
+                     EDM=2.14923e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.20575e-03   1.41667e-05   4.43597e-07  -1.64022e-04
+   2  sigma        1.41667e-03   1.00174e-05   6.27340e-08   2.06968e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00420575 SIGMA : 0.00141667 ****
+
+
+ FCN=-150117 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=1.35233e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.87825e-04   1.33052e-06   5.03427e-08   1.73434e-02
+   2  sigma        1.33052e-04   9.40817e-07   3.78369e-08   1.73068e-01
+
+
+ **** FIT BR : MU = 0.000387825 SIGMA : 0.000133052 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000169263 , 0.000606966 ] << 
+
+ FCN=-132975 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=5.63904e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.30594e-04   3.13513e-06   1.11620e-07   1.10815e-02
+   2  sigma        3.13513e-04   2.21690e-06   1.57800e-08   1.51486e+02
+
+
+ **** FIT R_TAU : MU = 0.000930594 SIGMA : 0.000313513 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000415647 , 0.00144702 ] << 
+
+ FCN=-207013 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=1.54501e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.20182e-04   7.73620e-08   8.88649e-10  -2.65318e-01
+   2  sigma        7.73622e-06   5.47035e-08   4.85467e-10   3.21340e+04
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000920182 SIGMA : 7.73622e-06 ****
+
+
+PROCESSING f_Sig = 0.0028
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111367 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=6.58663e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.75834e-03   9.23532e-06   3.00759e-07   1.08864e-03
+   2  sigma        9.23532e-04   6.53035e-06   4.24876e-08  -5.55789e+00
+
+
+ **** FIT f_Sig : MU = 0.00275834 SIGMA : 0.000923532 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00128092 , 0.00431908 ] << 
+
+ FCN=-111367 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=6.62725e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -4.16608e-05   9.23532e-06   3.00759e-07  -2.29824e-03
+   2  sigma        9.23532e-04   6.53033e-06   4.24876e-08  -5.57501e+00
+
+
+ **** FIT RESIDUALS : MU = -4.16608e-05 SIGMA : 0.000923532 ****
+
+
+ FCN=28461.9 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=8.37953e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -5.33578e-02   1.00416e-02   1.64755e-05   8.70547e-04
+   2  sigma        1.00416e+00   7.10052e-03   2.33969e-05  -5.76416e-02
+
+
+ **** FIT PULLS : MU = -0.0533578 SIGMA : 1.00416 ****
+
+
+ FCN=-102808 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=1.83058e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.22384e-03   1.41683e-05   8.86644e-08   4.92371e-03
+   2  sigma        1.41683e-03   1.00185e-05   6.26271e-08  -6.03957e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00422384 SIGMA : 0.00141683 ****
+
+
+ FCN=-150137 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=1.30984e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.89825e-04   1.32917e-06   5.02054e-08  -2.89848e-02
+   2  sigma        1.32917e-04   9.39857e-07   7.08107e-09  -1.72212e+03
+
+
+ **** FIT BR : MU = 0.000389825 SIGMA : 0.000132917 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000176561 , 0.00061382 ] << 
+
+ FCN=-132982 FROM HESSE     STATUS=OK             12 CALLS          40 TOTAL
+                     EDM=8.6004e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.34550e-04   3.13399e-06   1.11600e-07  -3.91181e-02
+   2  sigma        3.13400e-04   2.21607e-06   1.57808e-08   1.87150e+02
+
+
+ **** FIT R_TAU : MU = 0.00093455 SIGMA : 0.0003134 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000432767 , 0.00146376 ] << 
+
+ FCN=-206964 FROM HESSE     STATUS=OK             10 CALLS          43 TOTAL
+                     EDM=4.34288e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.20299e-04   7.75510e-08   3.44516e-09  -1.58965e+02
+   2  sigma        7.75509e-06   5.48374e-08   4.87175e-10   5.36973e+03
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000920299 SIGMA : 7.75509e-06 ****
+
+
+PROCESSING f_Sig = 0.00285
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111625 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=3.23828e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.82542e-03   9.11718e-06   2.97464e-07  -8.68328e-03
+   2  sigma        9.11718e-04   6.44682e-06   4.20665e-08  -3.94754e+01
+
+
+ **** FIT f_Sig : MU = 0.00282542 SIGMA : 0.000911718 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00135035 , 0.00434965 ] << 
+
+ FCN=-111625 FROM HESSE     STATUS=OK             10 CALLS          40 TOTAL
+                     EDM=2.63026e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.45760e-05   9.11720e-06   2.97461e-07  -3.52227e-02
+   2  sigma        9.11720e-04   6.44684e-06   4.20654e-08   3.55769e+01
+
+
+ **** FIT RESIDUALS : MU = -2.4576e-05 SIGMA : 0.00091172 ****
+
+
+ FCN=28188.1 FROM HESSE     STATUS=OK             10 CALLS          45 TOTAL
+                     EDM=3.34727e-11    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -3.45903e-02   9.90513e-03   1.62400e-04  -4.19464e-05
+   2  sigma        9.90514e-01   7.00397e-03   2.29657e-05  -1.16668e-03
+
+
+ **** FIT PULLS : MU = -0.0345903 SIGMA : 0.990514 ****
+
+
+ FCN=-103058 FROM HESSE     STATUS=OK             12 CALLS          42 TOTAL
+                     EDM=2.858e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.32657e-03   1.39922e-05   4.38653e-07  -1.74164e-02
+   2  sigma        1.39922e-03   9.89391e-06   6.20329e-08  -2.41645e+01
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00432657 SIGMA : 0.00139922 ****
+
+
+ FCN=-150442 FROM HESSE     STATUS=OK             12 CALLS          45 TOTAL
+                     EDM=4.06984e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           3.98924e-04   1.30906e-06   4.95837e-08  -3.37504e-02
+   2  sigma        1.30906e-04   9.25651e-07   7.01197e-09   3.08181e+00
+
+
+ **** FIT BR : MU = 0.000398924 SIGMA : 0.000130906 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000186945 , 0.000617591 ] << 
+
+ FCN=-133217 FROM HESSE     STATUS=OK             12 CALLS          46 TOTAL
+                     EDM=4.09772e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.57409e-04   3.09739e-06   2.20797e-08  -1.97719e-01
+   2  sigma        3.09738e-04   2.19019e-06   1.56119e-08   1.30709e+02
+
+
+ **** FIT R_TAU : MU = 0.000957409 SIGMA : 0.000309738 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000455722 , 0.00147467 ] << 
+
+ FCN=-207144 FROM HESSE     STATUS=OK             10 CALLS          46 TOTAL
+                     EDM=1.05144e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.20828e-04   7.68569e-08   3.41592e-09  -9.15907e+00
+   2  sigma        7.68569e-06   5.43459e-08   4.83059e-10  -8.43802e+03
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000920828 SIGMA : 7.68569e-06 ****
+
+
+PROCESSING f_Sig = 0.0029
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111370 FROM HESSE     STATUS=OK             10 CALLS          39 TOTAL
+                     EDM=1.04814e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.88828e-03   9.23428e-06   3.00917e-07  -9.02371e-01
+   2  sigma        9.23427e-04   6.52963e-06   4.25499e-08  -2.21366e+01
+
+
+ **** FIT f_Sig : MU = 0.00288828 SIGMA : 0.000923427 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00138109 , 0.00441891 ] << 
+
+ FCN=-111370 FROM HESSE     STATUS=OK             12 CALLS          36 TOTAL
+                     EDM=4.83334e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.17171e-05   9.23425e-06   3.00538e-07  -5.32614e-03
+   2  sigma        9.23424e-04   6.52955e-06   4.24163e-08  -1.50576e+02
+
+
+ **** FIT RESIDUALS : MU = -1.17171e-05 SIGMA : 0.000923424 ****
+
+
+ FCN=28431.4 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=3.83588e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -2.07721e-02   1.00263e-02   1.64667e-05  -3.79446e-04
+   2  sigma        1.00263e+00   7.08953e-03   1.16741e-04  -3.90688e-01
+
+
+ **** FIT PULLS : MU = -0.0207721 SIGMA : 1.00263 ****
+
+
+ FCN=-102802 FROM HESSE     STATUS=OK             10 CALLS          37 TOTAL
+                     EDM=1.32308e-09    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.42300e-03   1.41722e-05   4.43719e-07  -7.60934e-01
+   2  sigma        1.41722e-03   1.00213e-05   6.27441e-08  -5.01885e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.004423 SIGMA : 0.00141722 ****
+
+
+ FCN=-150123 FROM HESSE     STATUS=OK             10 CALLS          41 TOTAL
+                     EDM=1.16598e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.08304e-04   1.33009e-06   5.03199e-08  -1.31147e+00
+   2  sigma        1.33009e-04   9.40514e-07   7.11464e-09  -5.13444e+02
+
+
+ **** FIT BR : MU = 0.000408304 SIGMA : 0.000133009 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000190564 , 0.000628127 ] << 
+
+ FCN=-132969 FROM HESSE     STATUS=OK             10 CALLS          41 TOTAL
+                     EDM=6.31941e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.78655e-04   3.13607e-06   1.11668e-07  -3.25524e+00
+   2  sigma        3.13607e-04   2.21752e-06   1.57905e-08   1.53579e+01
+
+
+ **** FIT R_TAU : MU = 0.000978655 SIGMA : 0.000313607 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000466292 , 0.00149797 ] << 
+
+ FCN=-207011 FROM HESSE     STATUS=OK             12 CALLS          47 TOTAL
+                     EDM=4.05932e-12    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.21314e-04   7.73714e-08   3.43772e-09  -2.47208e+01
+   2  sigma        7.73714e-06   5.47100e-08   4.86152e-10   3.86134e+01
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000921314 SIGMA : 7.73714e-06 ****
+
+
+PROCESSING f_Sig = 0.00295
+PROCESSING 0 TOY
+PROCESSING 1000 TOY
+PROCESSING 2000 TOY
+PROCESSING 3000 TOY
+PROCESSING 4000 TOY
+PROCESSING 5000 TOY
+PROCESSING 6000 TOY
+PROCESSING 7000 TOY
+PROCESSING 8000 TOY
+PROCESSING 9000 TOY
+THE P VALUE IS: 0
+THE SENSITIVITY IN NUMBER IF SIGMA IS: inf
+THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 0
+ FCN=-111431 FROM HESSE     STATUS=OK             14 CALLS          40 TOTAL
+                     EDM=2.06074e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           2.93989e-03   9.20592e-06   6.51981e-08   2.12036e-02
+   2  sigma        9.20596e-04   6.50959e-06   2.12206e-07  -8.57181e-03
+
+
+ **** FIT f_Sig : MU = 0.00293989 SIGMA : 0.000920596 ****
+
+
+
+ *** BAND INTERVAL : [ 0.00143575 , 0.00446425 ] << 
+
+ FCN=-111431 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=1.5145e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.01133e-05   9.20592e-06   6.51981e-08   1.45077e-02
+   2  sigma        9.20596e-04   6.50959e-06   2.12206e-07  -1.71436e-02
+
+
+ **** FIT RESIDUALS : MU = -1.01133e-05 SIGMA : 0.000920596 ****
+
+
+ FCN=28359 FROM HESSE     STATUS=OK             10 CALLS          36 TOTAL
+                     EDM=1.22666e-13    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu          -1.89375e-02   9.98998e-03   1.64457e-05   8.29542e-06
+   2  sigma        9.99012e-01   7.06390e-03   3.28915e-06   6.91285e-05
+
+
+ **** FIT PULLS : MU = -0.0189375 SIGMA : 0.999012 ****
+
+
+ FCN=-102858 FROM HESSE     STATUS=OK             10 CALLS          34 TOTAL
+                     EDM=6.73158e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.50214e-03   1.41327e-05   8.84727e-08   4.11198e-03
+   2  sigma        1.41328e-03   9.99336e-06   6.25015e-08   3.67165e+00
+
+
+ **** FIT fSig over fPhiMuNu : MU = 0.00450214 SIGMA : 0.00141328 ****
+
+
+ FCN=-150137 FROM HESSE     STATUS=OK             12 CALLS          38 TOTAL
+                     EDM=5.04306e-14    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           4.15647e-04   1.32918e-06   5.02956e-08   2.16996e-02
+   2  sigma        1.32918e-04   9.39874e-07   7.56789e-09   3.36499e-01
+
+
+ **** FIT BR : MU = 0.000415647 SIGMA : 0.000132918 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000197792 , 0.000635057 ] << 
+
+ FCN=-133027 FROM HESSE     STATUS=OK             10 CALLS          38 TOTAL
+                     EDM=6.52463e-08    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.96136e-04   3.12693e-06   1.11357e-07   6.53388e-04
+   2  sigma        3.12693e-04   2.21107e-06   1.57444e-08   1.63376e+02
+
+
+ **** FIT R_TAU : MU = 0.000996136 SIGMA : 0.000312693 ****
+
+
+
+ *** BAND INTERVAL : [ 0.000484728 , 0.0015134 ] << 
+
+ FCN=-207144 FROM HESSE     STATUS=OK             12 CALLS          49 TOTAL
+                     EDM=2.88391e-10    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  mu           9.21752e-04   7.68561e-08   1.70799e-08   6.52624e+00
+   2  sigma        7.68560e-06   5.43453e-08   1.20772e-08   4.41809e+02
+
+
+ **** FIT SIGMA f_Sig : MU = 0.000921752 SIGMA : 7.6856e-06 ****
