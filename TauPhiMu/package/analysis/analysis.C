@@ -382,13 +382,20 @@ void analysis::Loop()
     cout << "chi2 / ndof = " <<  pars_fit_res[6] << " / " << pars_fit_res[7] << " = " <<  pars_fit_res[6] / pars_fit_res[7] << " | p value = " << pars_fit_res[8] << endl; 
 
     double r_phipi = (f_D_PhiPi_fromFIT / f_Ds_PhiPi_fromFIT) * (EFF_Ds_PhiPi / EFF_D_PhiPi);
+    double err_r_phipi =
+    r_phipi * sqrt(
+        pow(sigma_f_D_PhiPi_FIT  / f_D_PhiPi_fromFIT,  2) +
+        pow(sigma_f_Ds_PhiPi_FIT / f_Ds_PhiPi_fromFIT, 2) +
+        pow(SIGMA_EFF_Ds_PhiPi       / EFF_Ds_PhiPi,       2) +
+        pow(SIGMA_EFF_D_PhiPi        / EFF_D_PhiPi,        2)
+    );
     double r_phipi_theo = 834/353 * 2.69e-3/2.25e-2;
 
     //double BR = ..;
 
     //double rtau = ..;
 
-    cout << "R_PhiPi " << r_phipi  << "  th:  " << r_phipi_theo << endl;
+    cout << "R_PhiPi " << r_phipi << " +/- " << err_r_phipi << "  th:  " << r_phipi_theo << endl;
 
 
     double s  = f_Sig_fromFIT;
