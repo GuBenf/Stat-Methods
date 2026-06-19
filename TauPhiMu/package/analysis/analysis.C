@@ -237,6 +237,7 @@ void analysis::Loop()
      
   }; //End Loop Events
 
+
   if(USE_MC)
   {
     cout << endl << "FIT INVARIANT MASS D_PLUS -> PHI PI" << endl << endl;
@@ -327,7 +328,7 @@ void analysis::Loop()
   if(!USE_MC)
   {
     cout << endl << "FIT INVARIANT MASS TOTAL SPECTRUM" /*<< rnd_offset*/ << endl << endl;
-    //fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
+    // fit_unbinned_TotalSpectrum(vec_tot_mass_DATA, 
     //                        //{0.15, 0.3, 0.25, 0.01 - rnd_offset, 2.}, 
     //                        {f_D_PhiPi, f_Ds_PhiNuMu, f_Ds_PhiPi, 0.01, 1.03},
     //                        {0.01, 0.01, 0.01, 0.0001, 0.01}, 
@@ -343,14 +344,15 @@ void analysis::Loop()
     //                        TOT_MASS_HIGH
     //                      );
 
-
+    TMatrixDSym cov;
     std::pair<std::vector<double>,std::vector<double>> FITres = fit_binned_TotalSpectrum(
                             {0.021, 0.654, 0.043, 0.001, 1., tot_mass_DATA->GetEntries()}, 
                             tot_mass_DATA, 
                             outfile, 
                             "DATA_Invariant_Mass_Spectrum", 
                             TOT_MASS_LOW, 
-                            TOT_MASS_HIGH
+                            TOT_MASS_HIGH,
+                            cov
                             );
 
     std::vector<double> pars_fit_res = FITres.first;
@@ -380,10 +382,68 @@ void analysis::Loop()
     cout << "chi2 / ndof = " <<  pars_fit_res[6] << " / " << pars_fit_res[7] << " = " <<  pars_fit_res[6] / pars_fit_res[7] << " | p value = " << pars_fit_res[8] << endl; 
 
     double r_phipi = (f_D_PhiPi_fromFIT / f_Ds_PhiPi_fromFIT) * (EFF_Ds_PhiPi / EFF_D_PhiPi);
+    double r_phipi_theo = 834/353 * 2.69e-3/2.25e-2;
 
     //double BR = ..;
 
     //double rtau = ..;
+
+    cout << "R_PhiPi " << r_phipi  << "  th:  " << r_phipi_theo << endl;
+
+
+    double s  = f_Sig_fromFIT;
+    double m  = f_Ds_PhiMuNu_fromFIT;
+
+    double BR = ( s / ((1.0-s)*m) )
+          * ( BR_Ds_PhiMuNu * EFF_Ds_PhiMuNu )
+          / ( BR_Ds_TauNu   * EFF_Sig );
+    double dBR_ds = BR * (1.0/s + 1.0/(1.0-s));
+    double dBR_dm = -BR / m;
+
+    double Vss = cov(3,3);
+    double Vmm = cov(1,1);
+    double Vsm = cov(3,1);
+
+    double var_fit =
+          dBR_ds*dBR_ds * Vss
+        + dBR_dm*dBR_dm * Vmm
+        + 2.0*dBR_ds*dBR_dm * Vsm;
+    double rel2_ext =
+          pow(SIGMA_BR_Ds_PhiMuNu  / BR_Ds_PhiMuNu,  2)
+        + pow(SIGMA_EFF_Ds_PhiMuNu / EFF_Ds_PhiMuNu, 2)
+        + pow(SIGMA_BR_Ds_TauNu    / BR_Ds_TauNu,    2)
+        + pow(SIGMA_EFF_Sig        / EFF_Sig,        2);
+
+    double var_ext = BR*BR*rel2_ext;
+    double errBR = std::sqrt(var_fit + var_ext);
+
+    cout << "BR = " << BR
+     << " +/- " << errBR
+     << endl;
+    // double BR = ( f_Sig_fromFIT / ((1 - f_Sig_fromFIT) * f_Ds_PhiMuNu_fromFIT) ) * ( ( BR_Ds_PhiMuNu * EFF_Ds_PhiMuNu ) / ( BR_Ds_TauNu * EFF_Sig ) );
+
+    double r_tau =
+        (s * EFF_Ds_PhiMuNu) /
+        (m * EFF_Sig);
+
+    double dr_ds =  r_tau / s;
+    double dr_dm = -r_tau / m;
+
+    double var_fit_r =
+      dr_ds*dr_ds * Vss
+    + dr_dm*dr_dm * Vmm
+    + 2.0*dr_ds*dr_dm * Vsm;
+
+    double rel2_ext_r =
+      pow(SIGMA_EFF_Ds_PhiMuNu / EFF_Ds_PhiMuNu, 2)
+    + pow(SIGMA_EFF_Sig        / EFF_Sig,        2);
+
+    double var_ext_r = r_tau*r_tau * rel2_ext_r;
+    double err_r_tau = std::sqrt(var_fit_r + var_ext_r);
+
+    cout << "Rtau = " << r_tau
+     << " +/- " << err_r_tau
+     << endl;
 
     Double_t LR;
 
@@ -429,5 +489,4 @@ void analysis::Loop()
   tot_mass_MC->Write();
   outfile->Close();
 }
-
 
