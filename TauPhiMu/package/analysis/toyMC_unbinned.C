@@ -62,7 +62,7 @@ Double_t SIGMA_CS_pp_Ds = 9;
 
 Double_t R_STEP = 1e-5;
 //Double_t INTEGRATION_STEP = 0.01;
-Double_t f_Sig_STEP = 0.00001;
+Double_t f_Sig_STEP = 0.00005;
 
 Double_t N_BINS_TOY = 200;
 Double_t BIN_WIDTH_TOY = (TOT_MASS_HIGH - TOT_MASS_LOW)/N_BINS_TOY;
@@ -145,6 +145,11 @@ std::pair<Double_t, Double_t> get_acceptance_interval(Double_t mu, Double_t sigm
   {
     std::pair<Double_t,Double_t> x_interval = get_x1_x2_at_R(R,mu,sigma);
 
+    Double_t par[2] = {mu,sigma};
+    //cout << x_interval.first << " " << x_interval.second << endl;
+    //Double_t xmiddle = (x_interval.second + x_interval.first)/2.;
+    //cout << R << " " << Likelihood_ratio(&x_interval.first,par) << " " << Likelihood_ratio(&xmiddle,par) << " " << Likelihood_ratio(&x_interval.second,par) << endl;
+
     //Double_t integral = numeric_gaus_integral(x_interval.first, x_interval.second, mu, sigma);
 
     Double_t integral = 0;
@@ -189,8 +194,8 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile.root","RECREATE");
-  TFile * dummy = TFile::Open("dummy.root","RECREATE");
+  TFile * outfile = TFile::Open("outfile_def_band.root","RECREATE");
+  TFile * dummy = TFile::Open("dummy_def_band.root","RECREATE");
   // TFile * data = TFile::Open("data.root","RECREATE");
 
   // TTree *tree = new TTree("sim_tree", "Simulation Tree");
@@ -223,47 +228,50 @@ void toy()
   std::vector<double> upper_belt_RTau;
   std::vector<double> f_sig_belt_RTau;
 
-/*
+/**/
   ifstream summary_band("summary_band.txt");
   std::string line;
+  std::getline(summary_band, line);
   while(std::getline(summary_band,line))
   {
     double fsig_sim, mu_fsig, sigma_fsig, mu_ratio, sigma_ratio, mu_br, sigma_br, mu_rtau, sigma_rtau;
     std::stringstream ss(line);
     ss >> fsig_sim >> mu_fsig >> sigma_fsig >> mu_ratio >> sigma_ratio >> mu_br >> sigma_br >> mu_rtau >> sigma_rtau;
 
-    std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(mu_fsig,sigma_fsig);
+    std::pair<Double_t,Double_t> acceptance_interval = get_acceptance_interval(fsig_sim,sigma_fsig);
 
     lower_belt.push_back(acceptance_interval.first);
     upper_belt.push_back(acceptance_interval.second);
-    f_sig_belt.push_back(mu_fsig);
+    f_sig_belt.push_back(fsig_sim);
 
+    double BR_true = ( fsig_sim / ((1 - fsig_sim) * f_Ds_PhiMuNu) ) * ( ( BR_Ds_PhiMuNu * EFF_Ds_PhiMuNu ) / ( BR_Ds_TauNu * EFF_Sig ) ); 
 
-    std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(mu_br,sigma_br);
+    std::pair<Double_t,Double_t> acceptance_interval_BR = get_acceptance_interval(BR_true,sigma_br);
 
     lower_belt_BR.push_back(acceptance_interval_BR.first);
     upper_belt_BR.push_back(acceptance_interval_BR.second);
-    f_sig_belt_BR.push_back(mu_br);
+    f_sig_belt_BR.push_back(BR_true);
 
+    double r_tau_true = (fsig_sim * EFF_Ds_PhiMuNu) / (f_Ds_PhiMuNu * EFF_Sig);
 
-    std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(mu_rtau,sigma_rtau);
+    std::pair<Double_t,Double_t> acceptance_interval_RTau = get_acceptance_interval(r_tau_true,sigma_rtau);
 
     lower_belt_RTau.push_back(acceptance_interval_RTau.first);
     upper_belt_RTau.push_back(acceptance_interval_RTau.second);
-    f_sig_belt_RTau.push_back(mu_rtau);
+    f_sig_belt_RTau.push_back(r_tau_true);
 
   }
-*/
+/**/
 
-  double m;
-  // tree->Branch("m", &m);
-
+/*
+double m;
+// tree->Branch("m", &m);
 
 int point = -1;
 
 TH1D *h_likelihood_ratio_sensitivity = new TH1D("h_likelihood_ratio_sensitivity","",80,0.,10.);
 
-for(Double_t fSigTrue = 0.0; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
+for(Double_t fSigTrue = 0.0006; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
 //for(Double_t fSigTrue = 0.0001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
 {
 
@@ -581,11 +589,12 @@ for(Double_t fSigTrue = 0.0; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
   
 
 }
-
+*/
 
 // data->cd();
 // tree->Write();
 // data->Close();
+outfile -> cd();
 TGraph * g_lower_belt = new TGraph(lower_belt.size(),f_sig_belt.data(),lower_belt.data());
 TGraph * g_upper_belt = new TGraph(upper_belt.size(),f_sig_belt.data(),upper_belt.data());
 
@@ -672,10 +681,10 @@ g_upper_belt_RTau->Write("g_upper_belt_RTau");
 s_lower_belt_RTau->Write("s_lower_belt_RTau");
 s_upper_belt_RTau->Write("s_upper_belt_RTau");
 
-TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.,10.,1);
-chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());
-h_likelihood_ratio_sensitivity->Write();
-chi2_1dof_tf1->Write();
+//TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.,10.,1);
+//chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());
+//h_likelihood_ratio_sensitivity->Write();
+//chi2_1dof_tf1->Write();
 
 outfile->Close();
 dummy->Close();
