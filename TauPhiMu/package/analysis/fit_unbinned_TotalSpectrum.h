@@ -207,6 +207,8 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
       arglist[1] = 0.1;
 
       my_gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
+      my_gMinuit->mnexcm("HESSE", arglist, 1, ierflg);
+
       //gErrorIgnoreLevel = kFatal;
       // Print results
       Double_t amin,edm,errdef;
@@ -255,6 +257,21 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
               //pars[par] = 0 - rnd_offset;
               pars[par] = 0;
       }
+
+      Double_t covArray[nparam * nparam];
+      my_gMinuit->mnemat(covArray, nparam);
+
+      // convert to ROOT matrix
+      TMatrixDSym V(nparam);
+
+      for (int i = 0; i < nparam; i++)
+      {
+          for (int j = 0; j < nparam; j++)
+          {
+              V(i, j) = covArray[i * nparam + j];
+          }
+      }
+
       std::vector<double> x_points;
       std::vector<double> y_points;
 
@@ -451,7 +468,7 @@ void fit_unbinned_TotalSpectrum(std::vector<double> input_xvar, std::vector<doub
 }
 
 
-std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std::vector<double> vstart, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax)
+std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std::vector<double> vstart, TH1D *h_time, TFile *file, std::string name, double xmin, double xmax, TMatrixDSym &cov_out)
 {
     TF1 *fit_tf1 = new TF1(Form("fit_tf1_%s",name.c_str()),total_mass_spectrum_pdf_binned,xmin,xmax,6);
     for(int ipar = 0; ipar < vstart.size(); ipar++)
@@ -459,8 +476,9 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       fit_tf1->SetParameter(ipar,vstart[ipar]);
     }
 
-    h_time->Fit(fit_tf1,"LQN");
+    TFitResultPtr r = h_time->Fit(fit_tf1, "LQNS");
 
+    cov_out = r->GetCovarianceMatrix();
     double chi2 = fit_tf1->GetChisquare();
     int ndf     = fit_tf1->GetNDF();
     double prob = fit_tf1->GetProb();
@@ -651,7 +669,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       pulls -> GetXaxis()-> SetLabelSize(0.11);
       pulls -> GetXaxis()->SetTitle("Invariant mass [GeV]");
       pulls->Draw("APE");
-            
+    
       // optional: axis range for visibility
       pulls->SetMinimum(-5);
       pulls->SetMaximum(5);
