@@ -345,6 +345,8 @@ void analysis::Loop()
     //                      );
 
     TMatrixDSym cov;
+
+    cov.Print();
     std::pair<std::vector<double>,std::vector<double>> FITres = fit_binned_TotalSpectrum(
                             {0.021, 0.654, 0.043, 0.001, 1., tot_mass_DATA->GetEntries()}, 
                             tot_mass_DATA, 

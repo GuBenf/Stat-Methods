@@ -478,7 +478,14 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
 
     TFitResultPtr r = h_time->Fit(fit_tf1, "LQNS");
 
-    cov_out = r->GetCovarianceMatrix();
+    //cov_out = r->GetCovarianceMatrix();
+
+    TMatrixDSym tmpCov = r->GetCovarianceMatrix();
+    cov_out.ResizeTo(tmpCov);
+    cov_out = tmpCov;
+
+    cov_out.Print();
+
     double chi2 = fit_tf1->GetChisquare();
     int ndf     = fit_tf1->GetNDF();
     double prob = fit_tf1->GetProb();
