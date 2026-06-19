@@ -391,13 +391,61 @@ void analysis::Loop()
         pow(SIGMA_EFF_Ds_PhiPi       / EFF_Ds_PhiPi,       2) +
         pow(SIGMA_EFF_D_PhiPi        / EFF_D_PhiPi,        2)
     );
-    double r_phipi_theo = 834/353 * 2.69e-3/2.25e-2;
+
+    std::cout << "r_phipi = " << r_phipi << " +/- sigma_r = " << err_r_phipi << std::endl;
+
+    double s_pp_D = 834.0;
+    double s_pp_Ds = 353.0;
+    double B_Dphipi = 2.69e-3;
+    double B_Dsphipi = 2.25e-2;
+    // double r_phipi_theo = s_pp_D/s_pp_Ds * B_Dphipi/B_Dsphipi;
+
+    // asymmetric uncertainties on C
+    double sigma_s_pp_D = TMath::Sqrt(2.*2.+78.*78.);
+    double sigma_s_pp_Ds = TMath::Sqrt(9.*9.+76.*76.);
+    double sigma_Dphipi_p = 0.07e-3;
+    double sigma_Dphipi_m = 0.08e-3;
+    double sigma_Dsphipi = 0.05e-2;
+
+    double r = (s_pp_D * B_Dphipi) / (s_pp_Ds * B_Dsphipi);
+
+    // Relative uncertainties
+    double rel_s_pp_D = sigma_s_pp_D / s_pp_D;
+    double rel_s_pp_Ds = sigma_s_pp_Ds / s_pp_Ds;
+
+    double rel_B_Dphipi_plus  = sigma_Dphipi_p  / B_Dphipi;
+    double rel_B_Dphipi_minus = sigma_Dphipi_m / B_Dphipi;
+
+    double rel_Dsphipi = sigma_Dsphipi / B_Dsphipi;
+
+    // Positive uncertainty
+    double rel_r_plus =
+        TMath::Sqrt(
+            rel_s_pp_D*rel_s_pp_D +
+            rel_s_pp_Ds*rel_s_pp_Ds +
+            rel_B_Dphipi_plus*rel_B_Dphipi_plus +
+            rel_Dsphipi*rel_Dsphipi
+        );
+
+    // Negative uncertainty
+    double rel_r_minus =
+        TMath::Sqrt(
+            rel_s_pp_D*rel_s_pp_D +
+            rel_s_pp_Ds*rel_s_pp_Ds +
+            rel_B_Dphipi_minus*rel_B_Dphipi_minus +
+            rel_Dsphipi*rel_Dsphipi
+        );
+
+    double sigma_r_plus  = r * rel_r_plus;
+    double sigma_r_minus = r * rel_r_minus;
+
+    std::cout << "rtheo = " << r << std::endl;
+    std::cout << "+sigma_r = " << sigma_r_plus << std::endl;
+    std::cout << "-sigma_r = " << sigma_r_minus << std::endl;
 
     //double BR = ..;
 
     //double rtau = ..;
-
-    cout << "R_PhiPi " << r_phipi << " +/- " << err_r_phipi << "  th:  " << r_phipi_theo << endl;
 
 
     double s  = f_Sig_fromFIT;
