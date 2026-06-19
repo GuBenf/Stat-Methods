@@ -480,14 +480,29 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
     pars_fit_res.push_back(ndf);
     pars_fit_res.push_back(prob);
 
+    Double_t n_evt_from_fit = pars[5];
+
     std::pair<std::vector<double>,std::vector<double>> fit_res = {pars_fit_res,pars_err_fit_res};
 
       std::vector<double> x_points;
       std::vector<double> y_points;
 
+      std::vector<double> x_no_blind;
+      std::vector<double> y_D_PhiPi;
+      std::vector<double> y_DS_PhiPi;
+      std::vector<double> y_DS_PhiMuNu;
+      std::vector<double> y_Combinatorial;
+      
+
       for(int xi=0; xi<10000; xi++)
       { 
             double x = xmin + xi * (xmax-xmin)/10000;
+
+            x_no_blind.push_back(x);
+            y_D_PhiPi.push_back(_pdf_proj_invariant_mass(&x,par_D_PhiPi,int(n_evt_from_fit*pars[0]),h_time->GetBinWidth(1)));
+            y_DS_PhiPi.push_back(_pdf_proj_invariant_mass(&x,par_DS_PhiPi,int(n_evt_from_fit*pars[2]),h_time->GetBinWidth(1)));
+            y_DS_PhiMuNu.push_back(_pdf_proj_argus(&x,par_DS_PhiMuNu,int(n_evt_from_fit*pars[1]),h_time->GetBinWidth(1)));
+            y_Combinatorial.push_back(_pdf_proj_combinatorial(&x,&pars[4],int(n_evt_from_fit*(1 - pars[0] - pars[1] - pars[2] - pars[3])),h_time->GetBinWidth(1)));
 
             if(TMath::Abs(x - 1.77699) <= 5 * 0.00581298)continue; //BLINDING
 
@@ -496,6 +511,11 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       }
 
       TGraph * fit_function_plot = new TGraph(x_points.size(),x_points.data(),y_points.data());
+
+      TGraph * fit_D_PhiPi = new TGraph(x_no_blind.size(),x_no_blind.data(),y_D_PhiPi.data());
+      TGraph * fit_DS_PhiPi = new TGraph(x_no_blind.size(),x_no_blind.data(),y_DS_PhiPi.data());
+      TGraph * fit_DS_PhiMuNu = new TGraph(x_no_blind.size(),x_no_blind.data(),y_DS_PhiMuNu.data());
+      TGraph * fit_combinatorial = new TGraph(x_no_blind.size(),x_no_blind.data(),y_Combinatorial.data());
 
       TCanvas *c_fit = new TCanvas(Form("fit_%s",name.c_str()), "");
       c_fit->cd();
@@ -529,6 +549,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       h_plot ->GetYaxis() -> SetTitleOffset(0.85);
       h_plot->GetYaxis()->SetTitleSize(0.06);
       h_plot->GetYaxis()->SetLabelSize(0.05);
+      h_plot->GetYaxis() -> SetTitle("Counts / 0.0025 GeV");
       h_plot->Draw("PE");
       
       // overlay fit
@@ -537,6 +558,37 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       fit_function_plot->SetMarkerColor(kRed);
       fit_function_plot->SetLineWidth(2);
       fit_function_plot->Draw("L SAME");
+
+      fit_D_PhiPi->Draw("L SAME");
+      fit_D_PhiPi->SetLineColor(kViolet);
+      fit_D_PhiPi->SetLineStyle(kDashed);
+      fit_D_PhiPi->SetMarkerColor(kWhite);
+      fit_D_PhiPi->SetLineWidth(2);
+      fit_DS_PhiPi->Draw("L SAME");
+      fit_DS_PhiPi->SetLineColor(kOrange);
+      fit_DS_PhiPi->SetLineStyle(kDashed);
+      fit_DS_PhiPi->SetMarkerColor(kWhite);
+      fit_DS_PhiPi->SetLineWidth(2);
+      fit_DS_PhiMuNu->Draw("L SAME");
+      fit_DS_PhiMuNu->SetLineColor(kBlue);
+      fit_DS_PhiMuNu->SetLineStyle(kDashed);
+      fit_DS_PhiMuNu->SetMarkerColor(kWhite);
+      fit_DS_PhiMuNu->SetLineWidth(2);
+      fit_combinatorial->Draw("L SAME");
+      fit_combinatorial->SetLineColor(kGreen);
+      fit_combinatorial->SetLineStyle(kDashed);
+      fit_combinatorial->SetMarkerColor(kWhite);
+      fit_combinatorial->SetLineWidth(2);
+
+
+      TLegend *l = new TLegend(0.15,0.25,0.4,0.45);
+      l->AddEntry(fit_function_plot,"total fit");
+      l->AddEntry(fit_D_PhiPi,"D\\rightarrow\\phi\\pi");
+      l->AddEntry(fit_DS_PhiPi,"D_{S}\\rightarrow\\phi\\pi");
+      l->AddEntry(fit_DS_PhiMuNu,"D_{S}\\rightarrow\\phi\\mu\\nu_{\\mu}");
+      l->AddEntry(fit_combinatorial,"exponential bkg.");
+      l-> SetTextSize(0.04);
+      l->Draw("SAME");
 
       // IMPORTANT: go back to canvas
       c_fit->cd();
@@ -597,6 +649,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       pulls -> GetXaxis()-> SetTitleSize(0.13);
       pulls -> GetYaxis()-> SetLabelSize(0.11);
       pulls -> GetXaxis()-> SetLabelSize(0.11);
+      pulls -> GetXaxis()->SetTitle("Invariant mass [GeV]");
       pulls->Draw("APE");
             
       // optional: axis range for visibility
@@ -618,7 +671,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
 
       file -> cd();
       c_fit -> Write();
-      //c_fit -> SaveAs("PLOT_REPORT/FIT_BKG_TIME.pdf");
+      c_fit -> SaveAs("FIT_DATA_BLINDED.pdf");
 
 
       return fit_res;

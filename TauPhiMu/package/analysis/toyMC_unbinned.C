@@ -194,8 +194,8 @@ using namespace std;
 void toy() 
 {
 
-  TFile * outfile = TFile::Open("outfile_def_band.root","RECREATE");
-  TFile * dummy = TFile::Open("dummy_def_band.root","RECREATE");
+  TFile * outfile = TFile::Open("outfile.root","RECREATE");
+  TFile * dummy = TFile::Open("dummy.root","RECREATE");
   // TFile * data = TFile::Open("data.root","RECREATE");
 
   // TTree *tree = new TTree("sim_tree", "Simulation Tree");
@@ -212,7 +212,7 @@ void toy()
   const int nBins = N_BINS_TOY;
   const double binWidth = BIN_WIDTH_TOY;
 
-  const int nToys = 10000;
+  const int nToys = 100000;
 
   const double nTotTrue = 74439; // 1000.0;
 
@@ -228,9 +228,10 @@ void toy()
   std::vector<double> upper_belt_RTau;
   std::vector<double> f_sig_belt_RTau;
 
-
+/*
   ifstream summary_band("summary_band.txt");
   std::string line;
+  std::getline(summary_band, line);
   std::getline(summary_band, line);
   while(std::getline(summary_band,line))
   {
@@ -261,9 +262,9 @@ void toy()
     f_sig_belt_RTau.push_back(r_tau_true);
 
   }
+*/
 
 
-/*
 double m;
 // tree->Branch("m", &m);
 
@@ -271,8 +272,9 @@ int point = -1;
 
 TH1D *h_likelihood_ratio_sensitivity = new TH1D("h_likelihood_ratio_sensitivity","",80,0.,10.);
 
-for(Double_t fSigTrue = 0.0019; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
+//for(Double_t fSigTrue = 0.0019; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
 //for(Double_t fSigTrue = 0.0001; fSigTrue <= 0.005; fSigTrue += f_Sig_STEP)
+for(Double_t fSigTrue = 0.0; fSigTrue < f_Sig_STEP; fSigTrue += f_Sig_STEP)
 {
 
   std::vector<double> fsig;
@@ -590,8 +592,9 @@ for(Double_t fSigTrue = 0.0019; fSigTrue < 0.003; fSigTrue += f_Sig_STEP)
 
 }
 
-*/
 
+
+/*
 
 // data->cd();
 // tree->Write();
@@ -606,24 +609,40 @@ TGraph * g_upper_belt = new TGraph(upper_belt.size(),f_sig_belt.data(),upper_bel
 TCanvas *c_belt = new TCanvas("c_belt","");
 c_belt->cd();
 g_lower_belt->SetMarkerStyle(7);
-g_lower_belt->SetMarkerSize(2);
+g_lower_belt->SetMarkerSize(1.5);
+g_lower_belt->SetLineColor(kOrange);
+g_lower_belt->SetLineWidth(3);
+
 g_upper_belt->SetMarkerStyle(7);
-g_upper_belt->SetMarkerSize(2);
+g_upper_belt->SetMarkerSize(1.5);
+g_upper_belt->SetLineColor(kOrange);
+g_upper_belt->SetLineWidth(3);
+
+
 //s_lower_belt->SetLineColor(kBlue);
 //s_upper_belt->SetLineColor(kOrange);
 //s_lower_belt->SetLineWidth(2);
 //s_upper_belt->SetLineWidth(2);
-g_upper_belt->Draw("AP");
-g_lower_belt->Draw("SAME");
+
+g_upper_belt->Draw("APL");
+g_lower_belt->Draw("SAME PL");
+
+g_upper_belt->GetYaxis()->SetTitle("\\text{Acceptance} \\text{interval} f_{\\tau\\rightarrow\\phi\\mu}");
+g_upper_belt->GetXaxis()->SetTitle("\\text{Simulated} f_{\\tau\\rightarrow\\phi\\mu}");
+
 //s_lower_belt->Draw("SAME");
 //s_upper_belt->Draw("SAME");
-g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
+
+//g_upper_belt->SetMinimum(lower_belt.data()[0]-0.1*lower_belt.data()[0]);
+g_upper_belt->SetMinimum(-3.5e-3);
+g_upper_belt->SetMaximum(4.6e-3);
+c_belt->Write();
 
 g_lower_belt->Write("f_sig_g_lower_belt");
 g_upper_belt->Write("f_sig_g_upper_belt");
 //s_lower_belt->Write("f_sig_s_lower_belt");
 //s_upper_belt->Write("f_sig_s_upper_belt");
-c_belt->Write();
+
 
 TGraph * g_lower_belt_BR = new TGraph(lower_belt_BR.size(),f_sig_belt_BR.data(),lower_belt_BR.data());
 TGraph * g_upper_belt_BR = new TGraph(upper_belt_BR.size(),f_sig_belt_BR.data(),upper_belt_BR.data());
@@ -633,47 +652,78 @@ TGraph * g_upper_belt_BR = new TGraph(upper_belt_BR.size(),f_sig_belt_BR.data(),
 
 TCanvas *c_belt_BR = new TCanvas("c_belt_BR","");
 c_belt_BR->cd();
+
 g_lower_belt_BR->SetMarkerStyle(7);
-g_lower_belt_BR->SetMarkerSize(2);
+g_lower_belt_BR->SetMarkerSize(1.5);
+g_lower_belt_BR->SetLineWidth(3);
+g_lower_belt_BR->SetLineColor(kAzure-3);
+
 g_upper_belt_BR->SetMarkerStyle(7);
-g_upper_belt_BR->SetMarkerSize(2);
+g_upper_belt_BR->SetMarkerSize(1.5);
+g_upper_belt_BR->SetLineWidth(3);
+g_upper_belt_BR->SetLineColor(kAzure-3);
+
 //s_lower_belt_BR->SetLineColor(kBlue);
 //s_upper_belt_BR->SetLineColor(kOrange);
 //s_lower_belt_BR->SetLineWidth(2);
 //s_upper_belt_BR->SetLineWidth(2);
-g_upper_belt_BR->Draw("AP");
-g_lower_belt_BR->Draw("SAME");
+
+g_upper_belt_BR->SetMinimum(-600e-6);
+g_upper_belt_BR->SetMaximum(700e-6);
+
+g_upper_belt_BR->GetYaxis()->SetTitle("\\text{Acceptance} \\text{interval} BR(\\tau\\rightarrow\\phi\\mu)");
+g_upper_belt_BR->GetXaxis()->SetTitle("\\text{Simulated} BR(\\tau\\rightarrow\\phi\\mu)");
+
+
+g_upper_belt_BR->Draw("ALP");
+g_lower_belt_BR->Draw("SAME LP");
 //s_lower_belt_BR->Draw("SAME");
 //s_upper_belt_BR->Draw("SAME");
-g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
+//g_upper_belt_BR->SetMinimum(lower_belt_BR.data()[0]*1.1);
+
+c_belt_BR->Write();
 
 g_lower_belt_BR->Write("g_lower_belt_BR");
 g_upper_belt_BR->Write("g_upper_belt_BR");
 //s_lower_belt_BR->Write("s_lower_belt_BR");
 //s_upper_belt_BR->Write("s_upper_belt_BR");
-c_belt_BR->Write();
+
 
 TGraph * g_lower_belt_RTau = new TGraph(lower_belt_RTau.size(),f_sig_belt_RTau.data(),lower_belt_RTau.data());
 TGraph * g_upper_belt_RTau = new TGraph(upper_belt_RTau.size(),f_sig_belt_RTau.data(),upper_belt_RTau.data());
 
-TSpline3 *s_lower_belt_RTau = new TSpline3("spline_lower_belt_RTau",g_lower_belt_RTau);
-TSpline3 *s_upper_belt_RTau = new TSpline3("spline_upper_belt_RTau",g_upper_belt_RTau);
+//TSpline3 *s_lower_belt_RTau = new TSpline3("spline_lower_belt_RTau",g_lower_belt_RTau);
+//TSpline3 *s_upper_belt_RTau = new TSpline3("spline_upper_belt_RTau",g_upper_belt_RTau);
 
 TCanvas *c_belt_RTau = new TCanvas("c_belt_RTau","");
 c_belt_RTau->cd();
 g_lower_belt_RTau->SetMarkerStyle(7);
-g_lower_belt_RTau->SetMarkerSize(2);
+g_lower_belt_RTau->SetMarkerSize(1.5);
+g_lower_belt_RTau->SetLineColor(kGreen);
+g_lower_belt_RTau->SetLineWidth(3);
+
 g_upper_belt_RTau->SetMarkerStyle(7);
-g_upper_belt_RTau->SetMarkerSize(2);
+g_upper_belt_RTau->SetMarkerSize(1.5);
+g_upper_belt_RTau->SetLineColor(kGreen);
+g_upper_belt_RTau->SetLineWidth(3);
+
 //s_lower_belt_RTau->SetLineColor(kBlue);
 //s_upper_belt_RTau->SetLineColor(kOrange);
 //s_lower_belt_RTau->SetLineWidth(2);
 //s_upper_belt_RTau->SetLineWidth(2);
-g_upper_belt_RTau->Draw("AP");
-g_lower_belt_RTau->Draw("SAME");
-//s_lower_belt_RTau->Draw("SAME");
+
+g_upper_belt_RTau->GetYaxis()->SetTitle("\\text{Acceptance} \\text{interval} R_{\\tau}");
+g_upper_belt_RTau->GetXaxis()->SetTitle("\\text{Simulated} R_{\\tau}");
+
+g_upper_belt_RTau->Draw("APL");
+g_lower_belt_RTau->Draw("SAME PL");
+
 //s_upper_belt_RTau->Draw("SAME");
-g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+//s_lower_belt_RTau->Draw("SAME");
+//g_upper_belt_RTau->SetMinimum(lower_belt_RTau.data()[0]*1.1);
+
+g_upper_belt_RTau->SetMinimum(-1.5e-3);
+g_upper_belt_RTau->SetMaximum(1.6e-3);
 
 c_belt_RTau->Write();
 
@@ -683,12 +733,31 @@ g_upper_belt_RTau->Write("g_upper_belt_RTau");
 //s_lower_belt_RTau->Write("s_lower_belt_RTau");
 //s_upper_belt_RTau->Write("s_upper_belt_RTau");
 
-//TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.,10.,1);
-//chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());
-//h_likelihood_ratio_sensitivity->Write();
-//chi2_1dof_tf1->Write();
+*/
+
+TF1 *chi2_1dof_tf1 = new TF1("chi2_1dof_tf1",chi2_1dof,0.15,10.,1);
+chi2_1dof_tf1 -> SetParameter(0,h_likelihood_ratio_sensitivity->GetEntries());
+h_likelihood_ratio_sensitivity -> Fit(chi2_1dof_tf1,"NR");
+h_likelihood_ratio_sensitivity->Write();
+chi2_1dof_tf1->Write();
+
+TCanvas *c_sensitivity = new TCanvas("c_sensitivity","");
+c_sensitivity->cd();
+h_likelihood_ratio_sensitivity->Draw("HISTO");
+chi2_1dof_tf1->Draw("SAME");
+chi2_1dof_tf1->SetLineColor(kRed);
+chi2_1dof_tf1->SetLineWidth(2);
+h_likelihood_ratio_sensitivity -> GetXaxis() -> SetTitle("q_0");
+h_likelihood_ratio_sensitivity -> GetYaxis() -> SetTitle("Counts");
+TLegend *l = new TLegend();
+l->AddEntry(chi2_1dof_tf1,"\\chi^2_1");
+l->Draw("SAME");
+
+c_sensitivity->Write();
 
 outfile->Close();
 dummy->Close();
+
+
 
 }
