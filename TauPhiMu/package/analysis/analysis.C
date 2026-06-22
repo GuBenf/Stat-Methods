@@ -20,7 +20,7 @@ int MASS_DS_PLUS_TAU_NU_BINS = 120;
 Double_t TOT_MASS_LOW = 1.6;
 Double_t TOT_MASS_HIGH = 2.1;
 
-int TOT_MASS_BINS = 200;
+int TOT_MASS_BINS = 50;
 
 Double_t TOT_MASS_BIN_WIDTH = (TOT_MASS_HIGH - TOT_MASS_LOW)/TOT_MASS_BINS;
 
@@ -376,6 +376,10 @@ void analysis::Loop()
     Double_t err_f_comb_fromFIT = pars_err_fit_res[4];
 
 
+    cout << "*** UNBLINDING ***" << endl;
+
+    cout << "\n\n" << " f_sig = " << f_Sig_fromFIT << " pm " << err_f_Sig_fromFIT << "\n\n";
+
     cout << "f_D_PhiPi_fromFIT : " << f_D_PhiPi_fromFIT << " pm " << err_f_D_PhiPi_fromFIT << endl;
     cout << "f_Ds_PhiMuNu_fromFIT : " << f_Ds_PhiMuNu_fromFIT << " pm " << err_f_Ds_PhiMuNu_fromFIT << endl;
     cout << "f_Ds_PhiPi_fromFIT : " << f_Ds_PhiPi_fromFIT << " pm " << err_f_Ds_PhiPi_fromFIT << endl;
@@ -504,12 +508,13 @@ void analysis::Loop()
 
     Double_t LR;
 
-    /* // --> BLINDING
+     // --> BLINDING
 
-    double BR = ( f_Sig_fromFIT / ((1 - f_Sig_fromFIT) * f_Ds_PhiMuNu_fromFIT) ) * ( ( sample_val(BR_Ds_PhiMuNu,SIGMA_BR_Ds_PhiMuNu) * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu) ) / ( sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) * sample_val(EFF_Sig,SIGMA_EFF_Sig) ) );
-    Double_t logL = TMath::Log(TMath::Gaus(BR,BR,0.000890334,1));
+    //double BR_other = ( f_Sig_fromFIT / ((1 - f_Sig_fromFIT) * f_Ds_PhiMuNu_fromFIT) ) * ( ( sample_val(BR_Ds_PhiMuNu,SIGMA_BR_Ds_PhiMuNu) * sample_val(EFF_Ds_PhiMuNu,SIGMA_EFF_Ds_PhiMuNu) ) / ( sample_val(BR_Ds_TauNu,SIGMA_BR_Ds_TauNu) * sample_val(EFF_Sig,SIGMA_EFF_Sig) ) );
+    //cout << "BR_other " << BR_other << endl;
+    Double_t logL = TMath::Log(TMath::Gaus(BR,BR,0.00012541,1));
 
-    Double_t logL_null = TMath::Log(TMath::Gaus(BR,0.,0.000890334,1));
+    Double_t logL_null = TMath::Log(TMath::Gaus(BR,0.,0.00012541,1));
 
     
     if(BR >= 0)
@@ -521,7 +526,7 @@ void analysis::Loop()
     {
       cout << "fSig is negative, there is not sensitivity" << endl;
     }
-    */
+    
   
 
   }
@@ -547,3 +552,22 @@ void analysis::Loop()
   outfile->Close();
 }
 
+//200 bin
+//f_sig = 0.00136576 pm 0.000925538
+//
+//f_D_PhiPi_fromFIT : 0.0214183 pm 0.000961335
+//f_Ds_PhiMuNu_fromFIT : 0.65332 pm 0.0152777
+//f_Ds_PhiPi_fromFIT : 0.0429899 pm 0.00091669
+//f_comb_fromFIT : 1.02535 pm 0.259548
+//chi2 / ndof = 199.938 / 194 = 1.03061 | p value = 0.369874
+//r_phipi = 0.297879 +/- sigma_r = 0.0149503
+//rtheo = 0.282463
+//+sigma_r = 0.0673937
+//-sigma_r = 0.0675163
+//BR = 0.000192487 +/- 0.00013208
+//Rtau = 0.000462538 +/- 0.000316047
+//LR for sensitivity is: 2.35579
+
+//THE P VALUE IS: 0.06461
+//THE SENSITIVITY IN NUMBER IF SIGMA IS: 1.51718
+//THE SENSITIVITY IN THE GAUSSIAN APPROXIMATION IS: 1.53486

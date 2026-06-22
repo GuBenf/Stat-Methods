@@ -529,7 +529,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
             y_DS_PhiMuNu.push_back(_pdf_proj_argus(&x,par_DS_PhiMuNu,int(n_evt_from_fit*pars[1]),h_time->GetBinWidth(1)));
             y_Combinatorial.push_back(_pdf_proj_combinatorial(&x,&pars[4],int(n_evt_from_fit*(1 - pars[0] - pars[1] - pars[2] - pars[3])),h_time->GetBinWidth(1)));
 
-            if(TMath::Abs(x - 1.77699) <= 5 * 0.00581298)continue; //BLINDING
+            //if(TMath::Abs(x - 1.77699) <= 5 * 0.00581298)continue; //BLINDING
 
             x_points.push_back(x);
             y_points.push_back(total_mass_spectrum_pdf_binned(&x,pars));
@@ -562,11 +562,11 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       {
           double x = h_plot->GetBinCenter(i);
 
-          if (fabs(x - 1.77699) <= 5 * 0.00581298)
-          {
-              h_plot->SetBinContent(i, 0);
-              h_plot->SetBinError(i, 0);
-          }
+          //if (fabs(x - 1.77699) <= 5 * 0.00581298)
+          //{
+          //    h_plot->SetBinContent(i, 0);
+          //    h_plot->SetBinError(i, 0);
+          //}
       }
       h_plot->SetLineColor(kBlack);
       h_plot->SetMarkerStyle(8);
@@ -641,7 +641,7 @@ std::pair<std::vector<double>,std::vector<double>> fit_binned_TotalSpectrum(std:
       {
           double x  = h_time->GetBinCenter(i+1);
 
-          if (fabs(x - 1.77699) <= 5 * 0.00581298) continue;
+          //if (fabs(x - 1.77699) <= 5 * 0.00581298) continue;
 
           double y  = h_time->GetBinContent(i+1);
           double ey = h_time->GetBinError(i+1);
